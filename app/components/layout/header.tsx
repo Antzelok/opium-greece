@@ -3,7 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Search, ShoppingBag } from "lucide-react";
+import { IoMenu } from "react-icons/io5";
+import { IoSearch } from "react-icons/io5";
+import { RiShoppingBag3Fill } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,6 +16,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { IoIosSearch } from "react-icons/io";
 
 const navItems = [
   { title: "SHOP ALL", href: "/shop-all" },
@@ -28,7 +31,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navLinkClass =
-    "text-xs font-medium tracking-widest text-neutral-200 hover:text-white transition-colors";
+    "text-sm font-medium tracking-widest text-neutral-200 hover:text-white transition-colors";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-24 bg-black/10 backdrop-blur-lg border-b border-white/5">
@@ -44,7 +47,7 @@ const Header = () => {
                 size="icon"
                 className="text-neutral-200 -ml-2 hover:bg-white/10"
               >
-                <Menu className="h-6 w-6" />
+                <IoMenu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
@@ -106,12 +109,12 @@ const Header = () => {
           </Link>
 
           {/* Icons (Right) */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center">
             <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
-              <Search className="h-5 w-5" />
+              <IoIosSearch className="h-6 w-6" />
             </Button>
             <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
-              <ShoppingBag className="h-5 w-5" />
+              <RiShoppingBag3Fill className="h-6 w-6" />
             </Button>
           </div>
         </div>
@@ -146,14 +149,14 @@ const Header = () => {
               size="icon"
               className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
-              <Search className="h-5 w-5" />
+              <IoSearch className="h-6 w-6" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
-              <ShoppingBag className="h-5 w-5" />
+              <RiShoppingBag3Fill className="h-6 w-6" />
             </Button>
           </div>
         </div>
