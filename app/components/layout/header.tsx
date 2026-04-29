@@ -6,6 +6,7 @@ import Image from "next/image";
 import { IoMenu } from "react-icons/io5";
 import { IoSearch } from "react-icons/io5";
 import { RiShoppingBag3Fill } from "react-icons/ri";
+import { CgProfile } from "react-icons/cg";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,7 +17,6 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { IoIosSearch } from "react-icons/io";
 
 const navItems = [
   { title: "SHOP ALL", href: "/shop-all" },
@@ -36,7 +36,6 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-24 bg-black/10 backdrop-blur-lg border-b border-white/5">
       <nav className="container mx-auto px-4 h-full flex items-center justify-between">
-        
         {/* --- MOBILE LAYOUT (< lg) --- */}
         <div className="flex lg:hidden items-center justify-between w-full">
           {/* Hamburger Menu (Left) */}
@@ -59,7 +58,9 @@ const Header = () => {
               <div className="sr-only">
                 <SheetHeader>
                   <SheetTitle>Opium Greece Menu</SheetTitle>
-                  <SheetDescription>Main navigation for Opium store</SheetDescription>
+                  <SheetDescription>
+                    Main navigation for Opium store
+                  </SheetDescription>
                 </SheetHeader>
               </div>
 
@@ -75,7 +76,7 @@ const Header = () => {
                     className="brightness-110"
                   />
                 </div>
-                
+
                 {/* Mobile Links */}
                 <div className="flex flex-col">
                   {navItems.map((item) => (
@@ -84,7 +85,7 @@ const Header = () => {
                       href={item.href}
                       className={cn(
                         navLinkClass,
-                        "px-6 py-4 text-sm border-b border-white/5 hover:bg-white/5"
+                        "px-6 py-4 text-sm border-b border-white/5 hover:bg-white/5",
                       )}
                       onClick={() => setIsOpen(false)}
                     >
@@ -110,11 +111,27 @@ const Header = () => {
 
           {/* Icons (Right) */}
           <div className="flex items-center">
-            <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
-              <IoIosSearch className="h-6 w-6" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-neutral-200 hover:bg-white/10"
+            >
+              <IoSearch className="h-5! w-5!" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
-              <RiShoppingBag3Fill className="h-6 w-6" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-neutral-200 hover:bg-white/10"
+            >
+              <CgProfile className="h-5! w-5!" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-neutral-200 hover:bg-white/10"
+            >
+              <RiShoppingBag3Fill className="h-5! w-5!" />
             </Button>
           </div>
         </div>
@@ -143,20 +160,27 @@ const Header = () => {
           </div>
 
           {/* Icons (Right) */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center ">
             <Button
               variant="ghost"
               size="icon"
               className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
-              <IoSearch className="h-6 w-6" />
+              <IoSearch className="h-5! w-5!" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-neutral-200 hover:bg-white/10 p-0"
+            >
+              <CgProfile className="h-5! w-5!" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
-              <RiShoppingBag3Fill className="h-6 w-6" />
+              <RiShoppingBag3Fill className="h-5! w-5!" />
             </Button>
           </div>
         </div>
