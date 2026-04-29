@@ -1,15 +1,13 @@
 "use client";
 
-import * as React from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, Search, ShoppingBag } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-// Ορισμός των πλοηγήσεων για εύκολη συντήρηση
 const navItems = [
   { title: "SHOP ALL", href: "/shop-all" },
   { title: "MEN", href: "/men" },
