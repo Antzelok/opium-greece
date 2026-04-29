@@ -5,7 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, Search, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -24,17 +31,18 @@ const Header = () => {
     "text-xs font-medium tracking-widest text-neutral-200 hover:text-white transition-colors";
 
   return (
-    <header className="fixed top-0 left-0 h-25 right-0 z-50 bg-black/10 backdrop-blur-lg bg-cover bg-center ">
-      <nav className="container mx-auto px-4 h-20 flex items-center justify-between ">
+    <header className="fixed top-0 left-0 right-0 z-50 h-24 bg-black/10 backdrop-blur-lg border-b border-white/5">
+      <nav className="container mx-auto px-4 h-full flex items-center justify-between">
+        
         {/* --- MOBILE LAYOUT (< lg) --- */}
         <div className="flex lg:hidden items-center justify-between w-full">
-          {/* Hamburger Menu (Left) - shadcn Sheet */}
+          {/* Hamburger Menu (Left) */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-neutral-200 -ml-2"
+                className="text-neutral-200 -ml-2 hover:bg-white/10"
               >
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
@@ -42,28 +50,38 @@ const Header = () => {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-75 bg-[#0a0a0a] p-0 border-neutral-800"
+              className="w-72 bg-black p-0 border-neutral-800 text-white"
             >
-              <div className="flex flex-col py-6">
+              {/* Accessibility Titles (Hidden) */}
+              <div className="sr-only">
+                <SheetHeader>
+                  <SheetTitle>Opium Greece Menu</SheetTitle>
+                  <SheetDescription>Main navigation for Opium store</SheetDescription>
+                </SheetHeader>
+              </div>
+
+              <div className="flex flex-col py-8">
                 {/* Logo inside mobile menu */}
-                <div className="px-6 mb-8">
+                <div className="px-6 mb-10">
                   <Image
                     src="/opium-logo.jpg"
                     alt="Opium Logo"
                     width={100}
                     height={40}
                     priority
+                    className="brightness-110"
                   />
                 </div>
+                
                 {/* Mobile Links */}
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col">
                   {navItems.map((item) => (
                     <Link
                       key={item.title}
                       href={item.href}
                       className={cn(
                         navLinkClass,
-                        "px-6 py-3 text-sm border-b border-neutral-800/50",
+                        "px-6 py-4 text-sm border-b border-white/5 hover:bg-white/5"
                       )}
                       onClick={() => setIsOpen(false)}
                     >
@@ -80,18 +98,19 @@ const Header = () => {
             <Image
               src="/opium-logo.jpg"
               alt="Opium Logo"
-              width={100}
-              height={40}
+              width={90}
+              height={35}
               priority
+              className="brightness-110"
             />
           </Link>
 
           {/* Icons (Right) */}
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="text-neutral-200">
+            <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-neutral-200">
+            <Button variant="ghost" size="icon" className="text-neutral-200 hover:bg-white/10">
               <ShoppingBag className="h-5 w-5" />
             </Button>
           </div>
@@ -104,14 +123,15 @@ const Header = () => {
             <Image
               src="/opium-logo.jpg"
               alt="Opium Logo"
-              width={130}
-              height={50}
+              width={120}
+              height={45}
               priority
+              className="brightness-110 hover:opacity-80 transition-opacity"
             />
           </Link>
 
           {/* Navigation Pages (Middle) */}
-          <div className="flex items-center space-x-6 xl:space-x-8">
+          <div className="flex items-center space-x-8 xl:space-x-12">
             {navItems.map((item) => (
               <Link key={item.title} href={item.href} className={navLinkClass}>
                 {item.title}
@@ -120,18 +140,18 @@ const Header = () => {
           </div>
 
           {/* Icons (Right) */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="icon"
-              className="text-neutral-200 hover:text-white hover:bg-neutral-800/50"
+              className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
               <Search className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="text-neutral-200 hover:text-white hover:bg-neutral-800/50"
+              className="text-neutral-200 hover:text-white hover:bg-white/10"
             >
               <ShoppingBag className="h-5 w-5" />
             </Button>
