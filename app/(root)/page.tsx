@@ -11,12 +11,10 @@ export const metadata: Metadata = {
 const HomePage = () => {
   return (
     <>
-      <main className="h-full w-full">
-        <Hero />
-        <StatusBar />
-        <CarouselSection />
-        <StoreLocations />
-      </main>
+      <Hero />
+      <StatusBar />
+      <CarouselSection />
+      <StoreLocations />
     </>
   );
 };

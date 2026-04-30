@@ -33,7 +33,7 @@ const StatusBar = () => {
                   <span className="text-3xl md:text-4xl font-serif text-[#C5A25D] tracking-tight">
                     {stat.value}
                   </span>
-                  <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] text-neutral-400 uppercase">
+                  <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] text-neutral-400">
                     {stat.label}
                   </span>
                 </CardContent>

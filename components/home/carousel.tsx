@@ -36,8 +36,8 @@ const CarouselSection = () => {
             className="space-y-8 order-2 lg:order-1"
           >
             <div className="space-y-4">
-              <span className="text-[#C5A25D] text-[10px] font-bold tracking-[0.4em] uppercase">
-                Our Story
+              <span className="text-[#C5A25D] text-[10px] font-bold tracking-[0.4em]">
+                OUR STORY
               </span>
               <h2 className="text-4xl md:text-5xl font-serif text-white leading-tight">
                 Your Extrait Perfume Journey Starts & Ends Here
@@ -95,7 +95,7 @@ const CarouselSection = () => {
                         src={slide.image}
                         alt={slide.alt}
                         fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                        sizes="(width: 768px) 100vw, 50vw"
                         className="object-cover transition-transform duration-1000 group-hover:scale-105"
                         priority={index === 0}
                         quality={85}
