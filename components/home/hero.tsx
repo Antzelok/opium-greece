@@ -9,7 +9,7 @@ const Hero = () => {
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60"
-        style={{ backgroundImage: "url('/hero-perfume.jpg')" }}
+        style={{ backgroundImage: "url('/hero.jpg')" }}
       >
         <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent" />
       </div>
