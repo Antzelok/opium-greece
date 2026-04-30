@@ -16,7 +16,7 @@ const stats: StatItem[] = [
   { value: "24h", label: "FAST SHIPPING IN GREECE" },
 ];
 
-const StatusBar: React.FC = () => {
+const StatusBar = () => {
   return (
     <section className="bg-black py-16 border-y border-white/5">
       <div className="container mx-auto px-4">

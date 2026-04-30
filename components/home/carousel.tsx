@@ -23,7 +23,7 @@ const slides: SlideItem[] = [
   { image: "/hero.jpg", alt: "Perfume Craftsmanship" },
 ];
 
-const CarouselSection: React.FC = () => {
+const CarouselSection = () => {
   return (
     <section className="py-24 bg-black overflow-hidden">
       <div className="container mx-auto px-6">

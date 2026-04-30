@@ -58,7 +58,7 @@ const stores: Store[] = [
   },
 ];
 
-const StoreLocations: React.FC = () => {
+const StoreLocations = () => {
   return (
     <section className="py-24 bg-black px-6">
       <div className="max-w-7xl mx-auto">
