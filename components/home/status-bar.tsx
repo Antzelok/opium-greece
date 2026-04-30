@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface StatItem {
   value: string;
@@ -9,22 +10,10 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  {
-    value: "1400+",
-    label: "FRAGRANCE CODES",
-  },
-  {
-    value: "40%",
-    label: "OIL CONCENTRATION",
-  },
-  {
-    value: "5000+",
-    label: "HAPPY CUSTOMERS",
-  },
-  {
-    value: "24h",
-    label: "FAST SHIPPING IN GREECE",
-  },
+  { value: "1400+", label: "FRAGRANCE CODES" },
+  { value: "40%", label: "OIL CONCENTRATION" },
+  { value: "5000+", label: "HAPPY CUSTOMERS" },
+  { value: "24h", label: "FAST SHIPPING IN GREECE" },
 ];
 
 const StatusBar: React.FC = () => {
@@ -39,14 +28,17 @@ const StatusBar: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="flex flex-col items-center text-center space-y-2"
             >
-              <span className="text-3xl md:text-4xl font-serif text-[#C5A25D] tracking-tight">
-                {stat.value}
-              </span>
-              <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] text-neutral-400 uppercase">
-                {stat.label}
-              </span>
+              <Card className="bg-transparent border-none shadow-none rounded-none">
+                <CardContent className="flex flex-col items-center text-center p-0 space-y-2">
+                  <span className="text-3xl md:text-4xl font-serif text-[#C5A25D] tracking-tight">
+                    {stat.value}
+                  </span>
+                  <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] text-neutral-400 uppercase">
+                    {stat.label}
+                  </span>
+                </CardContent>
+              </Card>
             </motion.div>
           ))}
         </div>
