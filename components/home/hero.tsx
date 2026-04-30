@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
+    <section className="h-screen w-full overflow-hidden bg-black">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60"
@@ -16,7 +16,7 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative h-full container mx-auto px-6 flex flex-col justify-center">
-        <div className="max-w-2xl space-y-8">
+        <div className="w-full space-y-8">
           {/* Top Label */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

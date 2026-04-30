@@ -4,7 +4,7 @@ import StatusBar from "@/components/home/status-bar";
 const HomePage = () => {
   return (
     <>
-      <main className="min-h-screen">
+      <main className="h-full w-full">
         <Hero />
         <StatusBar />
       </main>
