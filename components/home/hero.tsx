@@ -1,21 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
-    <section className="h-screen w-full overflow-hidden bg-black">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60"
-        style={{ backgroundImage: "url('/hero.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent" />
+    <section className="relative h-screen w-full overflow-hidden bg-black">
+      {/* Background Image με Next/Image */}
+      <div className="absolute inset-0 z-0 opacity-60">
+        <Image
+          src="/hero.jpg"
+          alt="Opium Luxury Fragrance Hero"
+          fill
+          priority
+          className="object-cover object-center"
+          quality={90}
+        />
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent z-10" />
       </div>
 
       {/* Content */}
-      <div className="relative h-full container mx-auto px-6 flex flex-col justify-center">
+      <div className="relative z-20 h-full container mx-auto px-6 flex flex-col justify-center">
         <div className="w-full space-y-8">
           {/* Top Label */}
           <motion.div
@@ -71,9 +78,13 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll Indicator (Προαιρετικό - για Senior Look) */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-        <div className="w-px h-12 bg-linear-to-b from-[#C5A25D] to-transparent" />
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="w-px h-12 bg-linear-to-b from-[#C5A25D] to-transparent"
+        />
       </div>
     </section>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
@@ -91,13 +90,15 @@ const CarouselSection = () => {
               <CarouselContent>
                 {slides.map((slide, index) => (
                   <CarouselItem key={index}>
-                    <div className="relative aspect-video w-full overflow-hidden">
+                    <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
                       <Image
                         src={slide.image}
                         alt={slide.alt}
                         fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover transition-transform duration-1000 group-hover:scale-105"
                         priority={index === 0}
+                        quality={85}
                       />
                     </div>
                   </CarouselItem>
@@ -106,8 +107,8 @@ const CarouselSection = () => {
 
               {/* Navigation Controls - Hidden on mobile, visible on hover desktop */}
               <div className="absolute bottom-6 right-12 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <CarouselPrevious className="relative left-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all" />
-                <CarouselNext className="relative right-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all" />
+                <CarouselPrevious className="relative left-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all outline-none" />
+                <CarouselNext className="relative right-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all outline-none" />
               </div>
             </Carousel>
           </motion.div>
