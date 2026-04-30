@@ -19,9 +19,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "SHOP ALL", href: "/shop-all" },
-  { title: "MEN", href: "/men" },
-  { title: "WOMEN", href: "/women" },
+  { title: "ALL", href: "/shop-all" },
+  { title: "FOR HIM", href: "/forhim" },
+  { title: "FOR HER", href: "/forher" },
   { title: "NICHE", href: "/niche" },
   { title: "MYSTERY-BOX", href: "/mystery-box" },
   { title: "STORES", href: "/stores" },
