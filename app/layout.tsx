@@ -1,12 +1,12 @@
 import { Inter } from "next/font/google";
-import "./globals.css"
+import "./globals.css";
 import { APP_NAME, APP_DESCRIPTION, SERVER_URL } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: {
-    template: `%s | Prostore`,
+    template: `%s | Opium - Greece`,
     default: APP_NAME,
   },
   description: APP_DESCRIPTION,
