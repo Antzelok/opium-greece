@@ -12,6 +12,7 @@ const Hero = () => {
         <Image
           src="/hero.jpg"
           alt="Opium Luxury Fragrance Hero"
+          sizes="100vw"
           fill
           priority
           className="object-cover object-center"
