@@ -106,6 +106,7 @@ const Header = () => {
               height={35}
               priority
               className="brightness-110"
+              style={{ height: "auto", width: "auto" }}
             />
           </Link>
 
@@ -147,6 +148,7 @@ const Header = () => {
               height={45}
               priority
               className="brightness-110 hover:opacity-80 transition-opacity"
+              style={{ height: "auto", width: "auto" }}
             />
           </Link>
 
