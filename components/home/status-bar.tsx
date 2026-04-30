@@ -3,13 +3,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-// 1. Ορισμός του Interface για τα δεδομένα μας
 interface StatItem {
   value: string;
   label: string;
 }
 
-// 2. Τα δεδομένα μας με ρητό τύπο StatItem[]
 const stats: StatItem[] = [
   {
     value: "1400+",
