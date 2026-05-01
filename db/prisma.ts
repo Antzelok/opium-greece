@@ -6,7 +6,7 @@ import {
   Order,
   OrderItem,
   ProductVariant,
-} from "../lib/generated/prisma";
+} from "@prisma/client";
 import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
