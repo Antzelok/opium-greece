@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
+    <section className="relative h-dvh w-full overflow-hidden bg-black">
       {/* Background Image με Next/Image */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Image
