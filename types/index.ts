@@ -12,18 +12,11 @@ import {
 
 // --- PRODUCT TYPES ---
 
-/**
- * ProductVariant: Αντιπροσωπεύει μια συγκεκριμένη έκδοση προϊόντος (π.χ. Perfume 100ml).
- * Περιλαμβάνει τα πεδία από τον validator συν τα IDs από τη βάση.
- */
 export type ProductVariant = z.infer<typeof insertProductVariantSchema> & {
   id: string;
   productId: string;
 };
 
-/**
- * Product: Το κύριο προϊόν (π.χ. ένα συγκεκριμένο άρωμα) με όλα τα διαθέσιμα variants του.
- */
 export type Product = z.infer<typeof insertProductSchema> & {
   id: string;
   createdAt: Date;

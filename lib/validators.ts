@@ -34,12 +34,12 @@ export const insertProductSchema = z.object({
 });
 
 // --- CART SCHEMAS ---
-
 export const cartItemSchema = z.object({
   variantId: z.string().min(1, "Variant ID is required"),
   productId: z.string().min(1, "Product ID is required"),
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
+  category: z.string().min(1, "Category is required"),
   qty: z.number().int().nonnegative(),
   image: z.string().min(1, "Image is required"),
   price: currency,
@@ -86,7 +86,6 @@ export const insertOrderItemSchema = z.object({
 });
 
 // --- PAYMENT SCHEMAS ---
-
 export const paymentResultSchema = z.object({
   id: z.string(),
   status: z.string(),
@@ -95,7 +94,6 @@ export const paymentResultSchema = z.object({
 });
 
 // --- AUTH & PROFILE ---
-
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
