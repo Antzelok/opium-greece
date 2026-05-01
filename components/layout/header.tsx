@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "ALL", href: "/shop-all" },
-  { title: "FOR HIM", href: "/forhim" },
-  { title: "FOR HER", href: "/forher" },
+  { title: "FOR HIM", href: "/for-him" },
+  { title: "FOR HER", href: "/for-her" },
   { title: "NICHE", href: "/niche" },
   { title: "MYSTERY-BOX", href: "/mystery-box" },
   { title: "STORES", href: "/stores" },
