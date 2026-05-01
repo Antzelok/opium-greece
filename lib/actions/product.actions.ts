@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { insertProductSchema } from "../validators";
 import z from "zod";
 import { Prisma } from "@prisma/client";
+import { Product } from "@/types";
 
 // Get latest products with their variants
 export async function getLatestProducts() {
@@ -16,6 +17,24 @@ export async function getLatestProducts() {
     include: { variants: true },
   });
   return convertToPlainObject(data);
+}
+
+export async function getProductsByCategory(category: string): Promise<Product[]> {
+  const data = await prisma.product.findMany({
+    where: {
+      category: category,
+    },
+    include: {
+      variants: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  // Κάνουμε cast σε unknown και μετά σε Product[] για να "ηρεμήσουμε" το TS
+  // αφού εμπιστευόμαστε ότι η βάση έχει σωστές τιμές λόγω Zod validation στο insert
+  return convertToPlainObject(data) as Product[];
 }
 
 // Get single product by its slug with variants
