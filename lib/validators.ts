@@ -6,47 +6,42 @@ const currency = z.coerce
   .string()
   .refine(
     (value) => /^\d+(\.\d{2})?$/.test(formatNumberWithDecimal(Number(value))),
-    "Η τιμή πρέπει να έχει ακριβώς δύο δεκαδικά ψηφία",
+    "Price must have exactly two decimal places",
   );
 
 // --- PRODUCT & VARIANT SCHEMAS ---
 
 export const insertProductVariantSchema = z.object({
-  name: z.string().min(1, "Το όνομα του variant είναι υποχρεωτικό"),
-  type: z.enum(["SIZE", "ADDON"]),
+  name: z.string().min(1, "Size is required (e.g., 100ml)"),
+  type: z.enum(["Perfume", "Shower Gel", "Beard Oil", "After Shave"], {
+    message: "Please select a valid product type",
+  }),
   price: currency,
 });
 
 export const insertProductSchema = z.object({
-  name: z.string().min(3, "Το όνομα πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  slug: z.string().min(3, "Το slug πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  category: z
-    .string()
-    .min(3, "Η κατηγορία πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  brand: z.string().min(3, "Η μάρκα πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  description: z
-    .string()
-    .min(3, "Η περιγραφή πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  images: z
-    .array(z.string())
-    .min(1, "Το προϊόν πρέπει να έχει τουλάχιστον μία εικόνα"),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters"),
+  category: z.enum(["Men", "Women", "Niche", "Unisex"], {
+    message: "Invalid category",
+  }),
+  brand: z.string().min(3, "Brand must be at least 3 characters"),
+  description: z.string().min(3, "Description must be at least 3 characters"),
+  images: z.array(z.string()).min(1, "At least one image is required"),
   variants: z
     .array(insertProductVariantSchema)
-    .min(1, "Πρέπει να ορίσετε τουλάχιστον μία επιλογή"),
+    .min(1, "At least one variant is required"),
 });
 
 // --- CART SCHEMAS ---
 
 export const cartItemSchema = z.object({
-  variantId: z.string().min(1, "Το Variant ID είναι υποχρεωτικό"),
-  productId: z.string().min(1, "Το Product ID είναι υποχρεωτικό"),
-  name: z.string().min(1, "Το όνομα είναι υποχρεωτικό"),
-  slug: z.string().min(1, "Το slug είναι υποχρεωτικό"),
-  qty: z
-    .number()
-    .int()
-    .nonnegative("Η ποσότητα πρέπει να είναι θετικός αριθμός"),
-  image: z.string().min(1, "Η εικόνα είναι υποχρεωτική"),
+  variantId: z.string().min(1, "Variant ID is required"),
+  productId: z.string().min(1, "Product ID is required"),
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  qty: z.number().int().nonnegative(),
+  image: z.string().min(1, "Image is required"),
   price: currency,
 });
 
@@ -62,12 +57,12 @@ export const insertCartSchema = z.object({
 // --- ORDER SCHEMAS ---
 
 export const shippingAddressSchema = z.object({
-  fullName: z.string().min(3, "Το ονοματεπώνυμο είναι υποχρεωτικό"),
-  streetAddress: z.string().min(3, "Η διεύθυνση είναι υποχρεωτική"),
-  city: z.string().min(3, "Η πόλη είναι υποχρεωτική"),
-  postalCode: z.string().min(3, "Ο ταχυδρομικός κώδικας είναι υποχρεωτικός"),
-  country: z.string().min(3, "Η χώρα είναι υποχρεωτική"),
-  email: z.string().email("Το email είναι απαραίτητο").optional(),
+  fullName: z.string().min(3, "Full name is required"),
+  streetAddress: z.string().min(3, "Address is required"),
+  city: z.string().min(3, "City is required"),
+  postalCode: z.string().min(3, "Postal code is required"),
+  country: z.string().min(3, "Country is required"),
+  email: z.string().email().optional(),
 });
 
 export const insertOrderSchema = z.object({
@@ -76,7 +71,7 @@ export const insertOrderSchema = z.object({
   totalPrice: currency,
   shippingPrice: currency,
   paymentMethod: z.string().refine((data) => PAYMENT_METHODS.includes(data), {
-    message: "Μη έγκυρος τρόπος πληρωμής",
+    message: "Invalid payment method",
   }),
   shippingAddress: shippingAddressSchema,
 });
@@ -102,34 +97,28 @@ export const paymentResultSchema = z.object({
 // --- AUTH & PROFILE ---
 
 export const signInFormSchema = z.object({
-  email: z.string().email("Μη έγκυρο email"),
-  password: z
-    .string()
-    .min(6, "Ο κωδικός πρέπει να είναι τουλάχιστον 6 χαρακτήρες"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export const signUpFormSchema = z
   .object({
-    name: z
-      .string()
-      .min(3, "Το όνομα πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-    email: z.string().email("Μη έγκυρο email"),
-    password: z
-      .string()
-      .min(6, "Ο κωδικός πρέπει να είναι τουλάχιστον 6 χαρακτήρες"),
-    confirmPassword: z.string().min(6, "Επιβεβαιώστε τον κωδικό"),
+    name: z.string().min(3, "Name must be at least 3 characters"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Οι κωδικοί δεν ταιριάζουν",
+    message: "Passwords don't match",
     path: ["confirmPassword"],
   });
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(3, "Το όνομα πρέπει να είναι τουλάχιστον 3 χαρακτήρες"),
-  email: z.string().email("Μη έγκυρο email"),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Invalid email"),
 });
 
 export const updateUserSchema = updateProfileSchema.extend({
-  id: z.string().min(1, "Το ID είναι υποχρεωτικό"),
-  role: z.string().min(1, "Ο ρόλος είναι υποχρεωτικός"),
+  id: z.string().min(1, "ID is required"),
+  role: z.string().min(1, "Role is required"),
 });
