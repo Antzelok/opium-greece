@@ -3,14 +3,13 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { IoMenu, IoSearch } from "react-icons/io5";
+import { IoMenu, IoSearch, IoClose } from "react-icons/io5"; // Χρήση IoClose για ομοιομορφία
 import { CgProfile } from "react-icons/cg";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetHeader,
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
@@ -37,7 +36,7 @@ const Header = ({ cart }: { cart?: Cart }) => {
     <header className="fixed top-0 left-0 right-0 z-50 h-24 bg-black/10 backdrop-blur-lg border-b border-white/5">
       <nav className="container mx-auto px-4 h-full flex items-center justify-between">
         {/* --- MOBILE LAYOUT --- */}
-        <div className="flex lg:hidden items-center justify-between w-full">
+        <div className="flex lg:hidden items-center justify-between w-full relative">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button
@@ -48,41 +47,49 @@ const Header = ({ cart }: { cart?: Cart }) => {
                 <IoMenu className="h-6! w-6!" />
               </Button>
             </SheetTrigger>
+
+            {/* Χρησιμοποιούμε [&>button]:hidden για να σβήσουμε το X της Shadcn */}
             <SheetContent
               side="left"
-              className="w-72 bg-black p-0 border-neutral-800 text-white"
+              className="w-72 bg-black p-0 border-r border-white/5 text-white outline-none [&>button]:hidden"
             >
               <div className="sr-only">
-                <SheetHeader>
-                  <SheetTitle>Opium Greece Menu</SheetTitle>
-                  <SheetDescription>Main navigation</SheetDescription>
-                </SheetHeader>
+                <SheetTitle>Opium Greece Menu</SheetTitle>
+                <SheetDescription>Main navigation</SheetDescription>
               </div>
-              <div className="flex flex-col py-8">
-                <div className="px-6 mb-10">
-                  <Image
-                    src="/opium-logo.jpg"
-                    alt="Logo"
-                    width={100}
-                    height={40}
-                    priority
-                  />
-                </div>
-                <div className="flex flex-col">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.title}
-                      href={item.href}
-                      className={cn(
-                        navLinkClass,
-                        "px-6 py-4 border-b border-white/5",
-                      )}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </div>
+
+              {/* CUSTOM HEADER ΟΠΩΣ ΣΤΟ CART */}
+              <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
+                <Image
+                  src="/opium-logo.jpg"
+                  alt="Logo"
+                  width={100}
+                  height={35}
+                  priority
+                  className="h-auto w-auto"
+                />
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-neutral-500 hover:text-white transition-colors outline-none p-1"
+                >
+                  <IoClose className="h-6! w-6!" />
+                </button>
+              </div>
+
+              <div className="flex flex-col">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className={cn(
+                      navLinkClass,
+                      "px-6 py-5 border-b border-white/5 uppercase",
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.title}
+                  </Link>
+                ))}
               </div>
             </SheetContent>
           </Sheet>
@@ -94,7 +101,7 @@ const Header = ({ cart }: { cart?: Cart }) => {
               width={100}
               height={35}
               priority
-              className="w-auto"
+              className="h-auto w-auto"
             />
           </Link>
 
@@ -113,7 +120,6 @@ const Header = ({ cart }: { cart?: Cart }) => {
             >
               <CgProfile className="h-6! w-6!" />
             </Button>
-            {/* Added CartDrawer for Mobile */}
             <CartDrawer cart={cart} />
           </div>
         </div>
@@ -127,7 +133,7 @@ const Header = ({ cart }: { cart?: Cart }) => {
               width={120}
               height={45}
               priority
-              className="brightness-110 hover:opacity-80 transition-opacity h-auto"
+              className="brightness-110 hover:opacity-80 transition-opacity h-auto w-auto"
             />
           </Link>
 
@@ -143,7 +149,7 @@ const Header = ({ cart }: { cart?: Cart }) => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-neutral-200 hover:text-white hover:bg-white/10"
+              className="text-neutral-200 hover:bg-white/10"
             >
               <IoSearch className="h-6! w-6!" />
             </Button>
