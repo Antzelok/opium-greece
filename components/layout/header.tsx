@@ -98,13 +98,20 @@ const Header = ({ cart }: { cart?: Cart }) => {
             />
           </Link>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
               className="text-neutral-200 hover:bg-white/10"
             >
               <IoSearch className="h-6! w-6!" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-neutral-200 hover:bg-white/10"
+            >
+              <CgProfile className="h-6! w-6!" />
             </Button>
             {/* Added CartDrawer for Mobile */}
             <CartDrawer cart={cart} />
