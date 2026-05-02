@@ -40,9 +40,10 @@ export const cartItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   category: z.string().min(1, "Category is required"),
-  qty: z.number().int().nonnegative(),
   image: z.string().min(1, "Image is required"),
+  brand: z.string().min(1, "Brand is required"),
   price: currency,
+  qty: z.number().int().nonnegative(),
 });
 
 export const insertCartSchema = z.object({
