@@ -15,8 +15,8 @@ const currency = z.coerce
 export const insertProductVariantSchema = z.object({
   // Προαιρετικά IDs για να μην έχουμε σφάλματα στο Seed/Create 
   // αλλά να τα αναγνωρίζει το TS στο Fetch
-  id: z.string().optional(),
-  productId: z.string().optional(),
+  id: z.string().default(""),
+  productId: z.string().default(""),
   
   size: z.string().min(1, "Size is required (e.g., 100ml or Standard)"),
   type: z.enum(["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"], {
@@ -26,7 +26,7 @@ export const insertProductVariantSchema = z.object({
 });
 
 export const insertProductSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().default(""),
   name: z.string().min(3, "Name must be at least 3 characters"),
   slug: z.string().min(3, "Slug must be at least 3 characters"),
   category: z.enum(["Men", "Women", "Niche", "Unisex"], {
@@ -47,7 +47,9 @@ export const cartItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
-  category: z.string().min(1, "Category is required"),
+  category: z.enum(["Men", "Women", "Niche", "Unisex"], {
+    message: "Invalid category",
+  }),
   image: z.string().min(1, "Image is required"),
   brand: z.string().min(1, "Brand is required"),
   price: z.string(), 
