@@ -10,9 +10,11 @@ const sampleData = {
       images: ["/product.jpg"],
       variants: {
         create: [
-          { name: "100ml", type: "Perfume", price: "120.00" },
-          { name: "200ml", type: "Shower Gel", price: "45.00" },
-          { name: "50ml", type: "Beard Oil", price: "35.00" },
+          { size: "30ml", type: "Perfume", price: "75.00" },
+          { size: "50ml", type: "Perfume", price: "95.00" },
+          { size: "100ml", type: "Perfume", price: "120.00" },
+          { size: "Standard", type: "Shower Gel", price: "45.00" },
+          { size: "Standard", type: "Beard Oil", price: "35.00" },
         ],
       },
     },
@@ -25,8 +27,10 @@ const sampleData = {
       images: ["/product.jpg"],
       variants: {
         create: [
-          { name: "50ml", type: "Perfume", price: "95.00" },
-          { name: "90ml", type: "Perfume", price: "140.00" },
+          { size: "30ml", type: "Perfume", price: "70.00" },
+          { size: "50ml", type: "Perfume", price: "95.00" },
+          { size: "90ml", type: "Perfume", price: "140.00" },
+          { size: "Standard", type: "Body Lotion", price: "40.00" },
         ],
       },
     },
@@ -40,21 +44,11 @@ const sampleData = {
       images: ["/product.jpg"],
       variants: {
         create: [
-          { name: "70ml", type: "Perfume", price: "235.00" },
-          { name: "200ml", type: "Perfume", price: "465.00" },
+          { size: "35ml", type: "Perfume", price: "150.00" },
+          { size: "70ml", type: "Perfume", price: "235.00" },
+          { size: "200ml", type: "Perfume", price: "465.00" },
+          { size: "Standard", type: "Body Cream", price: "85.00" },
         ],
-      },
-    },
-    {
-      name: "Aventus",
-      slug: "creed-aventus",
-      category: "Niche",
-      brand: "Creed",
-      description:
-        "The exceptional Aventus was inspired by the dramatic life of a historic emperor.",
-      images: ["/product.jpg"],
-      variants: {
-        create: [{ name: "100ml", type: "Perfume", price: "295.00" }],
       },
     },
     {
@@ -67,43 +61,11 @@ const sampleData = {
       images: ["/product.jpg"],
       variants: {
         create: [
-          { name: "100ml", type: "Perfume", price: "115.00" },
-          { name: "100ml", type: "After Shave", price: "65.00" },
+          { size: "50ml", type: "Perfume", price: "90.00" },
+          { size: "100ml", type: "Perfume", price: "115.00" },
+          { size: "150ml", type: "Perfume", price: "150.00" },
+          { size: "Standard", type: "After Shave", price: "65.00" },
         ],
-      },
-    },
-    {
-      name: "Black Opium",
-      slug: "black-opium",
-      category: "Women",
-      brand: "YSL",
-      description: "A glam rock fragrance full of mystery and energy.",
-      images: ["/product.jpg"],
-      variants: {
-        create: [{ name: "50ml", type: "Perfume", price: "88.00" }],
-      },
-    },
-    {
-      name: "Layton",
-      slug: "parfums-de-marly-layton",
-      category: "Niche",
-      brand: "Parfums de Marly",
-      description: "An addictive composition that infuses ease and nobility.",
-      images: ["/product.jpg"],
-      variants: {
-        create: [{ name: "125ml", type: "Perfume", price: "210.00" }],
-      },
-    },
-    {
-      name: "J’adore",
-      slug: "dior-jadore",
-      category: "Women",
-      brand: "Dior",
-      description:
-        "An iconic fragrance, J’adore Eau de Parfum is the grand feminine floral by the House of Dior.",
-      images: ["/product.jpg"],
-      variants: {
-        create: [{ name: "100ml", type: "Perfume", price: "135.00" }],
       },
     },
     {
@@ -115,21 +77,11 @@ const sampleData = {
       images: ["/product.jpg"],
       variants: {
         create: [
-          { name: "100ml", type: "Perfume", price: "85.00" },
-          { name: "250ml", type: "Shower Gel", price: "30.00" },
+          { size: "30ml", type: "Perfume", price: "55.00" },
+          { size: "50ml", type: "Perfume", price: "70.00" },
+          { size: "100ml", type: "Perfume", price: "85.00" },
+          { size: "Standard", type: "Shower Gel", price: "30.00" },
         ],
-      },
-    },
-    {
-      name: "Santall 33",
-      slug: "le-labo-santal-33",
-      category: "Niche",
-      brand: "Le Labo",
-      description:
-        "A perfume that touches the sensual universality of this myth.",
-      images: ["/product.jpg"],
-      variants: {
-        create: [{ name: "50ml", type: "Perfume", price: "180.00" }],
       },
     },
   ],
