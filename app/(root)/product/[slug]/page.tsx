@@ -2,10 +2,11 @@ import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { getMyCart } from "@/lib/actions/cart.actions";
+import { convertToPlainObject } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import ProductDetails from "./product-details";
-
+import { Product } from "@/types";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-const ProductPage = async ({ params }: Props) => {
+const ProductDetailsPage = async ({ params }: Props) => {
   const { slug } = await params;
   const rawProduct = await getProductBySlug(slug);
   const cart = await getMyCart();
@@ -32,8 +33,24 @@ const ProductPage = async ({ params }: Props) => {
     notFound();
   }
 
-  // Cast to Product type (category is validated in DB)
-  const product = rawProduct as any;
+  // Convert to plain object and ensure proper types
+  const product = convertToPlainObject({
+    id: rawProduct.id,
+    name: rawProduct.name,
+    slug: rawProduct.slug,
+    category: rawProduct.category,
+    brand: rawProduct.brand,
+    description: rawProduct.description,
+    images: rawProduct.images,
+    createdAt: rawProduct.createdAt,
+    variants: rawProduct.variants.map((v) => ({
+      id: v.id,
+      productId: v.productId,
+      size: v.size,
+      type: v.type,
+      price: String(v.price),
+    })),
+  }) as Product;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans p-4 mt-5 md:p-8 selection:bg-[#c5a059]/30">
@@ -53,7 +70,7 @@ const ProductPage = async ({ params }: Props) => {
 
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16">
         {/* Left Side: Product Image */}
-        <div className="relative aspect-[4/5] bg-[#0f0f0f] border border-white/5 flex items-center justify-center p-12">
+        <div className="relative aspect-4/5 bg-[#0f0f0f] border border-white/5 flex items-center justify-center p-12">
           <div className="absolute top-6 left-6 bg-[#c5a059] text-black text-[9px] font-bold px-2.5 py-1 tracking-tighter">
             {product.category.toUpperCase()}
           </div>
@@ -74,4 +91,4 @@ const ProductPage = async ({ params }: Props) => {
   );
 };
 
-export default ProductPage;
+export default ProductDetailsPage;

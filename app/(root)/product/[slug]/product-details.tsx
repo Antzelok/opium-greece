@@ -15,19 +15,18 @@ interface ProductDetailsProps {
   cart?: Cart;
 }
 
-const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
+const ProductDetails = ({ product }: ProductDetailsProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   // Get primary type (most common) - for "Select Size"
-  const primaryType = product.variants.length > 0 
-    ? product.variants[0].type 
-    : "Perfume";
+  const primaryType =
+    product.variants.length > 0 ? product.variants[0].type : "Perfume";
 
   // Group variants by type
   const sizeVariants = product.variants.filter((v) => v.type === primaryType);
@@ -53,7 +52,7 @@ const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
     return sum + Number(variant.price) * quantity;
   }, 0);
 
-  // Handle Add to Cart
+  // handle add to cart
   const handleAddToCart = async () => {
     if (selectedVariants.size === 0) {
       toast.error("Please select at least one size", {
@@ -69,7 +68,8 @@ const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
     const itemsToAdd: CartItem[] = Array.from(selectedVariants)
       .map((variantId) => {
         const variant = product.variants.find((v) => v.id === variantId);
-        if (!variant) return null;
+        // Ensure variant exists and has required fields
+        if (!variant || !product.images?.[0]) return null;
 
         return {
           variantId: variant.id,
@@ -79,9 +79,9 @@ const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
           category: product.category,
           image: product.images[0],
           brand: product.brand,
-          price: variant.price.toString(),
+          price: String(variant.price),
           qty: quantity,
-        };
+        } as CartItem;
       })
       .filter((item): item is CartItem => item !== null);
 
@@ -144,7 +144,7 @@ const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
                   "flex flex-col items-center py-4 border transition-all disabled:opacity-50",
                   isSelected
                     ? "border-[#c5a059] bg-[#c5a059]/5"
-                    : "border-white/10 hover:border-white/30 bg-transparent"
+                    : "border-white/10 hover:border-white/30 bg-transparent",
                 )}
               >
                 <span className="text-xs font-medium">{variant.size}</span>
@@ -159,58 +159,60 @@ const ProductDetails = ({ product, cart }: ProductDetailsProps) => {
 
       {/* Complete Your Set */}
       {extrasVariants.length > 0 && (
-      <div className="space-y-4">
-        <span className="text-[10px] tracking-[0.2em] uppercase text-gray-500 font-semibold">
-          Complete Your Set
-        </span>
-        <div className="divide-y divide-white/5 border-y border-white/5">
-          {extrasVariants.map((variant) => {
-            const active = selectedVariants.has(variant.id);
-            return (
-              <button
-                key={variant.id}
-                onClick={() => toggleVariant(variant.id)}
-                disabled={isPending}
-                className="w-full flex items-center justify-between py-4 group transition-all disabled:opacity-50"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={cn(
-                      "w-4 h-4 border border-white/20 flex items-center justify-center transition-all",
-                      active
-                        ? "bg-[#c5a059] border-[#c5a059]"
-                        : "group-hover:border-[#c5a059]/50"
-                    )}
-                  >
-                    {active && <HiCheck className="text-black text-xs" />}
-                  </div>
-                  <div className="text-left">
-                    <span
+        <div className="space-y-4">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-gray-500 font-semibold">
+            Complete Your Set
+          </span>
+          <div className="divide-y divide-white/5 border-y border-white/5">
+            {extrasVariants.map((variant) => {
+              const active = selectedVariants.has(variant.id);
+              return (
+                <button
+                  key={variant.id}
+                  onClick={() => toggleVariant(variant.id)}
+                  disabled={isPending}
+                  className="w-full flex items-center justify-between py-4 group transition-all disabled:opacity-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div
                       className={cn(
-                        "text-sm transition-colors",
-                        active ? "text-white" : "text-gray-400 group-hover:text-white"
+                        "w-4 h-4 border border-white/20 flex items-center justify-center transition-all",
+                        active
+                          ? "bg-[#c5a059] border-[#c5a059]"
+                          : "group-hover:border-[#c5a059]/50",
                       )}
                     >
-                      {variant.type}
-                    </span>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {variant.size}
-                    </p>
+                      {active && <HiCheck className="text-black text-xs" />}
+                    </div>
+                    <div className="text-left">
+                      <span
+                        className={cn(
+                          "text-sm transition-colors",
+                          active
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-white",
+                        )}
+                      >
+                        {variant.type}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {variant.size}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <span
-                  className={cn(
-                    "text-[11px] font-medium transition-colors",
-                    active ? "text-[#c5a059]" : "text-gray-600"
-                  )}
-                >
-                  +€{Number(variant.price).toFixed(2)}
-                </span>
-              </button>
-            );
-          })}
+                  <span
+                    className={cn(
+                      "text-[11px] font-medium transition-colors",
+                      active ? "text-[#c5a059]" : "text-gray-600",
+                    )}
+                  >
+                    +€{Number(variant.price).toFixed(2)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
       )}
 
       {/* Footer: Quantity & Add to Cart */}
