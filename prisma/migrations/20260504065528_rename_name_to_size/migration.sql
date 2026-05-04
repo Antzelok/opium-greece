@@ -16,7 +16,7 @@ CREATE TABLE "Product" (
 CREATE TABLE "ProductVariant" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "productId" UUID NOT NULL,
-    "name" TEXT NOT NULL,
+    "size" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "price" DECIMAL(12,2) NOT NULL DEFAULT 0,
 

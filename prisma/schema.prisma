@@ -22,8 +22,8 @@ model Product {
 model ProductVariant {
   id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   productId  String      @db.Uuid
-  name       String      // Λειτουργεί ως "Size" (π.χ. 100ml)
-  type       String      // Λειτουργεί ως "Product Type" (π.χ. Perfume, Shower Gel)
+  size       String      
+  type       String      
   price      Decimal     @default(0) @db.Decimal(12, 2)
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
