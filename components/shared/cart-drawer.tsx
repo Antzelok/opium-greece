@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Cart, CartItem } from "@/types";
 import { AddItemToCart, RemoveItemFromCart } from "@/lib/actions/cart.actions";
+import { formatCurrency } from "@/lib/utils";
 
 const CartDrawer = ({ cart }: { cart?: Cart }) => {
   const [open, setOpen] = useState(false);
@@ -66,7 +67,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
 
       <SheetContent
         side="right"
-        className="w-full sm:max-w-110 bg-[#0A0A0A] border-l border-white/5 p-0 flex flex-col outline-none shadow-2xl"
+        className="w-full sm:max-w-md bg-[#0A0A0A] border-l border-white/5 p-0 flex flex-col outline-none shadow-2xl"
       >
         <div className="sr-only">
           <SheetTitle>Shopping Cart</SheetTitle>
@@ -130,7 +131,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                         </p>
                       </div>
                       <p className="text-white text-xs font-light">
-                        €{item.price}
+                        {formatCurrency(item.price)}
                       </p>
                     </div>
 
@@ -170,7 +171,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                 Subtotal
               </span>
               <span className="text-white text-sm font-medium italic tracking-tighter">
-                €{cart?.itemsPrice}
+                {formatCurrency(cart?.itemsPrice || 0)}
               </span>
             </div>
             <Button
