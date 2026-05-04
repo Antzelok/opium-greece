@@ -13,14 +13,11 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props) {
-  const { slug } = await params;
-  const product = await getProductBySlug(slug);
-
-  if (!product) return { title: "Product Not Found" };
+  const product = await getProductBySlug((await params).slug);
 
   return {
-    title: product.name,
-    description: product.description,
+    title: product?.name,
+    description: product?.description,
   };
 }
 

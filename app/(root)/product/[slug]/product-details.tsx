@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { HiPlus, HiMinus, HiCheck } from "react-icons/hi";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           name: product.name,
           slug: product.slug,
           category: product.category,
+          type: variant.type,
           image: product.images[0],
           brand: product.brand,
           price: String(variant.price),
