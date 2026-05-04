@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { HiPlus, HiMinus, HiCheck } from "react-icons/hi";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Product, Cart, CartItem } from "@/types";
+import { cn, formatCurrency } from "@/lib/utils";
+import { Product, CartItem, Cart } from "@/types";
 import { AddMultipleItemsToCart } from "@/lib/actions/cart.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -24,15 +24,12 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     new Set(),
   );
 
-  // Get primary type (most common) - for "Select Size"
+  // Διαχωρισμός variants (π.χ. Perfumes vs Samples/Extras)
   const primaryType =
     product.variants.length > 0 ? product.variants[0].type : "Perfume";
-
-  // Group variants by type
   const sizeVariants = product.variants.filter((v) => v.type === primaryType);
   const extrasVariants = product.variants.filter((v) => v.type !== primaryType);
 
-  // Toggle variant selection
   const toggleVariant = (variantId: string) => {
     setSelectedVariants((prev) => {
       const updated = new Set(prev);
@@ -45,14 +42,12 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     });
   };
 
-  // Calculate total price
   const totalPrice = Array.from(selectedVariants).reduce((sum, variantId) => {
     const variant = product.variants.find((v) => v.id === variantId);
     if (!variant) return sum;
     return sum + Number(variant.price) * quantity;
   }, 0);
 
-  // handle add to cart
   const handleAddToCart = async () => {
     if (selectedVariants.size === 0) {
       toast.error("Please select at least one size", {
@@ -68,7 +63,6 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     const itemsToAdd: CartItem[] = Array.from(selectedVariants)
       .map((variantId) => {
         const variant = product.variants.find((v) => v.id === variantId);
-        // Ensure variant exists and has required fields
         if (!variant || !product.images?.[0]) return null;
 
         return {
@@ -88,52 +82,35 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
 
     startTransition(async () => {
       const res = await AddMultipleItemsToCart(itemsToAdd);
-
       if (!res.success) {
-        toast.error(res.message, {
-          style: {
-            background: "#0A0A0A",
-            color: "#C5A25D",
-            border: "1px solid #C5A25D",
-          },
-        });
+        toast.error(res.message);
         return;
       }
-
-      toast.success(res.message, {
-        style: {
-          background: "#0A0A0A",
-          color: "#C5A25D",
-          border: "1px solid #C5A25D",
-        },
-      });
-
+      toast.success(res.message);
       router.refresh();
-
-      // Reset selections
       setSelectedVariants(new Set());
       setQuantity(1);
     });
   };
 
   return (
-    <div className="flex flex-col space-y-10">
+    <div className="flex flex-col space-y-8 md:space-y-10">
       {/* Title & Description */}
-      <div>
-        <h2 className="text-6xl font-serif mb-6 tracking-tight">
+      <div className="space-y-4">
+        <h2 className="text-4xl md:text-6xl font-serif tracking-tight leading-tight">
           {product.name}
         </h2>
-        <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
+        <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-md italic">
           {product.description}
         </p>
       </div>
 
       {/* Size Selection */}
       <div className="space-y-4">
-        <span className="text-[10px] tracking-[0.2em] uppercase text-gray-500 font-semibold">
+        <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
           Select Size
         </span>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
           {sizeVariants.map((variant) => {
             const isSelected = selectedVariants.has(variant.id);
             return (
@@ -142,15 +119,17 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                 onClick={() => toggleVariant(variant.id)}
                 disabled={isPending}
                 className={cn(
-                  "flex flex-col items-center py-4 border transition-all disabled:opacity-50",
+                  "flex flex-col items-center py-3 md:py-4 border transition-all duration-300",
                   isSelected
-                    ? "border-[#c5a059] bg-[#c5a059]/5"
-                    : "border-white/10 hover:border-white/30 bg-transparent",
+                    ? "border-[#c5a059] bg-[#c5a059]/10 text-white shadow-[0_0_15px_rgba(197,162,93,0.1)]"
+                    : "border-white/10 hover:border-white/30 text-gray-400",
                 )}
               >
-                <span className="text-xs font-medium">{variant.size}</span>
-                <span className="text-[#c5a059] text-[10px] mt-1">
-                  €{Number(variant.price).toFixed(2)}
+                <span className="text-[11px] md:text-xs font-medium uppercase tracking-widest">
+                  {variant.size}
+                </span>
+                <span className="text-[#c5a059] text-[9px] md:text-[10px] mt-1 font-mono">
+                  {formatCurrency(variant.price)}
                 </span>
               </button>
             );
@@ -161,7 +140,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
       {/* Complete Your Set */}
       {extrasVariants.length > 0 && (
         <div className="space-y-4">
-          <span className="text-[10px] tracking-[0.2em] uppercase text-gray-500 font-semibold">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
             Complete Your Set
           </span>
           <div className="divide-y divide-white/5 border-y border-white/5">
@@ -172,7 +151,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                   key={variant.id}
                   onClick={() => toggleVariant(variant.id)}
                   disabled={isPending}
-                  className="w-full flex items-center justify-between py-4 group transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-between py-4 group transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -183,31 +162,29 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                           : "group-hover:border-[#c5a059]/50",
                       )}
                     >
-                      {active && <HiCheck className="text-black text-xs" />}
+                      {active && <HiCheck className="text-black text-[10px]" />}
                     </div>
                     <div className="text-left">
                       <span
                         className={cn(
-                          "text-sm transition-colors",
-                          active
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-white",
+                          "text-xs md:text-sm transition-colors",
+                          active ? "text-white" : "text-gray-400",
                         )}
                       >
                         {variant.type}
                       </span>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-[10px] text-gray-600 font-mono italic">
                         {variant.size}
                       </p>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      "text-[11px] font-medium transition-colors",
+                      "text-[10px] md:text-xs font-mono",
                       active ? "text-[#c5a059]" : "text-gray-600",
                     )}
                   >
-                    +€{Number(variant.price).toFixed(2)}
+                    +{formatCurrency(variant.price)}
                   </span>
                 </button>
               );
@@ -216,48 +193,51 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         </div>
       )}
 
-      {/* Footer: Quantity & Add to Cart */}
-      <div className="pt-4 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center bg-white/5 border border-white/10">
+      {/* Footer: Quantity & Total */}
+      <div className="pt-2 space-y-6">
+        <div className="flex flex-row items-center justify-between gap-4">
+          {/* Quantity Selector */}
+          <div className="flex items-center bg-white/3 border border-white/10">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               disabled={isPending}
-              className="p-3 hover:text-[#c5a059] transition-colors disabled:opacity-50"
+              className="p-3 md:p-4 hover:text-[#c5a059] transition-colors"
             >
-              <HiMinus size={14} />
+              <HiMinus size={12} />
             </button>
-            <span className="w-12 text-center text-sm font-medium">
+            <span className="w-8 md:w-10 text-center text-xs font-mono">
               {quantity}
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
               disabled={isPending}
-              className="p-3 hover:text-[#c5a059] transition-colors disabled:opacity-50"
+              className="p-3 md:p-4 hover:text-[#c5a059] transition-colors"
             >
-              <HiPlus size={14} />
+              <HiPlus size={12} />
             </button>
           </div>
+
           <div className="text-right">
-            <p className="text-[10px] tracking-widest text-gray-500 uppercase mb-1">
+            <p className="text-[9px] tracking-[0.2em] text-gray-500 uppercase mb-1 font-bold">
               Total Price
             </p>
-            <p className="text-4xl font-serif text-[#c5a059]">
-              €{totalPrice.toFixed(2)}
+            <p className="text-3xl md:text-4xl font-serif text-[#c5a059] tabular-nums">
+              {formatCurrency(totalPrice)}
             </p>
           </div>
         </div>
 
+        {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
           disabled={isPending || selectedVariants.size === 0}
-          className="w-full h-16 bg-[#c5a059] hover:bg-[#b08e4d] disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-none flex items-center justify-center gap-3 transition-transform active:scale-[0.98]"
+          className="w-full h-14 md:h-16 bg-[#c5a059] hover:bg-[#b08e4d] text-black rounded-none flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
         >
-          <MdOutlineShoppingBag size={20} />
-          <span className="text-[11px] font-bold tracking-[0.2em] uppercase">
+          <MdOutlineShoppingBag size={18} />
+          <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase">
             {isPending
               ? "Adding..."
-              : `Add to Cart — €${totalPrice.toFixed(2)}`}
+              : `Add to Cart — ${formatCurrency(totalPrice)}`}
           </span>
         </Button>
       </div>
