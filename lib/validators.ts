@@ -12,12 +12,13 @@ const currency = z.coerce
 // --- PRODUCT & VARIANT SCHEMAS ---
 
 export const insertProductVariantSchema = z.object({
-  name: z.string().min(1, "Size is required (e.g., 100ml)"),
-  type: z.enum(["Perfume", "Shower Gel", "Beard Oil", "After Shave"], {
+  size: z.string().min(1, "Name is required (e.g., 100ml or Body Lotion)"),
+  type: z.enum(["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"], {
     message: "Please select a valid product type",
   }),
   price: currency,
 });
+
 
 export const insertProductSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -33,7 +34,6 @@ export const insertProductSchema = z.object({
     .min(1, "At least one variant is required"),
 });
 
-// --- CART SCHEMAS ---
 export const cartItemSchema = z.object({
   variantId: z.string().min(1, "Variant ID is required"),
   productId: z.string().min(1, "Product ID is required"),
@@ -42,7 +42,7 @@ export const cartItemSchema = z.object({
   category: z.string().min(1, "Category is required"),
   image: z.string().min(1, "Image is required"),
   brand: z.string().min(1, "Brand is required"),
-  price: currency,
+  price: z.string(), // String για να περνάει το Decimal από το form
   qty: z.number().int().nonnegative(),
 });
 
