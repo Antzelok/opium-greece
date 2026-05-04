@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 const HomePage = () => {
   return (
     <>
+      <div>test</div>
       <Hero />
       <StatusBar />
       <CarouselSection />
