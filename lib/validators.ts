@@ -2,6 +2,7 @@ import { z } from "zod";
 import { PAYMENT_METHODS } from "./constants";
 import { formatNumberWithDecimal } from "./utils";
 
+// Helper για τη μετατροπή και τον έλεγχο των δεκαδικών στις τιμές
 const currency = z.coerce
   .string()
   .refine(
@@ -12,15 +13,20 @@ const currency = z.coerce
 // --- PRODUCT & VARIANT SCHEMAS ---
 
 export const insertProductVariantSchema = z.object({
-  size: z.string().min(1, "Name is required (e.g., 100ml or Body Lotion)"),
+  // Προαιρετικά IDs για να μην έχουμε σφάλματα στο Seed/Create 
+  // αλλά να τα αναγνωρίζει το TS στο Fetch
+  id: z.string().optional(),
+  productId: z.string().optional(),
+  
+  size: z.string().min(1, "Size is required (e.g., 100ml or Standard)"),
   type: z.enum(["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"], {
     message: "Please select a valid product type",
   }),
   price: currency,
 });
 
-
 export const insertProductSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters"),
   slug: z.string().min(3, "Slug must be at least 3 characters"),
   category: z.enum(["Men", "Women", "Niche", "Unisex"], {
@@ -34,6 +40,8 @@ export const insertProductSchema = z.object({
     .min(1, "At least one variant is required"),
 });
 
+// --- CART SCHEMAS ---
+
 export const cartItemSchema = z.object({
   variantId: z.string().min(1, "Variant ID is required"),
   productId: z.string().min(1, "Product ID is required"),
@@ -42,7 +50,7 @@ export const cartItemSchema = z.object({
   category: z.string().min(1, "Category is required"),
   image: z.string().min(1, "Image is required"),
   brand: z.string().min(1, "Brand is required"),
-  price: z.string(), // String για να περνάει το Decimal από το form
+  price: z.string(), 
   qty: z.number().int().nonnegative(),
 });
 
@@ -87,6 +95,7 @@ export const insertOrderItemSchema = z.object({
 });
 
 // --- PAYMENT SCHEMAS ---
+
 export const paymentResultSchema = z.object({
   id: z.string(),
   status: z.string(),
@@ -94,7 +103,8 @@ export const paymentResultSchema = z.object({
   pricePaid: z.string(),
 });
 
-// --- AUTH & PROFILE ---
+// --- AUTH & PROFILE SCHEMAS ---
+
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
