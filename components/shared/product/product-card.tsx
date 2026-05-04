@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import ProductPrice from "./product-price";
 import { Product, Cart } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import AddToCart from "./add-to-cart";
+import { formatCurrency } from "@/lib/utils"; // Εισαγωγή της συνάρτησης
 
 interface ProductCardProps {
   product: Product;
@@ -50,11 +50,9 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
         </Link>
 
         <div className="mt-1 flex flex-col items-center gap-0.5">
-          <div className="text-[#C5A25D]">
-            <ProductPrice
-              value={Number(firstVariant.price)}
-              className="text-base font-semibold tracking-tighter"
-            />
+          {/* Αντικατάσταση του ProductPrice με formatCurrency για συνέπεια */}
+          <div className="text-[#C5A25D] text-base font-semibold tracking-tighter">
+            {formatCurrency(firstVariant.price)}
           </div>
 
           <div className="flex items-center gap-1.5 text-[7px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-3">
