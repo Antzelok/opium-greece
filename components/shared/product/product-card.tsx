@@ -59,12 +59,6 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
 
           <div className="flex items-center gap-1.5 text-[7px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-3">
             <span>{firstVariant.type}</span>
-            {firstVariant.name && (
-              <>
-                <span className="w-1 h-1 bg-[#C5A25D]/50 rounded-full" />
-                <span>{firstVariant.name}</span>
-              </>
-            )}
           </div>
 
           <div className="w-full mt-2">
