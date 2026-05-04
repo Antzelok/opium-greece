@@ -39,10 +39,12 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 
 // Get single product by its slug with variants
 export async function getProductBySlug(slug: string) {
-  return await prisma.product.findFirst({
+  const data = await prisma.product.findFirst({
     where: { slug: slug },
     include: { variants: true },
   });
+
+  return convertToPlainObject(data);
 }
 
 // Get single product by its ID
