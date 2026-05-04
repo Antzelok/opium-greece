@@ -179,3 +179,89 @@ export async function RemoveItemFromCart(variantId: string) {
     return { success: false, message: formatError(error) };
   }
 }
+
+// Προσθήκη στο τέλος του αρχείου
+
+export async function AddMultipleItemsToCart(items: CartItem[]) {
+  try {
+    if (items.length === 0) {
+      throw new Error("No items to add");
+    }
+
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    if (!sessionCartId) throw new Error("Cart session not found");
+
+    const session = await auth();
+    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+
+    // Filter items with qty > 0
+    const validItems = items.filter((item) => item.qty > 0);
+    if (validItems.length === 0) {
+      throw new Error("No valid items to add");
+    }
+
+    // Validate all items
+    validItems.forEach((item) => {
+      cartItemSchema.parse(item);
+    });
+
+    const cart = await getMyCart();
+
+    if (!cart) {
+      // Create new cart if it doesn't exist
+      const newCart = insertCartSchema.parse({
+        userId: userId,
+        items: validItems,
+        sessionCartId: sessionCartId,
+        ...calcPrice(validItems),
+      });
+
+      await prisma.cart.create({
+        data: newCart,
+      });
+
+      revalidatePath("/");
+
+      return {
+        success: true,
+        message: `${validItems.length} item(s) added to cart`,
+      };
+    } else {
+      // Add/update items in existing cart
+      const cartItems = cart.items as CartItem[];
+
+      validItems.forEach((newItem) => {
+        const existItem = cartItems.find(
+          (x) => x.variantId === newItem.variantId,
+        );
+
+        if (existItem) {
+          existItem.qty += newItem.qty;
+        } else {
+          cartItems.push(newItem);
+        }
+      });
+
+      // Update cart in database with recalculated prices
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          items: cartItems as Prisma.CartUpdateitemsInput[],
+          ...calcPrice(cartItems),
+        },
+      });
+
+      revalidatePath("/");
+
+      return {
+        success: true,
+        message: `${validItems.length} item(s) added to cart`,
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
+}
