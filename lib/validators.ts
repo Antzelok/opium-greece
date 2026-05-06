@@ -54,6 +54,9 @@ export const cartItemSchema = z.object({
   brand: z.string().min(1, "Brand is required"),
   price: z.string(), 
   qty: z.number().int().nonnegative(),
+  // ΠΡΟΣΘΕΣΕ ΑΥΤΑ ΤΑ ΔΥΟ:
+  size: z.string().min(1, "Size is required"),
+  type: z.string().min(1, "Type is required"),
 });
 
 export const insertCartSchema = z.object({
