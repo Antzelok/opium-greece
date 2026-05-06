@@ -29,7 +29,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   const sizeVariants = product.variants.filter((v) => v.type === primaryType);
   const extrasVariants = product.variants.filter((v) => v.type !== primaryType);
 
-  // DERIVED STATE: Υπολογίζουμε αν είναι επιλεγμένο το Perfume 
+  // DERIVED STATE: Υπολογίζουμε αν είναι επιλεγμένο το Perfume
   const isPerfumeSelected = sizeVariants.some((v) =>
     selectedVariants.has(v.id),
   );
@@ -105,7 +105,13 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         toast.error(res.message);
         return;
       }
-      toast.success(res.message);
+      toast.success(res.message, {
+        style: {
+          background: "#0A0A0A",
+          color: "#C5A25D",
+          border: "1px solid #C5A25D",
+        },
+      });
       router.refresh();
       setSelectedVariants(new Set());
       setQuantity(1);

@@ -253,7 +253,7 @@ export async function AddMultipleItemsToCart(items: CartItem[]) {
 
       return {
         success: true,
-        message: `${validItems.length} item(s) added to cart`,
+        message: `${items[0].name} ${items[0].type} added to cart`,
       };
     }
   } catch (error) {
