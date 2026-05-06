@@ -180,8 +180,6 @@ export async function RemoveItemFromCart(variantId: string) {
   }
 }
 
-// Προσθήκη στο τέλος του αρχείου
-
 export async function AddMultipleItemsToCart(items: CartItem[]) {
   try {
     if (items.length === 0) {
