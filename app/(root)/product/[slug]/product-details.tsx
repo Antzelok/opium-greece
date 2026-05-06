@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { HiPlus, HiMinus, HiCheck } from "react-icons/hi";
-import { MdOutlineShoppingBag } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Product, CartItem, Cart } from "@/types";
@@ -24,11 +23,16 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     new Set(),
   );
 
-  // Διαχωρισμός variants (π.χ. Perfumes vs Samples/Extras)
+  // Διαχωρισμός variants
   const primaryType =
     product.variants.length > 0 ? product.variants[0].type : "Perfume";
   const sizeVariants = product.variants.filter((v) => v.type === primaryType);
   const extrasVariants = product.variants.filter((v) => v.type !== primaryType);
+
+  // DERIVED STATE: Υπολογίζουμε αν είναι επιλεγμένο το Perfume 
+  const isPerfumeSelected = sizeVariants.some((v) =>
+    selectedVariants.has(v.id),
+  );
 
   const toggleVariant = (variantId: string) => {
     setSelectedVariants((prev) => {
@@ -42,6 +46,20 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     });
   };
 
+  const handlePerfumeToggle = () => {
+    if (isPerfumeSelected) {
+      // Αν είναι ήδη επιλεγμένο, αφαιρούμε όλα τα μεγέθη perfume
+      setSelectedVariants((prev) => {
+        const updated = new Set(prev);
+        sizeVariants.forEach((v) => updated.delete(v.id));
+        return updated;
+      });
+    } else {
+      // Αν το επιλέγει τώρα, επιλέγουμε αυτόματα το πρώτο διαθέσιμο μέγεθος
+      toggleVariant(sizeVariants[0].id);
+    }
+  };
+
   const totalPrice = Array.from(selectedVariants).reduce((sum, variantId) => {
     const variant = product.variants.find((v) => v.id === variantId);
     if (!variant) return sum;
@@ -50,7 +68,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
 
   const handleAddToCart = async () => {
     if (selectedVariants.size === 0) {
-      toast.error("Please select at least one size", {
+      toast.error("Please select at least one item", {
         style: {
           background: "#0A0A0A",
           color: "#C5A25D",
@@ -72,6 +90,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           slug: product.slug,
           category: product.category,
           type: variant.type,
+          size: variant.size,
           image: product.images[0],
           brand: product.brand,
           price: String(variant.price),
@@ -105,30 +124,71 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         </p>
       </div>
 
-      {/* Size Selection */}
+      {/* Main Product Selector (Perfume) */}
       <div className="space-y-4">
         <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
-          Select Size
+          The Fragrance
         </span>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
+        <button
+          onClick={handlePerfumeToggle}
+          className={cn(
+            "w-full flex items-center justify-between py-5 px-4 border transition-all duration-300 group",
+            isPerfumeSelected
+              ? "border-[#c5a059] bg-[#c5a059]/5"
+              : "border-white/10 hover:border-white/20",
+          )}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={cn(
+                "w-5 h-5 border border-white/20 flex items-center justify-center transition-all",
+                isPerfumeSelected
+                  ? "bg-[#c5a059] border-[#c5a059]"
+                  : "group-hover:border-[#c5a059]/50",
+              )}
+            >
+              {isPerfumeSelected && <HiCheck className="text-black text-xs" />}
+            </div>
+            <span
+              className={cn(
+                "text-sm uppercase tracking-widest transition-colors",
+                isPerfumeSelected ? "text-white" : "text-gray-400",
+              )}
+            >
+              {primaryType}
+            </span>
+          </div>
+          <span className="text-[10px] text-gray-500 italic">
+            Starting from {formatCurrency(sizeVariants[0]?.price || 0)}
+          </span>
+        </button>
+
+        {/* Sub-options: ML Sizes */}
+        <div
+          className={cn(
+            "grid grid-cols-3 gap-2 transition-all duration-500 overflow-hidden",
+            isPerfumeSelected
+              ? "opacity-100 max-h-40 translate-y-0 mt-4"
+              : "opacity-0 max-h-0 -translate-y-2 pointer-events-none",
+          )}
+        >
           {sizeVariants.map((variant) => {
             const isSelected = selectedVariants.has(variant.id);
             return (
               <button
                 key={variant.id}
                 onClick={() => toggleVariant(variant.id)}
-                disabled={isPending}
                 className={cn(
-                  "flex flex-col items-center py-3 md:py-4 border transition-all duration-300",
+                  "flex flex-col items-center py-3 border transition-all duration-300",
                   isSelected
-                    ? "border-[#c5a059] bg-[#c5a059]/10 text-white shadow-[0_0_15px_rgba(197,162,93,0.1)]"
-                    : "border-white/10 hover:border-white/30 text-gray-400",
+                    ? "border-[#c5a059] bg-[#c5a059]/20 text-white"
+                    : "border-white/5 hover:border-white/20 text-gray-500",
                 )}
               >
-                <span className="text-[11px] md:text-xs font-medium uppercase tracking-widest">
+                <span className="text-[10px] font-medium uppercase">
                   {variant.size}
                 </span>
-                <span className="text-[#c5a059] text-[9px] md:text-[10px] mt-1 font-mono">
+                <span className="text-[#c5a059] text-[9px] mt-1 font-mono">
                   {formatCurrency(variant.price)}
                 </span>
               </button>
@@ -137,7 +197,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         </div>
       </div>
 
-      {/* Complete Your Set */}
+      {/* Complete Your Set (Extras) */}
       {extrasVariants.length > 0 && (
         <div className="space-y-4">
           <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
@@ -167,7 +227,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                     <div className="text-left">
                       <span
                         className={cn(
-                          "text-xs md:text-sm transition-colors",
+                          "text-xs transition-colors",
                           active ? "text-white" : "text-gray-400",
                         )}
                       >
@@ -180,7 +240,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                   </div>
                   <span
                     className={cn(
-                      "text-[10px] md:text-xs font-mono",
+                      "text-[10px] font-mono",
                       active ? "text-[#c5a059]" : "text-gray-600",
                     )}
                   >
@@ -196,49 +256,43 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
       {/* Footer: Quantity & Total */}
       <div className="pt-2 space-y-6">
         <div className="flex flex-row items-center justify-between gap-4">
-          {/* Quantity Selector */}
           <div className="flex items-center bg-white/3 border border-white/10">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               disabled={isPending}
-              className="p-3 md:p-4 hover:text-[#c5a059] transition-colors"
+              className="p-3 hover:text-[#c5a059] transition-colors"
             >
               <HiMinus size={12} />
             </button>
-            <span className="w-8 md:w-10 text-center text-xs font-mono">
+            <span className="w-8 text-center text-xs font-mono">
               {quantity}
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
               disabled={isPending}
-              className="p-3 md:p-4 hover:text-[#c5a059] transition-colors"
+              className="p-3 hover:text-[#c5a059] transition-colors"
             >
               <HiPlus size={12} />
             </button>
           </div>
-
           <div className="text-right">
             <p className="text-[9px] tracking-[0.2em] text-gray-500 uppercase mb-1 font-bold">
               Total Price
             </p>
-            <p className="text-3xl md:text-4xl font-serif text-[#c5a059] tabular-nums">
+            <p className="text-3xl font-serif text-[#c5a059] tabular-nums">
               {formatCurrency(totalPrice)}
             </p>
           </div>
         </div>
 
-        {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
           disabled={isPending || selectedVariants.size === 0}
-          className="w-full h-14 md:h-16 bg-[#c5a059] hover:bg-[#b08e4d] text-black rounded-none flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+          className="w-full h-14 bg-[#c5a059] hover:bg-[#b08e4d] text-black rounded-none uppercase text-[10px] font-bold tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
         >
-          <MdOutlineShoppingBag size={18} />
-          <span className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase">
-            {isPending
-              ? "Adding..."
-              : `Add to Cart — ${formatCurrency(totalPrice)}`}
-          </span>
+          {isPending
+            ? "Adding..."
+            : `Add to Cart — ${formatCurrency(totalPrice)}`}
         </Button>
       </div>
     </div>
