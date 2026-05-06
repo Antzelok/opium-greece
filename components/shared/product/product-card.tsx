@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Product, Cart } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import AddToCart from "./add-to-cart";
-import { formatCurrency } from "@/lib/utils"; // Εισαγωγή της συνάρτησης
+import { formatCurrency } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -71,6 +71,8 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
                 image: product.images[0],
                 brand: product.brand,
                 price: firstVariant.price,
+                size: firstVariant.size,
+                type: firstVariant.type,
                 qty: 1,
               }}
             />
