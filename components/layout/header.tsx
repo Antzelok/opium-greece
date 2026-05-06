@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { IoMenu, IoSearch, IoClose } from "react-icons/io5"; // Χρήση IoClose για ομοιομορφία
+import { IoMenu, IoSearch, IoClose } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Cart } from "@/types";
-import CartDrawer from "../shared/cart-drawer";
+import CartDrawer from "@/components/shared/cart-drawer";
 
 const navItems = [
   { title: "ALL", href: "/shop-all" },
