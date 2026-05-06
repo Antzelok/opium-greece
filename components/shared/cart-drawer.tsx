@@ -111,6 +111,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
             <div className="divide-y divide-white/5">
               {items.map((item) => (
                 <div key={item.variantId} className="py-8 flex gap-6 group">
+                  {/* Item Image */}
                   <div className="relative h-28 w-20 bg-[#111] shrink-0 border border-white/5">
                     <Image
                       src={item.image}
@@ -120,41 +121,59 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                     />
                   </div>
 
+                  {/* Item Info */}
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <h4 className="text-white text-[11px] uppercase tracking-[0.15em] font-medium leading-tight mb-1">
+                      <div className="space-y-1.5">
+                        <h4 className="text-white text-[11px] uppercase tracking-[0.15em] font-medium leading-tight">
                           {item.name}
                         </h4>
-                        <p className="text-[#C5A25D] text-[9px] uppercase tracking-widest italic">
-                          {item.category}
+
+                        {/* ML & Type Variants */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#C5A25D] text-[8px] border border-[#C5A25D]/20 px-1.5 py-0.5 rounded-sm uppercase tracking-widest font-bold">
+                            {item.size}
+                          </span>
+                          <span className="text-neutral-500 text-[9px] uppercase tracking-widest font-light">
+                            {item.type}
+                          </span>
+                        </div>
+
+                        <p className="text-neutral-600 text-[8px] uppercase tracking-widest">
+                          {item.brand}
                         </p>
                       </div>
-                      <p className="text-white text-xs font-light">
+                      <p className="text-white text-xs font-mono font-light">
                         {formatCurrency(item.price)}
                       </p>
                     </div>
 
                     <div className="flex items-center justify-between mt-6">
+                      {/* Quantity Controls */}
                       <div className="flex items-center border border-white/10 bg-black">
                         <button
                           disabled={isPending}
                           onClick={() => handleUpdateQty(item, "remove")}
                           className="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-white transition-colors disabled:opacity-20"
                         >
-                          <RiSubtractLine className="h-4 w-4" />
+                          <RiSubtractLine className="h-3 w-3" />
                         </button>
                         <span className="text-[10px] text-white w-8 text-center font-mono">
-                          {isPending ? "..." : item.qty}
+                          {isPending ? ".." : item.qty}
                         </span>
                         <button
                           disabled={isPending}
                           onClick={() => handleUpdateQty(item, "add")}
                           className="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-white transition-colors disabled:opacity-20"
                         >
-                          <RiAddLine className="h-4 w-4" />
+                          <RiAddLine className="h-3 w-3" />
                         </button>
                       </div>
+
+                      {/* Subtotal per item type */}
+                      <span className="text-[10px] text-neutral-500 font-light italic">
+                        {formatCurrency(Number(item.price) * item.qty)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -167,20 +186,30 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
         {items.length > 0 && (
           <div className="p-8 border-t border-white/5 bg-[#0D0D0D]">
             <div className="flex justify-between items-center mb-6">
-              <span className="text-neutral-500 text-[10px] uppercase tracking-[0.2em] font-light">
-                Subtotal
-              </span>
-              <span className="text-white text-sm font-medium italic tracking-tighter">
+              <div className="flex flex-col">
+                <span className="text-neutral-500 text-[9px] uppercase tracking-[0.2em] font-bold">
+                  Total Amount
+                </span>
+                <span className="text-neutral-600 text-[8px] uppercase tracking-widest mt-0.5">
+                  VAT Included
+                </span>
+              </div>
+              <span className="text-[#C5A25D] text-xl font-serif tracking-tighter">
                 {formatCurrency(cart?.itemsPrice || 0)}
               </span>
             </div>
+
             <Button
               asChild
               onClick={() => setOpen(false)}
-              className="w-full bg-white text-black hover:bg-neutral-200 rounded-none h-12 uppercase text-[11px] font-bold tracking-[0.25em] transition-all"
+              className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-none h-14 uppercase text-[10px] font-black tracking-[0.3em] transition-all"
             >
               <Link href="/checkout">Secure Checkout</Link>
             </Button>
+
+            <p className="text-center text-[8px] text-neutral-600 uppercase tracking-widest mt-4">
+              Free shipping on all luxury orders
+            </p>
           </div>
         )}
       </SheetContent>
