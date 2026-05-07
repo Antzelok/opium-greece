@@ -13,15 +13,18 @@ const currency = z.coerce
 // --- PRODUCT & VARIANT SCHEMAS ---
 
 export const insertProductVariantSchema = z.object({
-  // Προαιρετικά IDs για να μην έχουμε σφάλματα στο Seed/Create 
+  // Προαιρετικά IDs για να μην έχουμε σφάλματα στο Seed/Create
   // αλλά να τα αναγνωρίζει το TS στο Fetch
   id: z.string().default(""),
   productId: z.string().default(""),
-  
+
   size: z.string().min(1, "Size is required (e.g., 100ml or Standard)"),
-  type: z.enum(["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"], {
-    message: "Please select a valid product type",
-  }),
+  type: z.enum(
+    ["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"],
+    {
+      message: "Please select a valid product type",
+    },
+  ),
   price: currency,
 });
 
@@ -52,7 +55,7 @@ export const cartItemSchema = z.object({
   }),
   image: z.string().min(1, "Image is required"),
   brand: z.string().min(1, "Brand is required"),
-  price: z.string(), 
+  price: z.string(),
   qty: z.number().int().nonnegative(),
   // ΠΡΟΣΘΕΣΕ ΑΥΤΑ ΤΑ ΔΥΟ:
   size: z.string().min(1, "Size is required"),
@@ -78,6 +81,16 @@ export const shippingAddressSchema = z.object({
   country: z.string().min(3, "Country is required"),
   email: z.string().email().optional(),
 });
+
+// Schema for payment method
+export const paymentMethodSchema = z
+  .object({
+    type: z.string().min(1, "Payment method is required"),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+    path: ["type"],
+    message: "Invalid payment method",
+  });
 
 export const insertOrderSchema = z.object({
   userId: z.string().uuid().optional().nullable(),
