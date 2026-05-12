@@ -88,7 +88,7 @@ const SignUpForm = () => {
       <SignUpButton />
 
       {data && !data.success && (
-        <div className="text-center text-destructive text-sm font-medium bg-destructive/10 py-2 rounded-md border border-destructive/20">
+        <div className="text-center text-[#c5a059] text-sm font-medium bg-[#c5a059]/10 py-2 rounded-md border border-[#c5a059]/20">
           {data.message}
         </div>
       )}
