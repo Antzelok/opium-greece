@@ -48,7 +48,6 @@ const Header = ({ cart }: { cart?: Cart }) => {
               </Button>
             </SheetTrigger>
 
-            {/* Χρησιμοποιούμε [&>button]:hidden για να σβήσουμε το X της Shadcn */}
             <SheetContent
               side="left"
               className="w-72 bg-black p-0 border-r border-white/5 text-white outline-none [&>button]:hidden"
@@ -58,7 +57,7 @@ const Header = ({ cart }: { cart?: Cart }) => {
                 <SheetDescription>Main navigation</SheetDescription>
               </div>
 
-              {/* CUSTOM HEADER ΟΠΩΣ ΣΤΟ CART */}
+              {/* CUSTOM HEADER */}
               <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
                 <Image
                   src="/opium-logo.jpg"
@@ -113,13 +112,15 @@ const Header = ({ cart }: { cart?: Cart }) => {
             >
               <IoSearch className="h-6! w-6!" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-neutral-200 hover:bg-white/10"
-            >
-              <CgProfile className="h-6! w-6!" />
-            </Button>
+            <Link href="/account">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-neutral-200 hover:bg-white/10"
+              >
+                <CgProfile className="h-6! w-6!" />
+              </Button>
+            </Link>
             <CartDrawer cart={cart} />
           </div>
         </div>
@@ -153,13 +154,15 @@ const Header = ({ cart }: { cart?: Cart }) => {
             >
               <IoSearch className="h-6! w-6!" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-neutral-200 hover:bg-white/10"
-            >
-              <CgProfile className="h-6! w-6!" />
-            </Button>
+            <Link href="/account">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-neutral-200 hover:bg-white/10"
+              >
+                <CgProfile className="h-6! w-6!" />
+              </Button>
+            </Link>
             <CartDrawer cart={cart} />
           </div>
         </div>
