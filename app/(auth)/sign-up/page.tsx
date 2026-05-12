@@ -18,12 +18,9 @@ export const metadata: Metadata = {
 };
 
 const SignUpPage = async (props: {
-  searchParams: Promise<{
-    callbackUrl: string;
-  }>;
+  searchParams: Promise<{ callbackUrl: string }>;
 }) => {
   const { callbackUrl } = await props.searchParams;
-
   const session = await auth();
 
   if (session) {
@@ -31,24 +28,29 @@ const SignUpPage = async (props: {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card>
-        <CardHeader className="space-y-4">
-          <Link href="/" className="flex-center">
+    <div className="flex items-center justify-center min-h-screen bg-black/95 p-4">
+      <Card className="w-full max-w-md shadow-2xl bg-black border-white/10 text-white">
+        <CardHeader className="space-y-4 flex flex-col items-center">
+          <Link href="/" className="transition-opacity hover:opacity-80">
             <Image
-              src="/images/logo.svg"
-              height={100}
-              width={100}
+              src="/opium-logo.jpg"
+              height={45}
+              width={120}
               alt={`${APP_NAME} logo`}
               priority={true}
+              className="h-auto w-auto"
             />
           </Link>
-          <CardTitle className="text-center">Create Account</CardTitle>
-          <CardDescription className="text-center">
-            Enter Your Information Below to Sign Up
-          </CardDescription>
+          <div className="text-center space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight">
+              Create Account
+            </CardTitle>
+            <CardDescription className="text-neutral-400">
+              Join Opium Greece today
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <SignUpForm />
         </CardContent>
       </Card>
