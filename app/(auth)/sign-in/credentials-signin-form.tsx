@@ -1,12 +1,11 @@
 "use client";
-
-import Link from "next/link";
-import { useActionState } from "react";
-import { useSearchParams } from "next/navigation";
-import { signInWithCredentials } from "@/lib/actions/user.actions";
-import { SignInDefaultValues } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SignInDefaultValues } from "@/lib/constants";
+import Link from "next/link";
+import { useActionState } from "react";
+import { signInWithCredentials } from "@/lib/actions/user.actions";
+import { useSearchParams } from "next/navigation";
 import SignInButton from "@/components/auth/SignInButton";
 
 const CredentialsSignInForm = () => {
@@ -19,18 +18,11 @@ const CredentialsSignInForm = () => {
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   return (
-    <form action={action} className="w-100">
+    <form action={action}>
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
-
       <div className="space-y-6">
-        {/* Email Field */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="email"
-            className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
-          >
-            Email Address
-          </Label>
+        <div>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             name="email"
@@ -38,18 +30,10 @@ const CredentialsSignInForm = () => {
             required
             autoComplete="email"
             defaultValue={SignInDefaultValues.email}
-            className="bg-transparent border-white/10 focus:border-[#c5a059] rounded-none h-12 transition-colors text-white"
           />
         </div>
-
-        {/* Password Field */}
-        <div className="space-y-2">
-          <Label
-            htmlFor="password"
-            className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
-          >
-            Password
-          </Label>
+        <div>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             name="password"
@@ -57,29 +41,19 @@ const CredentialsSignInForm = () => {
             required
             autoComplete="password"
             defaultValue={SignInDefaultValues.password}
-            className="bg-transparent border-white/10 focus:border-[#c5a059] rounded-none h-12 transition-colors text-white"
           />
         </div>
-
-        {/* Submit Button Component */}
-        <div className="pt-2">
-          <SignInButton text="Sign In" pendingText="Signing In..." />
+        <div>
+          <SignInButton text={""} />
         </div>
 
-        {/* Error Message */}
         {data && !data.success && (
-          <div className="text-center text-red-500 text-[11px] font-medium bg-red-500/5 py-3 border border-red-500/10 uppercase tracking-wider">
-            {data.message}
-          </div>
+          <div className="text-center text-destructive">{data.message} </div>
         )}
 
-        {/* Link to Sign Up */}
-        <div className="text-[11px] text-center text-neutral-500 uppercase tracking-widest">
+        <div className="text-sm text-center text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link
-            href="/sign-up"
-            className="text-[#c5a059] hover:text-[#b08e4d] font-bold transition-colors ml-1"
-          >
+          <Link href="/sign-up" target="_self" className="link">
             Sign Up
           </Link>
         </div>

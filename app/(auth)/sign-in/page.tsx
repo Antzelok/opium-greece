@@ -31,12 +31,12 @@ const SignInPage = async (props: {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
+    <div className="w-full max-w-md mx-auto">
       <Card>
         <CardHeader className="space-y-4">
           <Link href="/" className="flex-center">
             <Image
-              src="/opium-logo.jpg"
+              src="/images/logo.svg"
               height={100}
               width={100}
               alt={`${APP_NAME} logo`}
