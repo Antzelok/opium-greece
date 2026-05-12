@@ -23,7 +23,7 @@ const SignInButton = ({
       type="submit"
       disabled={pending}
       className={cn(
-        "w-full bg-[#c5a059] hover:bg-[#b08e4d] text-black font-bold uppercase tracking-[0.2em] text-[10px] h-12 rounded-md shadow-lg transition-all duration-300 disabled:opacity-70",
+        "w-full bg-[#c5a059] hover:bg-[#b08e4d] text-black font-bold uppercase tracking-[0.2em] text-sm h-12 rounded-md shadow-lg transition-all duration-300 disabled:opacity-70",
         className,
       )}
     >
@@ -36,6 +36,7 @@ const SignInButton = ({
       ) : (
         text
       )}
+      Sign In
     </Button>
   );
 };
