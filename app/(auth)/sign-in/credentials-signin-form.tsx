@@ -52,8 +52,8 @@ const CredentialsSignInForm = () => {
         />
       </div>
 
-      <div className="pt-2">
-        <SignInButton text={"Sign In"} />
+      <div>
+        <SignInButton />
       </div>
 
       {data && !data.success && (
