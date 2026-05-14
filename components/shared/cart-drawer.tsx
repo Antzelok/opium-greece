@@ -204,7 +204,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
               onClick={() => setOpen(false)}
               className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-none h-14 uppercase text-[10px] font-black tracking-[0.3em] transition-all"
             >
-              <Link href="/checkout">Secure Checkout</Link>
+              <Link href="/check-out">Secure Checkout</Link>
             </Button>
 
             <p className="text-center text-[8px] text-neutral-600 uppercase tracking-widest mt-4">
