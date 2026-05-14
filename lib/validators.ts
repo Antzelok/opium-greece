@@ -2,7 +2,7 @@ import { z } from "zod";
 import { PAYMENT_METHODS } from "./constants";
 import { formatNumberWithDecimal } from "./utils";
 
-// Helper για τη μετατροπή και τον έλεγχο των δεκαδικών στις τιμές
+
 const currency = z.coerce
   .string()
   .refine(
@@ -11,10 +11,7 @@ const currency = z.coerce
   );
 
 // --- PRODUCT & VARIANT SCHEMAS ---
-
 export const insertProductVariantSchema = z.object({
-  // Προαιρετικά IDs για να μην έχουμε σφάλματα στο Seed/Create
-  // αλλά να τα αναγνωρίζει το TS στο Fetch
   id: z.string().default(""),
   productId: z.string().default(""),
 
@@ -69,10 +66,10 @@ export const insertCartSchema = z.object({
   shippingPrice: currency,
   sessionCartId: z.string().min(1, "Session cart ID is required"),
   userId: z.string().uuid().optional().nullable(),
+  guestEmail: z.string().email().optional().nullable(),
 });
 
 // --- ORDER SCHEMAS ---
-
 export const shippingAddressSchema = z.object({
   fullName: z.string().min(3, "Full name is required"),
   streetAddress: z.string().min(3, "Address is required"),
@@ -113,7 +110,6 @@ export const insertOrderItemSchema = z.object({
 });
 
 // --- PAYMENT SCHEMAS ---
-
 export const paymentResultSchema = z.object({
   id: z.string(),
   status: z.string(),
@@ -122,7 +118,6 @@ export const paymentResultSchema = z.object({
 });
 
 // --- AUTH & PROFILE SCHEMAS ---
-
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
