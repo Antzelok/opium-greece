@@ -263,3 +263,24 @@ export async function AddMultipleItemsToCart(items: CartItem[]) {
     };
   }
 }
+
+export async function updateCartGuestEmail(email: string) {
+  try {
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+
+    if (!sessionCartId) {
+      return { success: false, message: "Cart session not found" };
+    }
+
+    await prisma.cart.update({
+      where: { sessionCartId: sessionCartId },
+      data: { guestEmail: email },
+    });
+
+    revalidatePath("/check-out");
+    return { success: true };
+  } catch (error) {
+    console.error("PRISMA_UPDATE_ERROR:", error);
+    return { success: false, message: "Failed to update email" };
+  }
+}
