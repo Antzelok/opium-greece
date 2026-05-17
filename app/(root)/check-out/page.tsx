@@ -75,7 +75,7 @@ export default function CheckOutPage() {
               </CardTitle>
             </CardHeader>
 
-            <CredentialsSignInForm />
+            <CredentialsSignInForm callbackUrl="/check-out/shipping" />
           </div>
         </div>
       </CardContent>
