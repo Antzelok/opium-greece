@@ -1,0 +1,251 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+export default function CheckoutPage() {
+  const [shippingMethod, setShippingMethod] = useState("elta");
+  const [boxNowLocker, setBoxNowLocker] = useState<{ id: string; address: string } | null>(null);
+  const scriptLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (scriptLoadedRef.current) return;
+    scriptLoadedRef.current = true;
+
+    const win = window as any;
+
+    // Callback handler για το BoxNow selection
+    win._bn_afterSelect = (selected: any) => {
+      console.log("BoxNow Selected:", selected);
+      if (selected && selected.boxnowLockerId) {
+        setBoxNowLocker({
+          id: selected.boxnowLockerId,
+          address: [selected.boxnowLockerAddressLine1, selected.boxnowLockerAddressLine2]
+            .filter(Boolean)
+            .join(", "),
+        });
+        setShippingMethod("boxnow");
+      }
+    };
+
+    // Το config ΠΡΕΠΕΙ να οριστεί ΠΡΙΝ φορτωθεί το script
+    win._bn_map_widget_config = {
+      partnerId: "9083",
+      parentElement: "#boxnowmap",
+      type: "iframe",
+      autoclose: true,
+      gps: true,
+      // Χρησιμοποιούμε wrapper function γιατί το afterSelect καλείται πριν το React state setup
+      afterSelect: (selected: any) => win._bn_afterSelect(selected),
+    };
+
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "https://widget-cdn.boxnow.gr/map-widget/client/v5.js";
+    script.async = true;
+    script.defer = true;
+    script.id = "boxnow-widget-script";
+
+    script.onload = () => console.log("✓ BoxNow widget script loaded");
+    script.onerror = () => console.error("✗ Failed to load BoxNow widget script");
+
+    document.head.appendChild(script);
+
+    return () => {
+      const scriptEl = document.getElementById("boxnow-widget-script");
+      if (scriptEl) scriptEl.remove();
+      delete win._bn_map_widget_config;
+      delete win._bn_afterSelect;
+      scriptLoadedRef.current = false;
+    };
+  }, []);
+
+  // Όταν ο χρήστης επιλέγει BoxNow, κάνουμε programmatic click στο hidden button
+  // ώστε το widget να ανοίξει αυτόματα αν δεν έχει επιλεγεί locker ακόμα
+  const handleBoxNowSelect = () => {
+    setShippingMethod("boxnow");
+  };
+
+  const openBoxNowWidget = () => {
+    // Βρίσκουμε το hidden trigger button και το κάνουμε click
+    const triggerBtn = document.getElementById("boxnow-widget-trigger");
+    if (triggerBtn) {
+      triggerBtn.click();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white font-sans p-6 md:p-12">
+
+      {/*
+        ΚΡΙΣΙΜΟ: Το #boxnowmap div ΔΕΝ πρέπει να είναι hidden με display:none.
+        Το widget το χρειάζεται accessible στο DOM.
+        Το κρύβουμε με visibility/positioning αντί για display:none.
+        Επίσης το trigger button ΠΡΕΠΕΙ να έχει class "boxnow-map-widget-button"
+        (αυτό είναι το default που ψάχνει το BoxNow script).
+      */}
+      <div
+        id="boxnowmap"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 9999,
+          pointerEvents: "none", // δεν μπλοκάρει interactions όταν είναι κλειστό
+        }}
+      />
+
+      {/*
+        Αυτό είναι το "πραγματικό" trigger button που το BoxNow script αναζητά.
+        ΠΡΕΠΕΙ να υπάρχει στο DOM από την αρχή (όχι conditionally rendered).
+        Το κρύβουμε οπτικά αλλά παραμένει στο DOM.
+        Default class name που ψάχνει το script: "boxnow-map-widget-button"
+      */}
+      <button
+        id="boxnow-widget-trigger"
+        className="boxnow-map-widget-button"
+        style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0, height: 0, overflow: "hidden" }}
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        Open BoxNow
+      </button>
+
+      {/* Header / Logo */}
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-serif tracking-widest text-[#D4AF37]">OPIUM</h1>
+      </div>
+
+      {/* Stepper */}
+      <div className="flex flex-wrap justify-center gap-2 mb-12 max-w-4xl mx-auto text-xs font-medium uppercase">
+        <div className="px-4 py-2 border border-zinc-800 text-zinc-500 rounded">Account</div>
+        <div className="px-4 py-2 border border-zinc-800 text-zinc-500 rounded">Shipping Address</div>
+        <div className="px-4 py-2 bg-[#C5A861] text-black font-bold rounded">Payment Method</div>
+        <div className="px-4 py-2 border border-zinc-800 text-zinc-600 rounded">Place Order</div>
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+
+        {/* Left Form */}
+        <div className="lg:col-span-2 space-y-8 bg-zinc-950 p-6 rounded-lg border border-zinc-900">
+          <h2 className="text-xl font-semibold tracking-wider text-[#C5A861] uppercase">
+            ΟΛΟΚΛΗΡΩΣΗ ΑΠΟΣΤΟΛΗΣ
+          </h2>
+
+          <div className="space-y-3">
+            <span className="text-xs text-[#C5A861] uppercase tracking-wider block">
+              ΕΠΙΛΟΓΗ ΜΕΤΑΦΟΡΙΚΗΣ (+€2.00)
+            </span>
+
+            <RadioGroup
+              value={shippingMethod}
+              onValueChange={setShippingMethod}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              {/* ELTA */}
+              <Label
+                htmlFor="elta"
+                className={`flex items-start justify-between p-4 rounded-lg border cursor-pointer transition-all ${
+                  shippingMethod === "elta" ? "border-[#C5A861] bg-zinc-900" : "border-zinc-800 bg-black"
+                }`}
+              >
+                <div className="space-y-1">
+                  <span className="font-bold block text-sm text-zinc-400">ELTA COURIER</span>
+                  <span className="text-xs text-zinc-500 block">ΠΑΡΑΔΟΣΗ ΣΤΟ ΧΩΡΟ ΣΑΣ</span>
+                  <span className="text-sm font-semibold mt-2 block">+ €2.00</span>
+                </div>
+                <RadioGroupItem value="elta" id="elta" className="border-zinc-600 text-[#C5A861]" />
+              </Label>
+
+              {/* BoxNow */}
+              <Label
+                htmlFor="boxnow"
+                onClick={handleBoxNowSelect}
+                className={`flex flex-col justify-between p-4 rounded-lg border cursor-pointer transition-all ${
+                  shippingMethod === "boxnow" ? "border-[#C5A861] bg-zinc-900" : "border-zinc-800 bg-black"
+                }`}
+              >
+                <div className="flex items-start justify-between w-full">
+                  <div className="space-y-1">
+                    <span className="font-bold block text-sm text-green-500">BOX NOW</span>
+                    <span className="text-xs text-zinc-500 block">ΕΠΙΛΟΓΗ ΑΠΟ ΧΑΡΤΗ</span>
+                    <span className="text-sm font-semibold mt-2 block">+ €2.00</span>
+                  </div>
+                  <RadioGroupItem value="boxnow" id="boxnow" className="border-zinc-600 text-[#C5A861]" />
+                </div>
+
+                {shippingMethod === "boxnow" && (
+                  <div className="mt-4 pt-4 border-t border-zinc-800 w-full space-y-3">
+                    {/*
+                      Αυτό το button καλεί openBoxNowWidget() που κάνει programmatic click
+                      στο hidden .boxnow-map-widget-button trigger.
+                      ΔΕΝ χρειάζεται να έχει μόνο του την class "boxnow-map-widget-button"
+                      γιατί εμφανίζεται conditionally.
+                    */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openBoxNowWidget();
+                      }}
+                      className="w-full py-2 px-3 bg-green-600 text-white font-bold rounded text-xs tracking-wider uppercase text-center hover:bg-green-700 transition-colors"
+                    >
+                      {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΕΞΤΕ ΘΥΡΙΔΑ"}
+                    </button>
+
+                    {boxNowLocker && (
+                      <div className="p-2 bg-green-950/40 border border-green-800 rounded text-xs text-green-400">
+                        <p className="font-bold">✓ Θυρίδα: #{boxNowLocker.id}</p>
+                        <p className="opacity-90">{boxNowLocker.address}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Label>
+            </RadioGroup>
+          </div>
+
+          {/* Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-zinc-400 uppercase">Ονοματεπώνυμο</Label>
+              <Input className="bg-black border-zinc-800 text-white focus:border-[#C5A861]" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-zinc-400 uppercase">Τηλέφωνο</Label>
+              <Input className="bg-black border-zinc-800 text-white focus:border-[#C5A861]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Summary */}
+        <div className="lg:col-span-1">
+          <Card className="bg-zinc-950 border-zinc-900 text-white sticky top-6">
+            <CardContent className="p-6 space-y-6">
+              <h3 className="text-xs font-bold tracking-widest text-[#C5A861] uppercase">Order Summary</h3>
+              <div className="flex justify-between text-xs text-zinc-400">
+                <span>SUBTOTAL</span><span>€90.00</span>
+              </div>
+              <div className="flex justify-between items-baseline border-t border-zinc-900 pt-4">
+                <span className="text-xs font-bold">TOTAL</span>
+                <span className="text-2xl font-serif text-[#C5A861]">€92.00</span>
+              </div>
+              <Button className="w-full bg-[#C5A861] text-black font-bold hover:bg-yellow-600 uppercase tracking-wider text-xs py-6">
+                Place Order
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+      </div>
+    </div>
+  );
+}
