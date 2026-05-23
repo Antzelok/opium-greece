@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function CheckoutPage() {
+const CheckoutPage = () => {
   const [shippingMethod, setShippingMethod] = useState("elta");
   const [boxNowLocker, setBoxNowLocker] = useState<{ id: string; address: string } | null>(null);
+  const [isMapOpen, setIsMapOpen] = useState(false); // Track αν ο χάρτης είναι ανοιχτός για το pointer-events
   const scriptLoadedRef = useRef(false);
 
   useEffect(() => {
@@ -18,7 +19,6 @@ export default function CheckoutPage() {
 
     const win = window as any;
 
-    // Callback handler για το BoxNow selection
     win._bn_afterSelect = (selected: any) => {
       console.log("BoxNow Selected:", selected);
       if (selected && selected.boxnowLockerId) {
@@ -30,16 +30,16 @@ export default function CheckoutPage() {
         });
         setShippingMethod("boxnow");
       }
+      setIsMapOpen(false); // Κλείνει ο χάρτης, επαναφέρουμε το pointer-events
     };
 
-    // Το config ΠΡΕΠΕΙ να οριστεί ΠΡΙΝ φορτωθεί το script
+    // Το config για το v5 widget
     win._bn_map_widget_config = {
       partnerId: "9083",
       parentElement: "#boxnowmap",
-      type: "iframe",
+      type: "popup", // Αλλάχτηκε σε popup για να λειτουργεί σωστά το overlay
       autoclose: true,
       gps: true,
-      // Χρησιμοποιούμε wrapper function γιατί το afterSelect καλείται πριν το React state setup
       afterSelect: (selected: any) => win._bn_afterSelect(selected),
     };
 
@@ -64,16 +64,14 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  // Όταν ο χρήστης επιλέγει BoxNow, κάνουμε programmatic click στο hidden button
-  // ώστε το widget να ανοίξει αυτόματα αν δεν έχει επιλεγεί locker ακόμα
   const handleBoxNowSelect = () => {
     setShippingMethod("boxnow");
   };
 
   const openBoxNowWidget = () => {
-    // Βρίσκουμε το hidden trigger button και το κάνουμε click
     const triggerBtn = document.getElementById("boxnow-widget-trigger");
     if (triggerBtn) {
+      setIsMapOpen(true); // Ενεργοποιούμε τα κλικ πριν ανοίξει ο χάρτης
       triggerBtn.click();
     }
   };
@@ -81,12 +79,8 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-black text-white font-sans p-6 md:p-12">
 
-      {/*
-        ΚΡΙΣΙΜΟ: Το #boxnowmap div ΔΕΝ πρέπει να είναι hidden με display:none.
-        Το widget το χρειάζεται accessible στο DOM.
-        Το κρύβουμε με visibility/positioning αντί για display:none.
-        Επίσης το trigger button ΠΡΕΠΕΙ να έχει class "boxnow-map-widget-button"
-        (αυτό είναι το default που ψάχνει το BoxNow script).
+      {/* ΔΙΟΡΘΩΣΗ: Όταν το isMapOpen είναι true, το pointerEvents γίνεται "auto" 
+        ώστε να μπορείς να αλληλεπιδράσεις με τις θυρίδες και το κουμπί επιλογής!
       */}
       <div
         id="boxnowmap"
@@ -97,16 +91,10 @@ export default function CheckoutPage() {
           width: "100%",
           height: "100%",
           zIndex: 9999,
-          pointerEvents: "none", // δεν μπλοκάρει interactions όταν είναι κλειστό
+          pointerEvents: isMapOpen ? "auto" : "none", 
         }}
       />
 
-      {/*
-        Αυτό είναι το "πραγματικό" trigger button που το BoxNow script αναζητά.
-        ΠΡΕΠΕΙ να υπάρχει στο DOM από την αρχή (όχι conditionally rendered).
-        Το κρύβουμε οπτικά αλλά παραμένει στο DOM.
-        Default class name που ψάχνει το script: "boxnow-map-widget-button"
-      */}
       <button
         id="boxnow-widget-trigger"
         className="boxnow-map-widget-button"
@@ -183,12 +171,6 @@ export default function CheckoutPage() {
 
                 {shippingMethod === "boxnow" && (
                   <div className="mt-4 pt-4 border-t border-zinc-800 w-full space-y-3">
-                    {/*
-                      Αυτό το button καλεί openBoxNowWidget() που κάνει programmatic click
-                      στο hidden .boxnow-map-widget-button trigger.
-                      ΔΕΝ χρειάζεται να έχει μόνο του την class "boxnow-map-widget-button"
-                      γιατί εμφανίζεται conditionally.
-                    */}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -249,3 +231,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+export default CheckoutPage;
