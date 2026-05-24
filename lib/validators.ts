@@ -2,7 +2,6 @@ import { z } from "zod";
 import { PAYMENT_METHODS } from "./constants";
 import { formatNumberWithDecimal } from "./utils";
 
-
 const currency = z.coerce
   .string()
   .refine(
@@ -70,14 +69,44 @@ export const insertCartSchema = z.object({
 });
 
 // --- ORDER SCHEMAS ---
-export const shippingAddressSchema = z.object({
-  fullName: z.string().min(3, "Full name is required"),
-  streetAddress: z.string().min(3, "Address is required"),
-  city: z.string().min(3, "City is required"),
-  postalCode: z.string().min(3, "Postal code is required"),
-  country: z.string().min(3, "Country is required"),
-  email: z.string().email().optional(),
-});
+export const shippingAddressSchema = z
+  .object({
+    shippingMethod: z.enum(["elta", "boxnow"]).default("elta"),
+    firstName: z.string().min(2, "Το όνομα είναι υποχρεωτικό"),
+    lastName: z.string().min(2, "Το επώνυμο είναι υποχρεωτικό"),
+    streetName: z.string().optional(),
+    streetNumber: z.string().optional(),
+    postalCode: z.string().min(5, "Ο Τ.Κ. πρέπει να είναι 5 ψηφία"),
+    phoneNumber: z
+      .string()
+      .min(10, "Το τηλέφωνο πρέπει να είναι τουλάχιστον 10 ψηφία"),
+    boxnowLockerId: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.shippingMethod === "elta") {
+      if (!data.streetName || data.streetName.trim().length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Η οδός είναι υποχρεωτική για αποστολή με Courier",
+          path: ["streetName"],
+        });
+      }
+      if (!data.streetNumber || data.streetNumber.trim().length < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Ο αριθμός είναι υποχρεωτικός",
+          path: ["streetNumber"],
+        });
+      }
+    }
+    if (data.shippingMethod === "boxnow" && !data.boxnowLockerId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Παρακαλώ επιλέξτε μια θυρίδα BoxNow από τον χάρτη",
+        path: ["boxnowLockerId"],
+      });
+    }
+  });
 
 // Schema for payment method
 export const paymentMethodSchema = z

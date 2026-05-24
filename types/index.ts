@@ -11,7 +11,6 @@ import {
 } from "@/lib/validators";
 
 // --- PRODUCT TYPES ---
-
 export type ProductVariant = z.infer<typeof insertProductVariantSchema> & {
   id: string;
   productId: string;
@@ -23,8 +22,7 @@ export type Product = z.infer<typeof insertProductSchema> & {
   variants: ProductVariant[];
 };
 
-// --- CART TYPES ---
-
+// --- CART TYPES --
 export type CartItem = z.infer<typeof cartItemSchema>;
 
 export type Cart = z.infer<typeof insertCartSchema> & {
@@ -33,14 +31,16 @@ export type Cart = z.infer<typeof insertCartSchema> & {
 };
 
 // --- ORDER TYPES ---
-
-export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
+export type ShippingAddress = z.output<typeof shippingAddressSchema>;
 
 export type OrderItem = z.infer<typeof insertOrderItemSchema>;
 
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
 
-export type Order = z.infer<typeof insertOrderSchema> & {
+export type Order = Omit<
+  z.infer<typeof insertOrderSchema>,
+  "shippingAddress"
+> & {
   id: string;
   createdAt: Date;
   isPaid: boolean;
@@ -50,4 +50,5 @@ export type Order = z.infer<typeof insertOrderSchema> & {
   orderitems: OrderItem[];
   user?: { name: string; email: string } | null;
   paymentResult: PaymentResult | null;
+  shippingAddress: ShippingAddress;
 };

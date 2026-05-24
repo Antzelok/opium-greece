@@ -97,10 +97,11 @@ model Cart {
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+
 model Order {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String?     @db.Uuid
-  shippingAddress Json        @db.Json
+  shippingAddress Json        @db.Json // Θα αποθηκεύει: firstName, lastName, streetName, streetNumber, postalCode, phoneNumber, boxnowLockerId
   paymentMethod   String
   paymentResult   Json?       @db.Json
   itemsPrice      Decimal     @db.Decimal(12, 2)
