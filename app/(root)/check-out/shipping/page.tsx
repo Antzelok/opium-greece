@@ -1,30 +1,66 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { createPortal } from "react-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import CheckoutSteps from "@/components/shared/checkout-steps";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-const CheckoutPage = () => {
-  const [shippingMethod, setShippingMethod] = useState("elta");
+interface BoxNowSelectedData {
+  boxnowLockerId: string;
+  boxnowLockerAddressLine1?: string;
+  boxnowLockerAddressLine2?: string;
+}
+
+interface BoxNowWindow extends Window {
+  _bn_afterSelect?: (selected: BoxNowSelectedData) => void;
+  _bn_map_widget_config?: {
+    partnerId: string;
+    parentElement: string;
+    type: "popup" | "iframe";
+    autoclose: boolean;
+    gps: boolean;
+    afterSelect: (selected: BoxNowSelectedData) => void;
+  };
+}
+
+const ShippingPage = () => {
+  const [shippingMethod, setShippingMethod] = useState<"elta" | "boxnow" | "">(
+    "",
+  );
   const [boxNowLocker, setBoxNowLocker] = useState<{
     id: string;
     address: string;
   } | null>(null);
-  const [isMapOpen, setIsMapOpen] = useState(false); // Track αν ο χάρτης είναι ανοιχτός για το pointer-events
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const scriptLoadedRef = useRef(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    streetName: "",
+    streetNumber: "",
+    postalCode: "",
+    phoneNumber: "",
+  });
+
+  useEffect(() => {
+    const handle = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(handle);
+  }, []);
 
   useEffect(() => {
     if (scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
 
-    const win = window as any;
+    const win = window as unknown as BoxNowWindow;
 
-    win._bn_afterSelect = (selected: any) => {
-      console.log("BoxNow Selected:", selected);
+    win._bn_afterSelect = (selected: BoxNowSelectedData) => {
       if (selected && selected.boxnowLockerId) {
         setBoxNowLocker({
           id: selected.boxnowLockerId,
@@ -37,17 +73,17 @@ const CheckoutPage = () => {
         });
         setShippingMethod("boxnow");
       }
-      setIsMapOpen(false); // Κλείνει ο χάρτης, επαναφέρουμε το pointer-events
+      setIsMapOpen(false);
     };
 
-    // Το config για το v5 widget
     win._bn_map_widget_config = {
       partnerId: "9083",
       parentElement: "#boxnowmap",
-      type: "popup", // Αλλάχτηκε σε popup για να λειτουργεί σωστά το overlay
+      type: "popup",
       autoclose: true,
       gps: true,
-      afterSelect: (selected: any) => win._bn_afterSelect(selected),
+      afterSelect: (selected: BoxNowSelectedData) =>
+        win._bn_afterSelect?.(selected),
     };
 
     const script = document.createElement("script");
@@ -56,188 +92,282 @@ const CheckoutPage = () => {
     script.async = true;
     script.defer = true;
     script.id = "boxnow-widget-script";
-
-    script.onload = () => console.log("✓ BoxNow widget script loaded");
-    script.onerror = () =>
-      console.error("✗ Failed to load BoxNow widget script");
-
     document.head.appendChild(script);
 
     return () => {
       const scriptEl = document.getElementById("boxnow-widget-script");
       if (scriptEl) scriptEl.remove();
-      delete win._bn_map_widget_config;
-      delete win._bn_afterSelect;
+      const cleanWin = window as unknown as BoxNowWindow;
+      delete cleanWin._bn_map_widget_config;
+      delete cleanWin._bn_afterSelect;
       scriptLoadedRef.current = false;
     };
   }, []);
 
-  const handleBoxNowSelect = () => {
-    setShippingMethod("boxnow");
-  };
-
   const openBoxNowWidget = () => {
     const triggerBtn = document.getElementById("boxnow-widget-trigger");
     if (triggerBtn) {
-      setIsMapOpen(true); // Ενεργοποιούμε τα κλικ πριν ανοίξει ο χάρτης
+      setIsMapOpen(true);
       triggerBtn.click();
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white font-sans p-6 md:p-12">
-      <CheckoutSteps current={2} />
-      <div
-        id="boxnowmap"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 9999,
-          pointerEvents: isMapOpen ? "auto" : "none",
-        }}
-      />
-
-      <button
-        id="boxnow-widget-trigger"
-        className="boxnow-map-widget-button"
-        style={{
-          position: "absolute",
-          opacity: 0,
-          pointerEvents: "none",
-          width: 0,
-          height: 0,
-          overflow: "hidden",
-        }}
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        Open BoxNow
-      </button>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {/* Left Form */}
-        <div className="lg:col-span-2 space-y-8 bg-zinc-950 p-6 rounded-lg border border-zinc-900">
-          <h2 className="text-xl font-semibold tracking-wider text-[#C5A861] uppercase">
-            ΟΛΟΚΛΗΡΩΣΗ ΑΠΟΣΤΟΛΗΣ
-          </h2>
-
-          <div className="space-y-3">
-            <span className="text-xs text-[#C5A861] uppercase tracking-wider block">
-              ΕΠΙΛΟΓΗ ΜΕΤΑΦΟΡΙΚΗΣ (+€2.00)
-            </span>
-
-            <RadioGroup
-              value={shippingMethod}
-              onValueChange={setShippingMethod}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    <div className="space-y-8 bg-zinc-950 p-8 border border-white/5 rounded-none">
+      {mounted &&
+        createPortal(
+          <>
+            <div
+              id="boxnowmap"
+              onClick={() => setIsMapOpen(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                zIndex: 99999,
+                pointerEvents: isMapOpen ? "auto" : "none",
+              }}
+            />
+            <button
+              id="boxnow-widget-trigger"
+              className="boxnow-map-widget-button"
+              style={{
+                position: "absolute",
+                opacity: 0,
+                pointerEvents: "none",
+                width: 0,
+                height: 0,
+              }}
+              aria-hidden="true"
+              tabIndex={-1}
             >
-              {/* ELTA */}
-              <Label
-                htmlFor="elta"
-                className={`flex items-start justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  shippingMethod === "elta"
-                    ? "border-[#C5A861] bg-zinc-900"
-                    : "border-zinc-800 bg-black"
-                }`}
-              >
-                <div className="space-y-1">
-                  <span className="font-bold block text-sm text-zinc-400">
-                    ELTA COURIER
-                  </span>
-                  <span className="text-xs text-zinc-500 block">
-                    ΠΑΡΑΔΟΣΗ ΣΤΟ ΧΩΡΟ ΣΑΣ
-                  </span>
-                  <span className="text-sm font-semibold mt-2 block">
-                    + €2.00
-                  </span>
-                </div>
-                <RadioGroupItem
-                  value="elta"
-                  id="elta"
-                  className="border-zinc-600 text-[#C5A861]"
-                />
-              </Label>
+              Open
+            </button>
+          </>,
+          document.body,
+        )}
 
-              {/* BoxNow */}
-              <Label
-                htmlFor="boxnow"
-                onClick={handleBoxNowSelect}
-                className={`flex flex-col justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  shippingMethod === "boxnow"
-                    ? "border-[#C5A861] bg-zinc-900"
-                    : "border-zinc-800 bg-black"
-                }`}
-              >
-                <div className="flex items-start justify-between w-full">
-                  <div className="space-y-1">
-                    <span className="font-bold block text-sm text-green-500">
-                      BOX NOW
-                    </span>
-                    <span className="text-xs text-zinc-500 block">
-                      ΕΠΙΛΟΓΗ ΑΠΟ ΧΑΡΤΗ
-                    </span>
-                    <span className="text-sm font-semibold mt-2 block">
-                      + €2.00
-                    </span>
-                  </div>
-                  <RadioGroupItem
-                    value="boxnow"
-                    id="boxnow"
-                    className="border-zinc-600 text-[#C5A861]"
-                  />
-                </div>
+      {/* Header */}
+      <div>
+        <h2 className="text-[11px] font-black tracking-[0.2em] text-[#c5a059] uppercase italic mb-2">
+          ΟΛΟΚΛΗΡΩΣΗ ΑΠΟΣΤΟΛΗΣ
+        </h2>
+        <div className="h-px bg-white/5 my-4" />
+      </div>
 
-                {shippingMethod === "boxnow" && (
-                  <div className="mt-4 pt-4 border-t border-zinc-800 w-full space-y-3">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openBoxNowWidget();
-                      }}
-                      className="w-full py-2 px-3 bg-green-600 text-white font-bold rounded text-xs tracking-wider uppercase text-center hover:bg-green-700 transition-colors"
-                    >
-                      {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΕΞΤΕ ΘΥΡΙΔΑ"}
-                    </button>
+      {/* Shipping Methods */}
+      <div className="space-y-4">
+        <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
+          ΕΠΙΛΟΓΗ ΜΕΤΑΦΟΡΙΚΗΣ
+        </span>
 
-                    {boxNowLocker && (
-                      <div className="p-2 bg-green-950/40 border border-green-800 rounded text-xs text-green-400">
-                        <p className="font-bold">
-                          ✓ Θυρίδα: #{boxNowLocker.id}
-                        </p>
-                        <p className="opacity-90">{boxNowLocker.address}</p>
-                      </div>
-                    )}
+        <RadioGroup
+          value={shippingMethod}
+          onValueChange={(val) => setShippingMethod(val as "elta" | "boxnow")}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
+          {/* ELTA Courier */}
+          <Label
+            htmlFor="elta"
+            className={`flex items-start justify-between p-5 rounded-none border cursor-pointer transition-all ${
+              shippingMethod === "elta"
+                ? "border-[#c5a059] bg-white/2"
+                : "border-white/5 bg-black hover:border-white/10"
+            }`}
+          >
+            <div className="space-y-1">
+              <span className="font-bold block text-[12px] uppercase tracking-wider text-neutral-200">
+                ELTA COURIER
+              </span>
+              <span className="text-[10px] text-neutral-500 block tracking-wide">
+                ΠΑΡΑΔΟΣΗ ΣΤΟ ΧΩΡΟ ΣΑΣ (ΑΝΤΙΚΑΤΑΒΟΛΗ)
+              </span>
+              <span className="text-xs font-mono mt-3 block text-[#c5a059]">
+                + €2.00
+              </span>
+            </div>
+            <RadioGroupItem
+              value="elta"
+              id="elta"
+              className="border-neutral-700 text-[#c5a059]"
+            />
+          </Label>
+
+          {/* BoxNow */}
+          <Label
+            htmlFor="boxnow"
+            onClick={() => setShippingMethod("boxnow")}
+            className={`flex flex-col justify-between p-5 rounded-none border cursor-pointer transition-all ${
+              shippingMethod === "boxnow"
+                ? "border-[#c5a059] bg-white/2"
+                : "border-white/5 bg-black hover:border-white/10"
+            }`}
+          >
+            <div className="flex items-start justify-between w-full">
+              <div className="space-y-1">
+                <span className="font-bold block text-[12px] uppercase tracking-wider text-green-500">
+                  BOX NOW
+                </span>
+                <span className="text-[10px] text-neutral-500 block tracking-wide">
+                  ΕΠΙΛΟΓΗ ΑΠΟ ΧΑΡΤΗ
+                </span>
+                <span className="text-xs font-mono mt-3 block text-green-500">
+                  + €2.00
+                </span>
+              </div>
+              <RadioGroupItem
+                value="boxnow"
+                id="boxnow"
+                className="border-neutral-700 text-[#c5a059]"
+              />
+            </div>
+
+            {shippingMethod === "boxnow" && (
+              <div className="mt-4 pt-4 border-t border-white/5 w-full space-y-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openBoxNowWidget();
+                  }}
+                  className="w-full py-2.5 px-4 bg-green-600 text-white font-black rounded-none text-[10px] tracking-widest uppercase text-center hover:bg-green-700 transition-colors"
+                >
+                  {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΕΞΤΕ ΘΥΡΙΔΑ"}
+                </button>
+
+                {boxNowLocker && (
+                  <div className="p-3 bg-green-950/20 border border-green-900/30 rounded-none text-[11px] text-green-400">
+                    <p className="font-bold uppercase tracking-wider">
+                      ✓ Θυρίδα: #{boxNowLocker.id}
+                    </p>
+                    <p className="opacity-80 mt-1">{boxNowLocker.address}</p>
                   </div>
                 )}
+              </div>
+            )}
+          </Label>
+        </RadioGroup>
+      </div>
+
+      {/* Address Form Fields - Rendered Conditionally */}
+      {shippingMethod !== "" && (
+        <div className="space-y-4 pt-4 animate-in fade-in duration-300">
+          <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
+            ΣΤΟΙΧΕΙΑ ΑΠΟΣΤΟΛΗΣ & ΕΠΙΚΟΙΝΩΝΙΑΣ
+          </span>
+
+          {/* Όνομα / Επώνυμο */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                Όνομα
               </Label>
-            </RadioGroup>
+              <Input
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                Επώνυμο
+              </Label>
+              <Input
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+              />
+            </div>
           </div>
 
-          {/* Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            <div className="space-y-2">
-              <Label className="text-xs text-zinc-400 uppercase">
-                Ονοματεπώνυμο
+          {/* Email (Μόνο για BoxNow) & Τηλέφωνο Επικοινωνίας */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {shippingMethod === "boxnow" && (
+              <div className="space-y-2">
+                <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                  Email
+                </Label>
+                <Input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                />
+              </div>
+            )}
+            <div className="space-y-2 col-span-1">
+              <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                Τηλέφωνο Επικοινωνίας
               </Label>
-              <Input className="bg-black border-zinc-800 text-white focus:border-[#C5A861]" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-zinc-400 uppercase">
-                Τηλέφωνο
-              </Label>
-              <Input className="bg-black border-zinc-800 text-white focus:border-[#C5A861]" />
+              <Input
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                type="tel"
+              />
             </div>
           </div>
+
+          {/* Οδός / Αριθμός / Τ.Κ. - Εμφανίζονται ΜΟΝΟ αν επιλεγεί ELTA */}
+          {shippingMethod === "elta" && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-2">
+                  <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                    Οδός
+                  </Label>
+                  <Input
+                    name="streetName"
+                    value={formData.streetName}
+                    onChange={handleInputChange}
+                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                  />
+                </div>
+                <div className="col-span-1 space-y-2">
+                  <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                    Αριθμός
+                  </Label>
+                  <Input
+                    name="streetNumber"
+                    value={formData.streetNumber}
+                    onChange={handleInputChange}
+                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                    Ταχυδρομικός Κώδικας (Τ.Κ.)
+                  </Label>
+                  <Input
+                    name="postalCode"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default CheckoutPage;
+export default ShippingPage;
