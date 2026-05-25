@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import { formatCurrency } from "@/lib/utils";
+import ShippingBar from "@/components/shared/shipping-bar";
 
 export default async function CheckoutLayout({
   children,
@@ -34,14 +36,22 @@ export default async function CheckoutLayout({
                 </span>
               </div>
               <div className="h-px bg-white/5 my-6" />
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-white text-[11px] font-black tracking-[0.2em]">
-                  TOTAL
-                </span>
-                <span className="text-[#c5a059] text-3xl font-serif tracking-tighter">
-                  {formatCurrency(subtotal)}
-                </span>
-              </div>
+
+              {/* Client Component */}
+              <Suspense
+                fallback={
+                  <div className="flex justify-between items-end pt-2">
+                    <span className="text-white text-[11px] font-black tracking-[0.2em]">
+                      TOTAL
+                    </span>
+                    <span className="text-[#c5a059] text-3xl font-serif tracking-tighter">
+                      {formatCurrency(subtotal)}
+                    </span>
+                  </div>
+                }
+              >
+                <ShippingBar subtotal={subtotal} />
+              </Suspense>
             </div>
           </div>
         </aside>

@@ -37,7 +37,6 @@ const ShippingDetailsPage = () => {
   const [mounted, setMounted] = useState(false);
   const scriptLoadedRef = useRef(false);
 
-  // Form State
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,6 +46,17 @@ const ShippingDetailsPage = () => {
     postalCode: "",
     phoneNumber: "",
   });
+
+  const handleMethodChange = (val: "elta" | "boxnow" | "") => {
+    setShippingMethod(val);
+    const url = new URL(window.location.href);
+    if (val) {
+      url.searchParams.set("shipping", "true");
+    } else {
+      url.searchParams.delete("shipping");
+    }
+    window.history.replaceState(null, "", url.toString());
+  };
 
   useEffect(() => {
     const handle = requestAnimationFrame(() => {
@@ -72,7 +82,7 @@ const ShippingDetailsPage = () => {
             .filter(Boolean)
             .join(", "),
         });
-        setShippingMethod("boxnow");
+        handleMethodChange("boxnow");
       }
       setIsMapOpen(false);
     };
@@ -157,26 +167,25 @@ const ShippingDetailsPage = () => {
             document.body,
           )}
 
-        {/* Header */}
         <div>
-          <h2 className="text-[11px] font-black tracking-[0.2em] text-[#c5a059] uppercase italic mb-2">
+          <h2 className="text-[11px] font-black tracking-[0.2em] text-[#c5a059] italic mb-2">
             ΟΛΟΚΛΗΡΩΣΗ ΑΠΟΣΤΟΛΗΣ
           </h2>
           <div className="h-px bg-white/5 my-4" />
         </div>
 
-        {/* Shipping Methods */}
         <div className="space-y-4">
-          <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
+          <span className="text-[10px] text-neutral-500 tracking-widest block font-bold">
             ΕΠΙΛΟΓΗ ΜΕΤΑΦΟΡΙΚΗΣ
           </span>
 
           <RadioGroup
             value={shippingMethod}
-            onValueChange={(val) => setShippingMethod(val as "elta" | "boxnow")}
+            onValueChange={(val) =>
+              handleMethodChange(val as "elta" | "boxnow")
+            }
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
-            {/* ELTA Courier */}
             <Label
               htmlFor="elta"
               className={`flex items-start justify-between p-5 rounded-none border cursor-pointer transition-all ${
@@ -186,7 +195,7 @@ const ShippingDetailsPage = () => {
               }`}
             >
               <div className="space-y-1">
-                <span className="font-bold block text-[12px] uppercase tracking-wider text-neutral-200">
+                <span className="font-bold block text-[12px] tracking-wider text-neutral-200">
                   ELTA COURIER
                 </span>
                 <span className="text-[10px] text-neutral-500 block tracking-wide">
@@ -203,10 +212,9 @@ const ShippingDetailsPage = () => {
               />
             </Label>
 
-            {/* BoxNow */}
             <Label
               htmlFor="boxnow"
-              onClick={() => setShippingMethod("boxnow")}
+              onClick={() => handleMethodChange("boxnow")}
               className={`flex flex-col justify-between p-5 rounded-none border cursor-pointer transition-all ${
                 shippingMethod === "boxnow"
                   ? "border-[#c5a059] bg-white/2"
@@ -215,7 +223,7 @@ const ShippingDetailsPage = () => {
             >
               <div className="flex items-start justify-between w-full">
                 <div className="space-y-1">
-                  <span className="font-bold block text-[12px] uppercase tracking-wider text-green-500">
+                  <span className="font-bold block text-[12px] tracking-wider text-green-500">
                     BOX NOW
                   </span>
                   <span className="text-[10px] text-neutral-500 block tracking-wide">
@@ -260,107 +268,103 @@ const ShippingDetailsPage = () => {
           </RadioGroup>
         </div>
 
-        {/* Address Form Fields - Rendered Conditionally */}
         {shippingMethod !== "" && (
           <div className="space-y-4 pt-4 animate-in fade-in duration-300">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
+            <span className="text-[10px] text-neutral-500 tracking-widest block font-bold">
               ΣΤΟΙΧΕΙΑ ΑΠΟΣΤΟΛΗΣ & ΕΠΙΚΟΙΝΩΝΙΑΣ
             </span>
 
-            {/* Όνομα / Επώνυμο */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                  Όνομα
+                <Label className="text-[12px] text-neutral-400 tracking-widest">
+                  ΌNOMA
                 </Label>
                 <Input
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                  Επώνυμο
+                <Label className="text-[12px] text-neutral-400 tracking-widest">
+                  ΕΠΩΝΥΜΟ
                 </Label>
                 <Input
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                 />
               </div>
             </div>
 
-            {/* Email (Μόνο για BoxNow) & Τηλέφωνο Επικοινωνίας */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {shippingMethod === "boxnow" && (
                 <div className="space-y-2">
-                  <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                    Email
+                  <Label className="text-[12px] text-neutral-400 tracking-widest">
+                    EMAIL
                   </Label>
                   <Input
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                   />
                 </div>
               )}
               <div className="space-y-2 col-span-1">
-                <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                  Τηλέφωνο Επικοινωνίας
+                <Label className="text-[12px] text-neutral-400 tracking-widest">
+                  ΤΗΛΕΦΩΝΟ ΕΠΙΚΟΙΝΩΝΙΑΣ
                 </Label>
                 <Input
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                   type="tel"
                 />
               </div>
             </div>
 
-            {/* Οδός / Αριθμός / Τ.Κ. - Εμφανίζονται ΜΟΝΟ αν επιλεγεί ELTA */}
             {shippingMethod === "elta" && (
               <div className="space-y-4 animate-in fade-in duration-200">
                 <div className="grid grid-cols-4 gap-4">
                   <div className="col-span-3 space-y-2">
-                    <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                      Οδός
+                    <Label className="text-[12px] text-neutral-400 tracking-widest">
+                      ΟΔΟΣ
                     </Label>
                     <Input
                       name="streetName"
                       value={formData.streetName}
                       onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                     />
                   </div>
                   <div className="col-span-1 space-y-2">
-                    <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                      Αριθμός
+                    <Label className="text-[12px] text-neutral-400  tracking-widest">
+                      ΑΡΙΘΜΟΣ
                     </Label>
                     <Input
                       name="streetNumber"
                       value={formData.streetNumber}
                       onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] text-neutral-400 uppercase tracking-widest">
-                      Ταχυδρομικός Κώδικας (Τ.Κ.)
+                    <Label className="text-[12px] text-neutral-400 tracking-widest">
+                      ΤΑΧΥΔΡΟΜΙΚΟΣ ΚΩΔΙΚΑΣ (Τ.Κ.)
                     </Label>
                     <Input
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-none text-sm h-11"
+                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
                       maxLength={5}
                     />
                   </div>
