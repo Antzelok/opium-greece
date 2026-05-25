@@ -83,6 +83,7 @@ CREATE TABLE "VerificationToken" (
 CREATE TABLE "Cart" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "userId" UUID,
+    "guestEmail" TEXT,
     "sessionCartId" TEXT NOT NULL,
     "items" JSON[] DEFAULT ARRAY[]::JSON[],
     "itemsPrice" DECIMAL(12,2) NOT NULL,
@@ -130,6 +131,9 @@ CREATE UNIQUE INDEX "product_slug_idx" ON "Product"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_idx" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Cart_sessionCartId_key" ON "Cart"("sessionCartId");
 
 -- AddForeignKey
 ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
