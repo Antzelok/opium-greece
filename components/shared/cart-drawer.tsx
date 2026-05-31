@@ -129,7 +129,6 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                           {item.name}
                         </h4>
 
-                        {/* ML & Type Variants */}
                         <div className="flex items-center gap-2">
                           <span className="text-[#C5A25D] text-[8px] border border-[#C5A25D]/20 px-1.5 py-0.5 rounded-sm uppercase tracking-widest font-bold">
                             {item.size}
@@ -170,7 +169,6 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                         </button>
                       </div>
 
-                      {/* Subtotal per item type */}
                       <span className="text-[10px] text-neutral-500 font-light italic">
                         {formatCurrency(Number(item.price) * item.qty)}
                       </span>
@@ -204,7 +202,10 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
               onClick={() => setOpen(false)}
               className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-none h-14 uppercase text-[10px] font-black tracking-[0.3em] transition-all"
             >
-              <Link href="/check-out">Secure Checkout</Link>
+              {/* Ternary logic για το redirection */}
+              <Link href={cart?.userId ? "/check-out/shipping" : "/check-out"}>
+                Secure Checkout
+              </Link>
             </Button>
 
             <p className="text-center text-[8px] text-neutral-600 uppercase tracking-widest mt-4">
