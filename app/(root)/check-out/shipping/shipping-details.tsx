@@ -1,12 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import CheckoutSteps from "@/components/shared/checkout-steps";
-import { updateCartShippingAddress, updateCartGuestEmail } from "@/lib/actions/cart.actions"; 
+import {
+  updateCartShippingAddress,
+  updateCartGuestEmail,
+} from "@/lib/actions/cart.actions";
 import { shippingAddressSchema } from "@/lib/validators";
 import { z } from "zod";
 
@@ -33,11 +41,26 @@ declare global {
 
 type ShippingFormValues = z.infer<typeof shippingAddressSchema>;
 
+// Συναρτήσεις για ασφαλές Client Check χωρίς Hydration Mismatch
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 const ShippingDetailsPage = () => {
   const router = useRouter();
-  
+
+  // Αντικαθιστά το isServer/mounted state για αποφυγή cascading renders
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
   const [shippingMethod, setShippingMethod] = useState<string>("");
-  const [boxNowLocker, setBoxNowLocker] = useState<{ id: string; address: string } | null>(null);
+  const [boxNowLocker, setBoxNowLocker] = useState<{
+    id: string;
+    address: string;
+  } | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,17 +76,15 @@ const ShippingDetailsPage = () => {
     phoneNumber: "",
   });
 
-  const isServer = useMemo(() => typeof window === "undefined", []);
-
   useEffect(() => {
-    if (isServer || scriptLoadedRef.current) return;
+    if (!isClient || scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
 
     window._bn_afterSelect = (selected: BoxNowSelectedData) => {
       if (selected?.boxnowLockerId) {
-        setBoxNowLocker({ 
-          id: selected.boxnowLockerId, 
-          address: selected.boxnowLockerAddressLine1 || "" 
+        setBoxNowLocker({
+          id: selected.boxnowLockerId,
+          address: selected.boxnowLockerAddressLine1 || "",
         });
         setShippingMethod("boxnow");
       }
@@ -71,33 +92,36 @@ const ShippingDetailsPage = () => {
     };
 
     window._bn_map_widget_config = {
-      partnerId: 9083, 
-      parentElement: "#boxnowmap", 
-      type: "popup", 
-      autoclose: true, 
+      partnerId: 9083,
+      parentElement: "#boxnowmap",
+      type: "popup",
+      autoclose: true,
       gps: true,
-      afterSelect: (selected: BoxNowSelectedData) => window._bn_afterSelect?.(selected),
+      afterSelect: (selected: BoxNowSelectedData) =>
+        window._bn_afterSelect?.(selected),
     };
 
     const script = document.createElement("script");
     script.src = "https://widget-cdn.boxnow.gr/map-widget/client/v5.js";
     script.async = true;
     document.head.appendChild(script);
-  }, [isServer]);
+  }, [isClient]);
 
   const openBoxNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsMapOpen(true);
-    
-    setTimeout(() => { 
-      const btn = document.querySelector(".boxnow-map-widget-button") as HTMLButtonElement;
+
+    setTimeout(() => {
+      const btn = document.querySelector(
+        ".boxnow-map-widget-button",
+      ) as HTMLButtonElement;
       if (btn) btn.click();
     }, 50);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const selectElta = () => {
@@ -129,7 +153,9 @@ const ShippingDetailsPage = () => {
 
     try {
       await updateCartGuestEmail(formData.email);
-      const res = await updateCartShippingAddress(validation.data as ShippingFormValues);
+      const res = await updateCartShippingAddress(
+        validation.data as ShippingFormValues,
+      );
       if (res.success) router.push("/payment-method");
       else setError(res.message);
     } catch {
@@ -139,36 +165,48 @@ const ShippingDetailsPage = () => {
     }
   };
 
-  if (isServer) return <div className="min-h-screen bg-zinc-950" />;
+  // Όσο είμαστε στον Server, δείχνουμε μόνο το μαύρο φόντο για smooth hydration
+  if (!isClient) {
+    return <div className="min-h-screen bg-zinc-950" />;
+  }
 
-  const inputStyle = "bg-zinc-900 border-white/10 rounded-xl h-12 focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059]/20 transition-all placeholder:text-zinc-600 text-sm";
+  const inputStyle =
+    "bg-zinc-900 border-white/10 rounded-xl h-12 focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059]/20 transition-all placeholder:text-zinc-600 text-sm text-white";
 
   return (
     <>
       <CheckoutSteps current={1} />
       <div className="max-w-4xl mx-auto space-y-10 bg-zinc-950 p-10 border border-white/5 mt-10 rounded-2xl shadow-xl">
-        
         {createPortal(
-          <div 
-            id="boxnowmap" 
-            style={{ 
-              position: "fixed", top: 0, left: 0, width: "100%", height: "100%", 
-              zIndex: 9999, backgroundColor: "rgba(0,0,0,0.85)",
+          <div
+            id="boxnowmap"
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 9999,
+              backgroundColor: "rgba(0,0,0,0.85)",
               visibility: isMapOpen ? "visible" : "hidden",
               opacity: isMapOpen ? 1 : 0,
               pointerEvents: isMapOpen ? "auto" : "none",
-              transition: "opacity 0.3s ease"
+              transition: "opacity 0.3s ease",
             }}
           >
-            <button className="boxnow-map-widget-button hidden" type="button">Select</button>
+            <button className="boxnow-map-widget-button hidden" type="button">
+              Select
+            </button>
           </div>,
-          document.body
+          document.body,
         )}
 
         {/* Μέθοδοι Αποστολής */}
         <div className="space-y-6">
-          <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">Shipping Method</h3>
-          
+          <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">
+            Shipping Method
+          </h3>
+
           <div className="grid grid-cols-2 gap-6">
             {/* Κουμπί ELTA */}
             <button
@@ -180,11 +218,11 @@ const ShippingDetailsPage = () => {
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
               }`}
             >
-              ELTA Courier
+              ELTA Courier (+2.00€)
             </button>
-            
-            {/* Κουμπί BoxNow + Επιλογή Θυρίδας στο ίδιο koutaki */}
-            <div 
+
+            {/* Κουμπί BoxNow */}
+            <div
               onClick={selectBoxNow}
               className={`block p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
                 shippingMethod === "boxnow"
@@ -192,8 +230,10 @@ const ShippingDetailsPage = () => {
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
               }`}
             >
-              <span className="block text-[10px] uppercase tracking-widest mb-3">BoxNow Locker</span>
-              
+              <span className="block text-[10px] uppercase tracking-widest mb-3">
+                BoxNow Locker (+2.00€)
+              </span>
+
               {shippingMethod === "boxnow" && (
                 <div className="animate-in fade-in zoom-in-95 duration-200">
                   <button
@@ -201,11 +241,16 @@ const ShippingDetailsPage = () => {
                     onClick={openBoxNow}
                     className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors"
                   >
-                    {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ ΑΠΟ ΧΑΡΤΗ"}
+                    {boxNowLocker
+                      ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ"
+                      : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ ΑΠΟ ΧΑΡΤΗ"}
                   </button>
                   {boxNowLocker && (
                     <p className="text-[#c5a059] text-[9px] font-mono mt-2 uppercase tracking-normal">
-                      Locker: {boxNowLocker.id} <br/> <span className="text-zinc-400 font-sans normal-case">{boxNowLocker.address}</span>
+                      Locker: {boxNowLocker.id} <br />
+                      <span className="text-zinc-400 font-sans normal-case">
+                        {boxNowLocker.address}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -216,53 +261,124 @@ const ShippingDetailsPage = () => {
 
         {/* Φόρμα Στοιχείων */}
         {shippingMethod && (
-          <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg">{error}</div>}
-            
-            {/* 4 Βασικά Inputs (Εμφανίζονται ΠΑΝΤΑ) */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          >
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg">
+                {error}
+              </div>
+            )}
+
+            {/* Βασικά Inputs */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">First Name</Label>
-                <Input name="firstName" placeholder="JOHN" onChange={handleInputChange} required className={inputStyle} />
+                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                  First Name
+                </Label>
+                <Input
+                  name="firstName"
+                  placeholder="JOHN"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  className={inputStyle}
+                />
               </div>
               <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Last Name</Label>
-                <Input name="lastName" placeholder="DOE" onChange={handleInputChange} required className={inputStyle} />
+                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                  Last Name
+                </Label>
+                <Input
+                  name="lastName"
+                  placeholder="DOE"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  className={inputStyle}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Email</Label>
-                <Input name="email" type="email" placeholder="EXAMPLE@MAIL.COM" onChange={handleInputChange} required className={inputStyle} />
+                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                  Email
+                </Label>
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="EXAMPLE@MAIL.COM"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className={inputStyle}
+                />
               </div>
               <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Phone</Label>
-                <Input name="phoneNumber" placeholder="6900000000" onChange={handleInputChange} required className={inputStyle} />
+                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                  Phone
+                </Label>
+                <Input
+                  name="phoneNumber"
+                  placeholder="6900000000"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  required
+                  className={inputStyle}
+                />
               </div>
             </div>
 
-            {/* Επιπλέον πεδία Διεύθυνσης (ΜΟΝΟ για ELTA) */}
+            {/* Πεδία Διεύθυνσης (ΜΟΝΟ για ELTA) */}
             {shippingMethod === "elta" && (
               <div className="grid grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-300">
                 <div className="col-span-2 space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Street Name</Label>
-                  <Input name="streetName" placeholder="STREET" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
+                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                    Street Name
+                  </Label>
+                  <Input
+                    name="streetName"
+                    placeholder="STREET"
+                    value={formData.streetName}
+                    onChange={handleInputChange}
+                    required={shippingMethod === "elta"}
+                    className={inputStyle}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Number</Label>
-                  <Input name="streetNumber" placeholder="NO" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
+                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                    Number
+                  </Label>
+                  <Input
+                    name="streetNumber"
+                    placeholder="NO"
+                    value={formData.streetNumber}
+                    onChange={handleInputChange}
+                    required={shippingMethod === "elta"}
+                    className={inputStyle}
+                  />
                 </div>
                 <div className="col-span-3 space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Postal Code</Label>
-                  <Input name="postalCode" placeholder="000 00" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
+                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
+                    Postal Code
+                  </Label>
+                  <Input
+                    name="postalCode"
+                    placeholder="000 00"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    required={shippingMethod === "elta"}
+                    className={inputStyle}
+                  />
                 </div>
               </div>
             )}
 
-            <button 
-              type="submit" 
-              disabled={isSubmitting} 
+            <button
+              type="submit"
+              disabled={isSubmitting}
               className="w-full bg-[#c5a059] text-black py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
             >
               {isSubmitting ? "Processing..." : "Continue to Payment"}
