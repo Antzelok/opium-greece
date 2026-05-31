@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import CheckoutSteps from "@/components/shared/checkout-steps";
@@ -101,6 +100,15 @@ const ShippingDetailsPage = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const selectElta = () => {
+    setBoxNowLocker(null);
+    setShippingMethod("elta");
+  };
+
+  const selectBoxNow = () => {
+    setShippingMethod("boxnow");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -138,7 +146,6 @@ const ShippingDetailsPage = () => {
   return (
     <>
       <CheckoutSteps current={1} />
-      {/* Max width αυξημένο σε 4xl */}
       <div className="max-w-4xl mx-auto space-y-10 bg-zinc-950 p-10 border border-white/5 mt-10 rounded-2xl shadow-xl">
         
         {createPortal(
@@ -158,33 +165,61 @@ const ShippingDetailsPage = () => {
           document.body
         )}
 
+        {/* Μέθοδοι Αποστολής */}
         <div className="space-y-6">
           <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">Shipping Method</h3>
-          <RadioGroup value={shippingMethod} onValueChange={setShippingMethod} className="grid grid-cols-2 gap-6">
-            <div onClick={() => { setBoxNowLocker(null); setShippingMethod("elta"); }}>
-              <RadioGroupItem value="elta" id="elta" className="sr-only peer" />
-              <Label htmlFor="elta" className="block p-6 bg-zinc-900/50 border border-white/5 rounded-xl peer-data-[state=checked]:border-[#c5a059] peer-data-[state=checked]:bg-[#c5a059]/5 cursor-pointer text-[10px] uppercase tracking-widest text-center transition-all hover:bg-zinc-800">
-                ELTA Courier
-              </Label>
+          
+          <div className="grid grid-cols-2 gap-6">
+            {/* Κουμπί ELTA */}
+            <button
+              type="button"
+              onClick={selectElta}
+              className={`block p-6 border rounded-xl text-[10px] uppercase tracking-widest text-center transition-all duration-300 ${
+                shippingMethod === "elta"
+                  ? "border-[#c5a059] bg-[#c5a059]/5 text-white"
+                  : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
+              }`}
+            >
+              ELTA Courier
+            </button>
+            
+            {/* Κουμπί BoxNow + Επιλογή Θυρίδας στο ίδιο koutaki */}
+            <div 
+              onClick={selectBoxNow}
+              className={`block p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
+                shippingMethod === "boxnow"
+                  ? "border-[#c5a059] bg-[#c5a059]/5 text-white"
+                  : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
+              }`}
+            >
+              <span className="block text-[10px] uppercase tracking-widest mb-3">BoxNow Locker</span>
+              
+              {shippingMethod === "boxnow" && (
+                <div className="animate-in fade-in zoom-in-95 duration-200">
+                  <button
+                    type="button"
+                    onClick={openBoxNow}
+                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors"
+                  >
+                    {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ ΑΠΟ ΧΑΡΤΗ"}
+                  </button>
+                  {boxNowLocker && (
+                    <p className="text-[#c5a059] text-[9px] font-mono mt-2 uppercase tracking-normal">
+                      Locker: {boxNowLocker.id} <br/> <span className="text-zinc-400 font-sans normal-case">{boxNowLocker.address}</span>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-            <div onClick={openBoxNow}>
-              <RadioGroupItem value="boxnow" id="boxnow" className="sr-only peer" />
-              <Label htmlFor="boxnow" className="block p-6 bg-zinc-900/50 border border-white/5 rounded-xl peer-data-[state=checked]:border-[#c5a059] peer-data-[state=checked]:bg-[#c5a059]/5 cursor-pointer text-[10px] uppercase tracking-widest text-center transition-all hover:bg-zinc-800">
-                {boxNowLocker ? `Locker: ${boxNowLocker.id}` : "BoxNow Map"}
-              </Label>
-            </div>
-          </RadioGroup>
-          {boxNowLocker && (
-             <p className="text-[#c5a059] text-[10px] font-mono tracking-tighter bg-[#c5a059]/10 w-fit px-3 py-1 rounded-full uppercase">
-               Selected Locker: {boxNowLocker.id}
-             </p>
-          )}
+          </div>
         </div>
 
+        {/* Φόρμα Στοιχείων */}
         {shippingMethod && (
           <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg">{error}</div>}
             
+            {/* 4 Βασικά Inputs (Εμφανίζονται ΠΑΝΤΑ) */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">First Name</Label>
@@ -207,19 +242,20 @@ const ShippingDetailsPage = () => {
               </div>
             </div>
 
+            {/* Επιπλέον πεδία Διεύθυνσης (ΜΟΝΟ για ELTA) */}
             {shippingMethod === "elta" && (
-              <div className="grid grid-cols-3 gap-6 animate-in slide-in-from-top-2">
+              <div className="grid grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-300">
                 <div className="col-span-2 space-y-2">
                   <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Street Name</Label>
-                  <Input name="streetName" placeholder="STREET" onChange={handleInputChange} required className={inputStyle} />
+                  <Input name="streetName" placeholder="STREET" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Number</Label>
-                  <Input name="streetNumber" placeholder="NO" onChange={handleInputChange} required className={inputStyle} />
+                  <Input name="streetNumber" placeholder="NO" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
                 </div>
                 <div className="col-span-3 space-y-2">
                   <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">Postal Code</Label>
-                  <Input name="postalCode" placeholder="000 00" onChange={handleInputChange} required className={inputStyle} />
+                  <Input name="postalCode" placeholder="000 00" onChange={handleInputChange} required={shippingMethod === "elta"} className={inputStyle} />
                 </div>
               </div>
             )}
