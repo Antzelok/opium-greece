@@ -93,6 +93,12 @@ const sampleData = {
       role: "admin",
     },
     {
+      name: "Aggelos",
+      email: "aggelos@example.com",
+      password: "123456",
+      role: "admin",
+    },
+    {
       name: "John Doe",
       email: "user@example.com",
       password: "hashed_password_here",

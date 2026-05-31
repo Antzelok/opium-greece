@@ -13,7 +13,6 @@ const currency = z.coerce
 export const insertProductVariantSchema = z.object({
   id: z.string().default(""),
   productId: z.string().default(""),
-
   size: z.string().min(1, "Size is required (e.g., 100ml or Standard)"),
   type: z.enum(
     ["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"],
@@ -40,7 +39,6 @@ export const insertProductSchema = z.object({
 });
 
 // --- CART SCHEMAS ---
-
 export const cartItemSchema = z.object({
   variantId: z.string().min(1, "Variant ID is required"),
   productId: z.string().min(1, "Product ID is required"),
@@ -53,7 +51,6 @@ export const cartItemSchema = z.object({
   brand: z.string().min(1, "Brand is required"),
   price: z.string(),
   qty: z.number().int().nonnegative(),
-  // ΠΡΟΣΘΕΣΕ ΑΥΤΑ ΤΑ ΔΥΟ:
   size: z.string().min(1, "Size is required"),
   type: z.string().min(1, "Type is required"),
 });
@@ -68,15 +65,16 @@ export const insertCartSchema = z.object({
   guestEmail: z.string().email().optional().nullable(),
 });
 
-// --- ORDER SCHEMAS ---
+// --- SHIPPING ADDRESS SCHEMA (ΔΙΟΡΘΩΜΕΝΟ) ---
 export const shippingAddressSchema = z
   .object({
-    shippingMethod: z.enum(["elta", "boxnow"]).default("elta"),
+    shippingMethod: z.string().min(1, "Παρακαλώ επιλέξτε μέθοδο αποστολής"),
     firstName: z.string().min(2, "Το όνομα είναι υποχρεωτικό"),
     lastName: z.string().min(2, "Το επώνυμο είναι υποχρεωτικό"),
+    email: z.string().email("Μη έγκυρο email"),
     streetName: z.string().optional(),
     streetNumber: z.string().optional(),
-    postalCode: z.string().min(5, "Ο Τ.Κ. πρέπει να είναι 5 ψηφία"),
+    postalCode: z.string().optional(),
     phoneNumber: z
       .string()
       .min(10, "Το τηλέφωνο πρέπει να είναι τουλάχιστον 10 ψηφία"),
@@ -98,6 +96,13 @@ export const shippingAddressSchema = z
           path: ["streetNumber"],
         });
       }
+      if (!data.postalCode || data.postalCode.trim().length !== 5) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Ο Τ.Κ. είναι υποχρεωτικός και πρέπει να είναι 5 ψηφία",
+          path: ["postalCode"],
+        });
+      }
     }
     if (data.shippingMethod === "boxnow" && !data.boxnowLockerId) {
       ctx.addIssue({
@@ -108,7 +113,7 @@ export const shippingAddressSchema = z
     }
   });
 
-// Schema for payment method
+// --- ORDER SCHEMAS ---
 export const paymentMethodSchema = z
   .object({
     type: z.string().min(1, "Payment method is required"),

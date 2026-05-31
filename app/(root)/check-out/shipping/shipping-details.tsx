@@ -1,42 +1,49 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import CheckoutSteps from "@/components/shared/checkout-steps";
+import { updateCartShippingAddress, updateCartGuestEmail } from "@/lib/actions/cart.actions"; 
+import { shippingAddressSchema } from "@/lib/validators";
+import { z } from "zod";
 
 interface BoxNowSelectedData {
   boxnowLockerId: string;
   boxnowLockerAddressLine1?: string;
-  boxnowLockerAddressLine2?: string;
 }
 
-interface BoxNowWindow extends Window {
-  _bn_afterSelect?: (selected: BoxNowSelectedData) => void;
-  _bn_map_widget_config?: {
-    partnerId: string;
-    parentElement: string;
-    type: "popup" | "iframe";
-    autoclose: boolean;
-    gps: boolean;
-    afterSelect: (selected: BoxNowSelectedData) => void;
-  };
+interface BoxNowConfig {
+  partnerId: number;
+  parentElement: string;
+  type: "popup" | "iframe";
+  autoclose: boolean;
+  gps: boolean;
+  afterSelect: (selected: BoxNowSelectedData) => void;
 }
+
+declare global {
+  interface Window {
+    _bn_afterSelect?: (selected: BoxNowSelectedData) => void;
+    _bn_map_widget_config?: BoxNowConfig;
+  }
+}
+
+type ShippingFormValues = z.infer<typeof shippingAddressSchema>;
 
 const ShippingDetailsPage = () => {
-  const [shippingMethod, setShippingMethod] = useState<"elta" | "boxnow" | "">(
-    "",
-  );
-  const [boxNowLocker, setBoxNowLocker] = useState<{
-    id: string;
-    address: string;
-  } | null>(null);
+  const router = useRouter();
+  
+  const [shippingMethod, setShippingMethod] = useState<string>("");
+  const [boxNowLocker, setBoxNowLocker] = useState<{ id: string; address: string } | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const scriptLoadedRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const scriptLoadedRef = useRef(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,331 +54,164 @@ const ShippingDetailsPage = () => {
     phoneNumber: "",
   });
 
-  const handleMethodChange = (val: "elta" | "boxnow" | "") => {
-    setShippingMethod(val);
-    const url = new URL(window.location.href);
-    if (val) {
-      url.searchParams.set("shipping", "true");
-    } else {
-      url.searchParams.delete("shipping");
-    }
-    window.history.replaceState(null, "", url.toString());
-  };
+  // Αποφυγή Hydration Error χωρίς useEffect state updates
+  const isServer = useMemo(() => typeof window === "undefined", []);
 
   useEffect(() => {
-    const handle = requestAnimationFrame(() => {
-      setMounted(true);
-    });
-    return () => cancelAnimationFrame(handle);
-  }, []);
-
-  useEffect(() => {
-    if (scriptLoadedRef.current) return;
+    if (isServer || scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
 
-    const win = window as unknown as BoxNowWindow;
-
-    win._bn_afterSelect = (selected: BoxNowSelectedData) => {
-      if (selected && selected.boxnowLockerId) {
-        setBoxNowLocker({
-          id: selected.boxnowLockerId,
-          address: [
-            selected.boxnowLockerAddressLine1,
-            selected.boxnowLockerAddressLine2,
-          ]
-            .filter(Boolean)
-            .join(", "),
+    window._bn_afterSelect = (selected: BoxNowSelectedData) => {
+      if (selected?.boxnowLockerId) {
+        setBoxNowLocker({ 
+          id: selected.boxnowLockerId, 
+          address: selected.boxnowLockerAddressLine1 || "" 
         });
-        handleMethodChange("boxnow");
+        setShippingMethod("boxnow");
       }
       setIsMapOpen(false);
     };
 
-    win._bn_map_widget_config = {
-      partnerId: "9083",
-      parentElement: "#boxnowmap",
-      type: "popup",
-      autoclose: true,
+    window._bn_map_widget_config = {
+      partnerId: 9083, 
+      parentElement: "#boxnowmap", 
+      type: "popup", 
+      autoclose: true, 
       gps: true,
-      afterSelect: (selected: BoxNowSelectedData) =>
-        win._bn_afterSelect?.(selected),
+      afterSelect: (selected: BoxNowSelectedData) => window._bn_afterSelect?.(selected),
     };
 
     const script = document.createElement("script");
-    script.type = "text/javascript";
     script.src = "https://widget-cdn.boxnow.gr/map-widget/client/v5.js";
     script.async = true;
-    script.defer = true;
-    script.id = "boxnow-widget-script";
     document.head.appendChild(script);
+  }, [isServer]);
 
-    return () => {
-      const scriptEl = document.getElementById("boxnow-widget-script");
-      if (scriptEl) scriptEl.remove();
-      const cleanWin = window as unknown as BoxNowWindow;
-      delete cleanWin._bn_map_widget_config;
-      delete cleanWin._bn_afterSelect;
-      scriptLoadedRef.current = false;
-    };
-  }, []);
-
-  const openBoxNowWidget = () => {
-    const triggerBtn = document.getElementById("boxnow-widget-trigger");
-    if (triggerBtn) {
-      setIsMapOpen(true);
-      triggerBtn.click();
-    }
+  const openBoxNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsMapOpen(true);
+    
+    setTimeout(() => { 
+      const btn = document.querySelector(".boxnow-map-widget-button") as HTMLButtonElement;
+      if (btn) {
+        btn.click();
+      }
+    }, 50);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const payload = {
+      ...formData,
+      shippingMethod,
+      boxnowLockerId: boxNowLocker?.id || "",
+    };
+
+    const validation = shippingAddressSchema.safeParse(payload);
+    if (!validation.success) {
+      setError(validation.error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await updateCartGuestEmail(formData.email);
+      const res = await updateCartShippingAddress(validation.data as ShippingFormValues);
+      if (res.success) router.push("/payment-method");
+      else setError(res.message);
+    } catch {
+      setError("An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isServer) return <div className="min-h-screen bg-zinc-950" />;
 
   return (
     <>
       <CheckoutSteps current={1} />
-      <div className="space-y-8 bg-zinc-950 p-8 border border-white/5 rounded-none">
-        {mounted &&
-          createPortal(
-            <>
-              <div
-                id="boxnowmap"
-                onClick={() => setIsMapOpen(false)}
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100vw",
-                  height: "100vh",
-                  zIndex: 99999,
-                  pointerEvents: isMapOpen ? "auto" : "none",
-                }}
-              />
-              <button
-                id="boxnow-widget-trigger"
-                className="boxnow-map-widget-button"
-                style={{
-                  position: "absolute",
-                  opacity: 0,
-                  pointerEvents: "none",
-                  width: 0,
-                  height: 0,
-                }}
-                aria-hidden="true"
-                tabIndex={-1}
-              >
-                Open
-              </button>
-            </>,
-            document.body,
-          )}
-
-        <div>
-          <h2 className="text-[11px] font-black tracking-[0.2em] text-[#c5a059] italic mb-2">
-            ΟΛΟΚΛΗΡΩΣΗ ΑΠΟΣΤΟΛΗΣ
-          </h2>
-          <div className="h-px bg-white/5 my-4" />
-        </div>
+      <div className="max-w-3xl mx-auto space-y-8 bg-zinc-950 p-8 border border-white/5 mt-10">
+        
+        {createPortal(
+          <div 
+            id="boxnowmap" 
+            style={{ 
+              position: "fixed", 
+              top: 0, left: 0, width: "100%", height: "100%", 
+              zIndex: 9999, backgroundColor: "rgba(0,0,0,0.8)",
+              visibility: isMapOpen ? "visible" : "hidden",
+              opacity: isMapOpen ? 1 : 0,
+              pointerEvents: isMapOpen ? "auto" : "none",
+              transition: "opacity 0.2s ease"
+            }}
+          >
+            {/* Το default class name που ψάχνει το script της BoxNow */}
+            <button className="boxnow-map-widget-button hidden" type="button">Select</button>
+          </div>,
+          document.body
+        )}
 
         <div className="space-y-4">
-          <span className="text-[10px] text-neutral-500 tracking-widest block font-bold">
-            ΕΠΙΛΟΓΗ ΜΕΤΑΦΟΡΙΚΗΣ
-          </span>
-
-          <RadioGroup
-            value={shippingMethod}
-            onValueChange={(val) =>
-              handleMethodChange(val as "elta" | "boxnow")
-            }
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
-            <Label
-              htmlFor="elta"
-              className={`flex items-start justify-between p-5 rounded-none border cursor-pointer transition-all ${
-                shippingMethod === "elta"
-                  ? "border-[#c5a059] bg-white/2"
-                  : "border-white/5 bg-black hover:border-white/10"
-              }`}
-            >
-              <div className="space-y-1">
-                <span className="font-bold block text-[12px] tracking-wider text-neutral-200">
-                  ELTA COURIER
-                </span>
-                <span className="text-[10px] text-neutral-500 block tracking-wide">
-                  ΠΑΡΑΔΟΣΗ ΣΤΟ ΧΩΡΟ ΣΑΣ (ΑΝΤΙΚΑΤΑΒΟΛΗ)
-                </span>
-                <span className="text-xs font-mono mt-3 block text-[#c5a059]">
-                  + €2.00
-                </span>
-              </div>
-              <RadioGroupItem
-                value="elta"
-                id="elta"
-                className="border-neutral-700 text-[#c5a059]"
-              />
-            </Label>
-
-            <Label
-              htmlFor="boxnow"
-              onClick={() => handleMethodChange("boxnow")}
-              className={`flex flex-col justify-between p-5 rounded-none border cursor-pointer transition-all ${
-                shippingMethod === "boxnow"
-                  ? "border-[#c5a059] bg-white/2"
-                  : "border-white/5 bg-black hover:border-white/10"
-              }`}
-            >
-              <div className="flex items-start justify-between w-full">
-                <div className="space-y-1">
-                  <span className="font-bold block text-[12px] tracking-wider text-green-500">
-                    BOX NOW
-                  </span>
-                  <span className="text-[10px] text-neutral-500 block tracking-wide">
-                    ΕΠΙΛΟΓΗ ΑΠΟ ΧΑΡΤΗ
-                  </span>
-                  <span className="text-xs font-mono mt-3 block text-green-500">
-                    + €2.00
-                  </span>
-                </div>
-                <RadioGroupItem
-                  value="boxnow"
-                  id="boxnow"
-                  className="border-neutral-700 text-[#c5a059]"
-                />
-              </div>
-
-              {shippingMethod === "boxnow" && (
-                <div className="mt-4 pt-4 border-t border-white/5 w-full space-y-3">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openBoxNowWidget();
-                    }}
-                    className="w-full py-2.5 px-4 bg-green-600 text-white font-black rounded-none text-[10px] tracking-widest uppercase text-center hover:bg-green-700 transition-colors"
-                  >
-                    {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΕΞΤΕ ΘΥΡΙΔΑ"}
-                  </button>
-
-                  {boxNowLocker && (
-                    <div className="p-3 bg-green-950/20 border border-green-900/30 rounded-none text-[11px] text-green-400">
-                      <p className="font-bold uppercase tracking-wider">
-                        ✓ Θυρίδα: #{boxNowLocker.id}
-                      </p>
-                      <p className="opacity-80 mt-1">{boxNowLocker.address}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </Label>
+          <h3 className="text-[#c5a059] text-[10px] font-bold uppercase tracking-widest italic">Shipping Method</h3>
+          <RadioGroup value={shippingMethod} onValueChange={setShippingMethod} className="grid grid-cols-2 gap-4">
+            <div onClick={() => { setBoxNowLocker(null); setShippingMethod("elta"); }}>
+              <RadioGroupItem value="elta" id="elta" className="sr-only peer" />
+              <Label htmlFor="elta" className="block p-4 bg-zinc-900 border border-white/5 peer-data-[state=checked]:border-[#c5a059] cursor-pointer text-xs uppercase text-center transition-all hover:bg-zinc-800">
+                ELTA Courier
+              </Label>
+            </div>
+            <div onClick={openBoxNow}>
+              <RadioGroupItem value="boxnow" id="boxnow" className="sr-only peer" />
+              <Label htmlFor="boxnow" className="block p-4 bg-zinc-900 border border-white/5 peer-data-[state=checked]:border-[#c5a059] cursor-pointer text-xs uppercase text-center transition-all hover:bg-zinc-800">
+                {boxNowLocker ? `Locker: ${boxNowLocker.id}` : "BoxNow Map"}
+              </Label>
+            </div>
           </RadioGroup>
+          {boxNowLocker && (
+             <p className="text-[#c5a059] text-[10px] font-mono">Locker: {boxNowLocker.id}</p>
+          )}
         </div>
 
-        {shippingMethod !== "" && (
-          <div className="space-y-4 pt-4 animate-in fade-in duration-300">
-            <span className="text-[10px] text-neutral-500 tracking-widest block font-bold">
-              ΣΤΟΙΧΕΙΑ ΑΠΟΣΤΟΛΗΣ & ΕΠΙΚΟΙΝΩΝΙΑΣ
-            </span>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-[12px] text-neutral-400 tracking-widest">
-                  ΌNOMA
-                </Label>
-                <Input
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[12px] text-neutral-400 tracking-widest">
-                  ΕΠΩΝΥΜΟ
-                </Label>
-                <Input
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                />
-              </div>
+        {shippingMethod && (
+          <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in duration-500">
+            {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono">{error}</div>}
+            
+            <div className="grid grid-cols-2 gap-4">
+              <Input name="firstName" placeholder="FIRST NAME" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none focus:border-[#c5a059]" />
+              <Input name="lastName" placeholder="LAST NAME" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none focus:border-[#c5a059]" />
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {shippingMethod === "boxnow" && (
-                <div className="space-y-2">
-                  <Label className="text-[12px] text-neutral-400 tracking-widest">
-                    EMAIL
-                  </Label>
-                  <Input
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                  />
-                </div>
-              )}
-              <div className="space-y-2 col-span-1">
-                <Label className="text-[12px] text-neutral-400 tracking-widest">
-                  ΤΗΛΕΦΩΝΟ ΕΠΙΚΟΙΝΩΝΙΑΣ
-                </Label>
-                <Input
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleInputChange}
-                  className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                  type="tel"
-                />
-              </div>
-            </div>
+            <Input name="email" type="email" placeholder="EMAIL" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none focus:border-[#c5a059]" />
+            <Input name="phoneNumber" placeholder="PHONE" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none focus:border-[#c5a059]" />
 
             {shippingMethod === "elta" && (
-              <div className="space-y-4 animate-in fade-in duration-200">
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="col-span-3 space-y-2">
-                    <Label className="text-[12px] text-neutral-400 tracking-widest">
-                      ΟΔΟΣ
-                    </Label>
-                    <Input
-                      name="streetName"
-                      value={formData.streetName}
-                      onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                    />
-                  </div>
-                  <div className="col-span-1 space-y-2">
-                    <Label className="text-[12px] text-neutral-400  tracking-widest">
-                      ΑΡΙΘΜΟΣ
-                    </Label>
-                    <Input
-                      name="streetNumber"
-                      value={formData.streetNumber}
-                      onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                    />
-                  </div>
+              <div className="grid grid-cols-3 gap-4 animate-in slide-in-from-top-2">
+                <div className="col-span-2">
+                  <Input name="streetName" placeholder="STREET" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[12px] text-neutral-400 tracking-widest">
-                      ΤΑΧΥΔΡΟΜΙΚΟΣ ΚΩΔΙΚΑΣ (Τ.Κ.)
-                    </Label>
-                    <Input
-                      name="postalCode"
-                      value={formData.postalCode}
-                      onChange={handleInputChange}
-                      className="bg-black border-white/5 text-white focus-visible:ring-1 focus-visible:ring-[#c5a059] rounded-md text-sm h-11"
-                      maxLength={5}
-                    />
-                  </div>
+                <Input name="streetNumber" placeholder="NO" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none" />
+                <div className="col-span-3">
+                  <Input name="postalCode" placeholder="POSTAL CODE" onChange={handleInputChange} required className="bg-zinc-900 border-white/10 rounded-none" />
                 </div>
               </div>
             )}
-          </div>
+
+            <button 
+              type="submit" 
+              disabled={isSubmitting} 
+              className="w-full bg-[#c5a059] text-black py-4 text-[11px] font-black tracking-[0.2em] hover:bg-white transition-colors uppercase disabled:opacity-50"
+            >
+              {isSubmitting ? "Processing..." : "Continue to Payment"}
+            </button>
+          </form>
         )}
       </div>
     </>

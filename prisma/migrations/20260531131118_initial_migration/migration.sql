@@ -89,6 +89,7 @@ CREATE TABLE "Cart" (
     "itemsPrice" DECIMAL(12,2) NOT NULL,
     "totalPrice" DECIMAL(12,2) NOT NULL,
     "shippingPrice" DECIMAL(12,2) NOT NULL,
+    "shippingAddress" JSON,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Cart_pkey" PRIMARY KEY ("id")

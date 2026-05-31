@@ -5,9 +5,10 @@ import { CartItem } from "@/types";
 import { convertToPlainObject, formatError, round2 } from "../utils";
 import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
-import { cartItemSchema, insertCartSchema } from "../validators";
+import { cartItemSchema, insertCartSchema, shippingAddressSchema } from "../validators";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
+import z from "zod";
 
 /**
  * Calculate cart prices based on items and shipping location
@@ -282,5 +283,28 @@ export async function updateCartGuestEmail(email: string) {
   } catch (error) {
     console.error("PRISMA_UPDATE_ERROR:", error);
     return { success: false, message: "Failed to update email" };
+  }
+}
+
+export async function updateCartShippingAddress(data: z.infer<typeof shippingAddressSchema>) {
+  try {
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    if (!sessionCartId) {
+      return { success: false, message: "Cart session not found" };
+    }
+
+    const validatedAddress = shippingAddressSchema.parse(data);
+
+    await prisma.cart.update({
+      where: { sessionCartId: sessionCartId },
+      data: {
+        shippingAddress: validatedAddress as unknown as Prisma.InputJsonValue,
+      },
+    });
+
+    revalidatePath("/shipping-address");
+    return { success: true, message: "Shipping address updated successfully" };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
   }
 }
