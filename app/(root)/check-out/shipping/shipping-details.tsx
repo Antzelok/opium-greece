@@ -41,7 +41,6 @@ declare global {
 
 type ShippingFormValues = z.infer<typeof shippingAddressSchema>;
 
-// Συναρτήσεις για ασφαλές Client Check χωρίς Hydration Mismatch
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
@@ -49,7 +48,6 @@ const getServerSnapshot = () => false;
 const ShippingDetailsPage = () => {
   const router = useRouter();
 
-  // Αντικαθιστά το isServer/mounted state για αποφυγή cascading renders
   const isClient = useSyncExternalStore(
     emptySubscribe,
     getClientSnapshot,
@@ -165,18 +163,18 @@ const ShippingDetailsPage = () => {
     }
   };
 
-  // Όσο είμαστε στον Server, δείχνουμε μόνο το μαύρο φόντο για smooth hydration
   if (!isClient) {
     return <div className="min-h-screen bg-zinc-950" />;
   }
 
   const inputStyle =
-    "bg-zinc-900 border-white/10 rounded-xl h-12 focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059]/20 transition-all placeholder:text-zinc-600 text-sm text-white";
+    "bg-zinc-900 border-white/10 rounded-xl h-12 focus:border-[#c5a059] focus:ring-1 focus:ring-[#c5a059]/20 transition-all placeholder:text-zinc-600 text-sm text-white w-full";
 
   return (
     <>
       <CheckoutSteps current={1} />
-      <div className="max-w-4xl mx-auto space-y-10 bg-zinc-950 p-10 border border-white/5 mt-10 rounded-2xl shadow-xl">
+      {/* max-w-5xl για μεγαλύτερο πλάτος, px-4 για κινητά, md:p-10 για desktop */}
+      <div className="max-w-5xl mx-auto space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
         {createPortal(
           <div
             id="boxnowmap"
@@ -202,17 +200,18 @@ const ShippingDetailsPage = () => {
         )}
 
         {/* Μέθοδοι Αποστολής */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">
             Shipping Method
           </h3>
 
-          <div className="grid grid-cols-2 gap-6">
+          {/* grid-cols-1 στα κινητά, grid-cols-2 σε desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             {/* Κουμπί ELTA */}
             <button
               type="button"
               onClick={selectElta}
-              className={`block p-6 border rounded-xl text-[10px] uppercase tracking-widest text-center transition-all duration-300 ${
+              className={`block p-5 md:p-6 border rounded-xl text-[10px] uppercase tracking-widest text-center transition-all duration-300 ${
                 shippingMethod === "elta"
                   ? "border-[#c5a059] bg-[#c5a059]/5 text-white"
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
@@ -224,7 +223,7 @@ const ShippingDetailsPage = () => {
             {/* Κουμπί BoxNow */}
             <div
               onClick={selectBoxNow}
-              className={`block p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
+              className={`block p-5 md:p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
                 shippingMethod === "boxnow"
                   ? "border-[#c5a059] bg-[#c5a059]/5 text-white"
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
@@ -239,14 +238,14 @@ const ShippingDetailsPage = () => {
                   <button
                     type="button"
                     onClick={openBoxNow}
-                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors"
+                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colorsw-full sm:w-auto"
                   >
                     {boxNowLocker
                       ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ"
                       : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ ΑΠΟ ΧΑΡΤΗ"}
                   </button>
                   {boxNowLocker && (
-                    <p className="text-[#c5a059] text-[9px] font-mono mt-2 uppercase tracking-normal">
+                    <p className="text-[#c5a059] text-[9px] font-mono mt-2 uppercase tracking-normal wrap-break-word">
                       Locker: {boxNowLocker.id} <br />
                       <span className="text-zinc-400 font-sans normal-case">
                         {boxNowLocker.address}
@@ -263,16 +262,16 @@ const ShippingDetailsPage = () => {
         {shippingMethod && (
           <form
             onSubmit={handleSubmit}
-            className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500"
+            className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500"
           >
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg">
+              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg wrap-break-word">
                 {error}
               </div>
             )}
 
-            {/* Βασικά Inputs */}
-            <div className="grid grid-cols-2 gap-6">
+            {/* grid-cols-1 στα κινητά, md:grid-cols-2 σε desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
                   First Name
@@ -301,7 +300,8 @@ const ShippingDetailsPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            {/* grid-cols-1 στα κινητά, md:grid-cols-2 σε desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
                   Email
@@ -333,8 +333,8 @@ const ShippingDetailsPage = () => {
 
             {/* Πεδία Διεύθυνσης (ΜΟΝΟ για ELTA) */}
             {shippingMethod === "elta" && (
-              <div className="grid grid-cols-3 gap-6 animate-in slide-in-from-top-2 duration-300">
-                <div className="col-span-2 space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="md:col-span-2 space-y-2">
                   <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
                     Street Name
                   </Label>
@@ -360,7 +360,7 @@ const ShippingDetailsPage = () => {
                     className={inputStyle}
                   />
                 </div>
-                <div className="col-span-3 space-y-2">
+                <div className="grid-cols-1 md:col-span-3 space-y-2">
                   <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
                     Postal Code
                   </Label>
@@ -379,7 +379,7 @@ const ShippingDetailsPage = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#c5a059] text-black py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
+              className="w-full bg-[#c5a059] text-black py-4 md:py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
             >
               {isSubmitting ? "Processing..." : "Continue to Payment"}
             </button>
