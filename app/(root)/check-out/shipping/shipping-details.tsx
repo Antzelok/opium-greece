@@ -85,6 +85,7 @@ const ShippingDetailsPage = () => {
           address: selected.boxnowLockerAddressLine1 || "",
         });
         setShippingMethod("boxnow");
+        router.push("?shipping=true", { scroll: false });
       }
       setIsMapOpen(false);
     };
@@ -103,7 +104,7 @@ const ShippingDetailsPage = () => {
     script.src = "https://widget-cdn.boxnow.gr/map-widget/client/v5.js";
     script.async = true;
     document.head.appendChild(script);
-  }, [isClient]);
+  }, [isClient, router]);
 
   const openBoxNow = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -125,10 +126,12 @@ const ShippingDetailsPage = () => {
   const selectElta = () => {
     setBoxNowLocker(null);
     setShippingMethod("elta");
+    router.push("?shipping=true", { scroll: false });
   };
 
   const selectBoxNow = () => {
     setShippingMethod("boxnow");
+    router.push("?shipping=true", { scroll: false });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,7 +176,6 @@ const ShippingDetailsPage = () => {
   return (
     <>
       <CheckoutSteps current={1} />
-      {/* max-w-5xl για μεγαλύτερο πλάτος, px-4 για κινητά, md:p-10 για desktop */}
       <div className="max-w-5xl mx-auto space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
         {createPortal(
           <div
@@ -205,7 +207,6 @@ const ShippingDetailsPage = () => {
             Shipping Method
           </h3>
 
-          {/* grid-cols-1 στα κινητά, grid-cols-2 σε desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             {/* Κουμπί ELTA */}
             <button
@@ -238,7 +239,7 @@ const ShippingDetailsPage = () => {
                   <button
                     type="button"
                     onClick={openBoxNow}
-                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colorsw-full sm:w-auto"
+                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors w-full sm:w-auto"
                   >
                     {boxNowLocker
                       ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ"
@@ -270,7 +271,6 @@ const ShippingDetailsPage = () => {
               </div>
             )}
 
-            {/* grid-cols-1 στα κινητά, md:grid-cols-2 σε desktop */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
@@ -300,7 +300,6 @@ const ShippingDetailsPage = () => {
               </div>
             </div>
 
-            {/* grid-cols-1 στα κινητά, md:grid-cols-2 σε desktop */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
@@ -331,7 +330,6 @@ const ShippingDetailsPage = () => {
               </div>
             </div>
 
-            {/* Πεδία Διεύθυνσης (ΜΟΝΟ για ELTA) */}
             {shippingMethod === "elta" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-in slide-in-from-top-2 duration-300">
                 <div className="md:col-span-2 space-y-2">
