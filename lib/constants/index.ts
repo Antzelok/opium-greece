@@ -11,7 +11,7 @@ export const LATEST_PRODUCTS_LIMIT =
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
   ? process.env.PAYMENT_METHODS.split(",")
-  : ["Stripe", "Cash On Delivery", "Box Now"];
+  : ["Stripe", "Elta Αντικαταβολή",];
 
 export const SignInDefaultValues = {
   email: "",
@@ -41,3 +41,5 @@ export const USER_ROLES = process.env.USER_ROLES
   : ["admin", "user"];
 
 export const PAGE_SIZE = Number(process.env.PAGE_SIZE || 12);
+
+export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev";
