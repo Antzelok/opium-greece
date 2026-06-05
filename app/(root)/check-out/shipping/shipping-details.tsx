@@ -157,7 +157,7 @@ const ShippingDetailsPage = () => {
       const res = await updateCartShippingAddress(
         validation.data as ShippingFormValues,
       );
-      if (res.success) router.push("/payment-method");
+      if (res.success) router.push("/check-out/payment-method");
       else setError(res.message);
     } catch {
       setError("An unexpected error occurred.");
