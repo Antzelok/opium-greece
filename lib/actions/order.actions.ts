@@ -56,10 +56,10 @@ export async function createOrder() {
     }
 
     // Υπολογισμός τελικών τιμών backend (προσθήκη +2€ αν είναι ELTA ή BoxNow)
-    const hasShippingFee = 
-      shippingAddress.shippingMethod === "elta" || 
+    const hasShippingFee =
+      shippingAddress.shippingMethod === "elta" ||
       shippingAddress.shippingMethod === "boxnow";
-    
+
     const shippingPrice = hasShippingFee ? 2.0 : Number(cart.shippingPrice);
     const totalPrice = Number(cart.itemsPrice) + shippingPrice;
 
@@ -130,28 +130,6 @@ export async function getOrderById(orderId: string) {
   });
 
   return convertToPlainObject(data);
-}
-
-// ΔΙΟΡΘΩΣΗ: Προσθήκη της συνάρτησης που έλειπε και προκαλούσε το προηγούμενο σφάλμα
-export async function updateOrderToPaid(orderId: string) {
-  // Get updated order after transaction
-  const updatedOrder = await prisma.order.findFirst({
-    where: { id: orderId },
-    include: {
-      orderitems: true,
-      user: { select: { name: true, email: true } },
-    },
-  });
-
-  if (!updatedOrder) throw new Error("Order not found");
-
-  sendPurchaseReceipt({
-    order: {
-      ...updatedOrder,
-      shippingAddress: updatedOrder.shippingAddress as ShippingAddress,
-      paymentResult: updatedOrder.paymentResult as PaymentResult,
-    },
-  });
 }
 
 // Get user's orders
@@ -282,4 +260,55 @@ export async function deleteOrder(id: string) {
   } catch (error) {
     return { success: false, message: formatError(error) };
   }
+}
+
+// Update order to paid
+export async function updateOrderToPaid({
+  orderId,
+  paymentResult,
+}: {
+  orderId: string;
+  paymentResult?: PaymentResult;
+}) {
+  // 1. Check if the order exists
+  const order = await prisma.order.findFirst({
+    where: { id: orderId },
+    include: { orderitems: true },
+  });
+
+  if (!order) throw new Error("Order not found");
+  if (order.isPaid) throw new Error("Order is already paid");
+
+  // 2. Update order to paid
+  await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      isPaid: true,
+      paidAt: new Date(),
+      paymentResult,
+    },
+  });
+
+  // 3. Get updated order data along with the user for the email receipt
+  const updatedOrder = await prisma.order.findFirst({
+    where: { id: orderId },
+    include: {
+      orderitems: true,
+      user: { select: { name: true, email: true } },
+    },
+  });
+
+  if (!updatedOrder) throw new Error("Order not found");
+
+  // 4. Send the confirmation email
+  sendPurchaseReceipt({
+    order: {
+      ...updatedOrder,
+      shippingAddress: updatedOrder.shippingAddress as ShippingAddress,
+      paymentResult: updatedOrder.paymentResult as PaymentResult,
+    },
+  });
+
+  // 5. Revalidate the order details page
+  revalidatePath(`/order/${orderId}`);
 }
