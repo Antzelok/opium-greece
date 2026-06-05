@@ -77,6 +77,15 @@ const ShippingDetailsPage = () => {
     phoneNumber: "",
   });
 
+  // Reset shipping price to 0.00€ when entering the page so it's not pre-applied
+  useEffect(() => {
+    if (!isClient) return;
+    startTransition(async () => {
+      await updateCartShippingMethod("");
+      router.refresh();
+    });
+  }, [isClient, router]);
+
   useEffect(() => {
     if (!isClient || scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
@@ -90,7 +99,6 @@ const ShippingDetailsPage = () => {
         setBoxNowLocker(lockerData);
         setShippingMethod("boxnow");
 
-        // Instantly update database and refresh layout total for BoxNow via Map
         startTransition(async () => {
           await updateCartShippingMethod("boxnow");
           router.refresh();
@@ -132,7 +140,6 @@ const ShippingDetailsPage = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Instantly updates the database with +2.00€ on ELTA button click
   const selectElta = async () => {
     setBoxNowLocker(null);
     setShippingMethod("elta");
@@ -143,7 +150,6 @@ const ShippingDetailsPage = () => {
     });
   };
 
-  // Instantly updates the database with +2.00€ on BoxNow button click
   const selectBoxNow = async () => {
     setShippingMethod("boxnow");
 
