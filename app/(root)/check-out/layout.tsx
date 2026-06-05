@@ -8,13 +8,19 @@ export default async function CheckoutLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 1. Fetch the cart directly from the database
   const cart = await getMyCart();
   const items = cart?.items || [];
 
+  // 2. Calculate the subtotal of the items
   const subtotal = items.reduce(
     (acc, item) => acc + Number(item.price) * item.qty,
     0,
   );
+
+  // 3. Get shipping and total prices directly from the cart model
+  const shippingPrice = cart?.shippingPrice ? Number(cart.shippingPrice) : 0;
+  const totalPrice = cart?.totalPrice ? Number(cart.totalPrice) : subtotal;
 
   return (
     <div className="min-h-screen bg-black pt-24 pb-16 px-4">
@@ -29,15 +35,27 @@ export default async function CheckoutLayout({
               ORDER SUMMARY
             </h3>
             <div className="space-y-4">
+              {/* Subtotal row */}
               <div className="flex justify-between items-center text-neutral-500 text-[11px] uppercase tracking-widest">
                 <span>Subtotal ({items.length} items)</span>
                 <span className="text-white font-mono">
                   {formatCurrency(subtotal)}
                 </span>
               </div>
+
+              {/* Dynamic Shipping row fetched from DB */}
+              {shippingPrice > 0 && (
+                <div className="flex justify-between items-center text-neutral-500 text-[11px] uppercase tracking-widest mt-2">
+                  <span>Shipping</span>
+                  <span className="text-white font-mono">
+                    {formatCurrency(shippingPrice)}
+                  </span>
+                </div>
+              )}
+
               <div className="h-px bg-white/5 my-6" />
 
-              {/* Client Component */}
+              {/* Total Component */}
               <Suspense
                 fallback={
                   <div className="flex justify-between items-end pt-2">
@@ -45,12 +63,13 @@ export default async function CheckoutLayout({
                       TOTAL
                     </span>
                     <span className="text-[#c5a059] text-3xl font-serif tracking-tighter">
-                      {formatCurrency(subtotal)}
+                      {formatCurrency(totalPrice)}
                     </span>
                   </div>
                 }
               >
-                <ShippingBar subtotal={subtotal} />
+                {/* Pass the verified database prices to the client component */}
+                <ShippingBar total={totalPrice} shippingPrice={shippingPrice} />
               </Suspense>
             </div>
           </div>

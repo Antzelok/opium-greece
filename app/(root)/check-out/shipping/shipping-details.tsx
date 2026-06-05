@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useSyncExternalStore,
+  useTransition,
 } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import CheckoutSteps from "@/components/shared/checkout-steps";
 import {
   updateCartShippingAddress,
+  updateCartShippingMethod,
   updateCartGuestEmail,
 } from "@/lib/actions/cart.actions";
 import { shippingAddressSchema } from "@/lib/validators";
@@ -47,6 +49,7 @@ const getServerSnapshot = () => false;
 
 const ShippingDetailsPage = () => {
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -78,14 +81,20 @@ const ShippingDetailsPage = () => {
     if (!isClient || scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
 
-    window._bn_afterSelect = (selected: BoxNowSelectedData) => {
+    window._bn_afterSelect = async (selected: BoxNowSelectedData) => {
       if (selected?.boxnowLockerId) {
-        setBoxNowLocker({
+        const lockerData = {
           id: selected.boxnowLockerId,
           address: selected.boxnowLockerAddressLine1 || "",
-        });
+        };
+        setBoxNowLocker(lockerData);
         setShippingMethod("boxnow");
-        router.push("?shipping=true", { scroll: false });
+
+        // Instantly update database and refresh layout total for BoxNow via Map
+        startTransition(async () => {
+          await updateCartShippingMethod("boxnow");
+          router.refresh();
+        });
       }
       setIsMapOpen(false);
     };
@@ -123,15 +132,25 @@ const ShippingDetailsPage = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const selectElta = () => {
+  // Instantly updates the database with +2.00€ on ELTA button click
+  const selectElta = async () => {
     setBoxNowLocker(null);
     setShippingMethod("elta");
-    router.push("?shipping=true", { scroll: false });
+
+    startTransition(async () => {
+      await updateCartShippingMethod("elta");
+      router.refresh();
+    });
   };
 
-  const selectBoxNow = () => {
+  // Instantly updates the database with +2.00€ on BoxNow button click
+  const selectBoxNow = async () => {
     setShippingMethod("boxnow");
-    router.push("?shipping=true", { scroll: false });
+
+    startTransition(async () => {
+      await updateCartShippingMethod("boxnow");
+      router.refresh();
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,7 +176,7 @@ const ShippingDetailsPage = () => {
       const res = await updateCartShippingAddress(
         validation.data as ShippingFormValues,
       );
-      if (res.success) router.push("/check-out/payment-method");
+      if (res.success) router.push("/payment-method");
       else setError(res.message);
     } catch {
       setError("An unexpected error occurred.");
@@ -201,14 +220,14 @@ const ShippingDetailsPage = () => {
           document.body,
         )}
 
-        {/* Μέθοδοι Αποστολής */}
+        {/* Shipping Methods */}
         <div className="space-y-4 md:space-y-6">
           <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">
             Shipping Method
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            {/* Κουμπί ELTA */}
+            {/* ELTA Button */}
             <button
               type="button"
               onClick={selectElta}
@@ -221,7 +240,7 @@ const ShippingDetailsPage = () => {
               ELTA Courier (+2.00€)
             </button>
 
-            {/* Κουμπί BoxNow */}
+            {/* BoxNow Button */}
             <div
               onClick={selectBoxNow}
               className={`block p-5 md:p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
@@ -259,7 +278,7 @@ const ShippingDetailsPage = () => {
           </div>
         </div>
 
-        {/* Φόρμα Στοιχείων */}
+        {/* Form Details */}
         {shippingMethod && (
           <form
             onSubmit={handleSubmit}
