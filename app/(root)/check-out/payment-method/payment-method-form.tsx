@@ -4,24 +4,46 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
 
+const METHOD_CONFIG: Record<
+  string,
+  { value: string; title: string; sub: string }
+> = {
+  Stripe: {
+    value: "Stripe",
+    title: "Χρεωστική / Πιστωτική Κάρτα",
+    sub: "Πληρωμή με Visa, Mastercard ή άλλη κάρτα μέσω Stripe",
+  },
+  "Apple Pay / Google Pay": {
+    value: "DigitalWallet",
+    title: "Apple Pay / Google Pay",
+    sub: "Γρήγορη και ασφαλής πληρωμή μέσω του ψηφιακού σας πορτοφολιού",
+  },
+  "Cash On Delivery": {
+    value: "COD",
+    title: "Αντικαταβολή",
+    sub: "Πληρωμή με μετρητά κατά την παράδοση",
+  },
+};
+
 const PaymentMethodForm = ({
   shippingMethod,
   currentPaymentMethod,
+  allowedMethods,
 }: {
   shippingMethod: string;
   currentPaymentMethod: string;
+  allowedMethods: string[];
 }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // Default fallback logic based on requirements
-  const [method, setMethod] = useState(
-    currentPaymentMethod || (shippingMethod === "boxnow" ? "Stripe" : "COD"),
-  );
+  const [method, setMethod] = useState(() => {
+    if (currentPaymentMethod) return currentPaymentMethod;
+    return shippingMethod === "Apple Pay / Google Pay" ? "Stripe" : "COD";
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     startTransition(async () => {
       await updateUserPaymentMethod({ type: method });
       router.push("/place-order");
@@ -31,79 +53,44 @@ const PaymentMethodForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
-        {/* Option 1: Credit / Debit Card (Stripe) */}
-        <label
-          className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${method === "Stripe" ? "border-[#c5a059] bg-zinc-900/40" : "border-white/5 bg-transparent"}`}
-        >
-          <div className="flex items-center gap-4">
-            <input
-              type="radio"
-              name="paymentMethod"
-              value="Stripe"
-              checked={method === "Stripe"}
-              onChange={(e) => setMethod(e.target.value)}
-              className="accent-[#c5a059]"
-            />
-            <div>
-              <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                Χρεωστική / Πιστωτική Κάρτα
-              </span>
-              <span className="text-neutral-500 text-[10px] tracking-wide block mt-0.5">
-                Πληρωμή με Visa, Mastercard ή άλλη κάρτα μέσω Stripe
-              </span>
-            </div>
-          </div>
-        </label>
+        {allowedMethods.map((rawMethod) => {
+          const config = METHOD_CONFIG[rawMethod];
+          if (!config) return null;
 
-        {/* Option 2: Apple Pay / Google Pay */}
-        <label
-          className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${method === "DigitalWallet" ? "border-[#c5a059] bg-zinc-900/40" : "border-white/5 bg-transparent"}`}
-        >
-          <div className="flex items-center gap-4">
-            <input
-              type="radio"
-              name="paymentMethod"
-              value="DigitalWallet"
-              checked={method === "DigitalWallet"}
-              onChange={(e) => setMethod(e.target.value)}
-              className="accent-[#c5a059]"
-            />
-            <div>
-              <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                Apple Pay / Google Pay
-              </span>
-              <span className="text-neutral-500 text-[10px] tracking-wide block mt-0.5">
-                Γρήγορη και ασφαλής πληρωμή μέσω του ψηφιακού σας πορτοφολιού
-              </span>
-            </div>
-          </div>
-        </label>
+          if (config.value === "COD" && shippingMethod === "boxnow") {
+            return null;
+          }
 
-        {/* Option 3: Cash On Delivery (Αντικαταβολή - Only for ELTA) */}
-        {shippingMethod === "elta" && (
-          <label
-            className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${method === "COD" ? "border-[#c5a059] bg-zinc-900/40" : "border-white/5 bg-transparent"}`}
-          >
-            <div className="flex items-center gap-4">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="COD"
-                checked={method === "COD"}
-                onChange={(e) => setMethod(e.target.value)}
-                className="accent-[#c5a059]"
-              />
-              <div>
-                <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                  Αντικαταβολή
-                </span>
-                <span className="text-neutral-500 text-[10px] tracking-wide block mt-0.5">
-                  Πληρωμή με μετρητά κατά την παράδοση
-                </span>
+          return (
+            <label
+              key={config.value}
+              className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
+                method === config.value
+                  ? "border-[#c5a059] bg-zinc-900/40"
+                  : "border-white/5 bg-transparent"
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={config.value}
+                  checked={method === config.value}
+                  onChange={(e) => setMethod(e.target.value)}
+                  className="accent-[#c5a059]"
+                />
+                <div>
+                  <span className="text-white text-xs font-bold uppercase tracking-wider block">
+                    {config.title}
+                  </span>
+                  <span className="text-neutral-500 text-[10px] tracking-wide block mt-0.5">
+                    {config.sub}
+                  </span>
+                </div>
               </div>
-            </div>
-          </label>
-        )}
+            </label>
+          );
+        })}
       </div>
 
       <button

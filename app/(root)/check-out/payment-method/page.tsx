@@ -4,6 +4,7 @@ import { getUserById } from "@/lib/actions/user.actions";
 import CheckoutSteps from "@/components/shared/checkout-steps";
 import PaymentMethodForm from "./payment-method-form";
 import { Metadata } from "next";
+import { PAYMENT_METHODS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: `Payment Method`,
@@ -16,7 +17,7 @@ const PaymentMethodPage = async () => {
   const user = await getUserById(session.user.id!);
 
   const shippingMethod =
-    (user.address as { shippingMethod?: string })?.shippingMethod || "elta";
+    (user.address as { shippingMethod?: string })?.shippingMethod || "Stripe";
 
   return (
     <div className="space-y-8">
@@ -30,6 +31,7 @@ const PaymentMethodPage = async () => {
         <PaymentMethodForm
           shippingMethod={shippingMethod}
           currentPaymentMethod={user.paymentMethod || ""}
+          allowedMethods={PAYMENT_METHODS}
         />
       </div>
     </div>

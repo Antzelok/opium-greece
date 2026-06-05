@@ -11,7 +11,7 @@ export const LATEST_PRODUCTS_LIMIT =
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
   ? process.env.PAYMENT_METHODS.split(",")
-  : ["Stripe", "Elta Αντικαταβολή",];
+  : ["Stripe", "Cash On Delivery", "Apple Pay / Google Pay"];
 
 export const SignInDefaultValues = {
   email: "",
