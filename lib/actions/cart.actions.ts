@@ -5,7 +5,11 @@ import { CartItem } from "@/types";
 import { convertToPlainObject, formatError, round2 } from "../utils";
 import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
-import { cartItemSchema, insertCartSchema, shippingAddressSchema } from "../validators";
+import {
+  cartItemSchema,
+  insertCartSchema,
+  shippingAddressSchema,
+} from "../validators";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import z from "zod";
@@ -286,24 +290,87 @@ export async function updateCartGuestEmail(email: string) {
   }
 }
 
-export async function updateCartShippingAddress(data: z.infer<typeof shippingAddressSchema>) {
+export async function updateCartShippingAddress(
+  data: z.infer<typeof shippingAddressSchema>,
+) {
   try {
+    // 1. Get the session cart ID from cookies
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
     if (!sessionCartId) {
       return { success: false, message: "Cart session not found" };
     }
 
+    // 2. Validate the incoming data against the Zod schema
     const validatedAddress = shippingAddressSchema.parse(data);
 
+    // 3. Find the current cart in the database to get the itemsPrice
+    const cart = await prisma.cart.findUnique({
+      where: { sessionCartId: sessionCartId },
+    });
+
+    if (!cart) {
+      return { success: false, message: "Cart not found" };
+    }
+
+    // 4. Calculate shipping fee based on the selected method (2.00€ for ELTA or BoxNow)
+    const shippingPrice =
+      validatedAddress.shippingMethod === "elta" ||
+      validatedAddress.shippingMethod === "boxnow"
+        ? 2.0
+        : 0.0;
+
+    // 5. Calculate the new total price
+    const itemsPrice = Number(cart.itemsPrice);
+    const newTotalPrice = itemsPrice + shippingPrice;
+
+    // 6. Update the cart with the shipping address, shipping price, and new total price
     await prisma.cart.update({
       where: { sessionCartId: sessionCartId },
       data: {
         shippingAddress: validatedAddress as unknown as Prisma.InputJsonValue,
+        shippingPrice: shippingPrice,
+        totalPrice: newTotalPrice,
+      },
+    });
+
+    // 7. Revalidate checkout pages to reflect changes instantly in the UI
+    revalidatePath("/shipping-address");
+    revalidatePath("/payment-method");
+    revalidatePath("/place-order");
+
+    return {
+      success: true,
+      message: "Shipping address and prices updated successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+
+export async function updateCartShippingMethod(shippingMethod: string) {
+  try {
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    if (!sessionCartId)
+      return { success: false, message: "Cart session not found" };
+
+    const cart = await prisma.cart.findUnique({ where: { sessionCartId } });
+    if (!cart) return { success: false, message: "Cart not found" };
+
+    const shippingPrice =
+      shippingMethod === "elta" || shippingMethod === "boxnow" ? 2.0 : 0.0;
+    const newTotalPrice = Number(cart.itemsPrice) + shippingPrice;
+
+    await prisma.cart.update({
+      where: { sessionCartId },
+      data: {
+        shippingPrice,
+        totalPrice: newTotalPrice,
+        shippingAddress: { shippingMethod },
       },
     });
 
     revalidatePath("/shipping-address");
-    return { success: true, message: "Shipping address updated successfully" };
+    return { success: true };
   } catch (error) {
     return { success: false, message: formatError(error) };
   }
