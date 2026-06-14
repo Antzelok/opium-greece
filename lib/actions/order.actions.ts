@@ -25,14 +25,15 @@ export async function createOrder(paymentMethod: string) {
     }
 
     const userId = session?.user?.id || null;
-    let shippingAddress;
+    
+    // Παίρνουμε τη διεύθυνση από το καλάθι
+    let shippingAddress = cart.shippingAddress;
 
-    if (userId) {
+    if (!shippingAddress && userId) {
       const user = await getUserById(userId);
-      if (!user) return { success: false, message: "Ο χρήστης δεν βρέθηκε." };
-      shippingAddress = user.address;
-    } else {
-      shippingAddress = cart.shippingAddress;
+      if (user && user.address) {
+        shippingAddress = user.address;
+      }
     }
 
     if (!shippingAddress) {
@@ -43,14 +44,13 @@ export async function createOrder(paymentMethod: string) {
       };
     }
 
+    // 👑 ΔΙΟΡΘΩΣΗ: Αφαιρέθηκαν τα πεδία 'size' και 'type' για να ταιριάζουν με το Prisma Schema σου
     const orderItems = (cart.items as CartItem[]).map((item) => ({
       name: item.name,
       slug: item.slug || item.name.toLowerCase().replace(/ /g, "-"),
       image: item.image,
       price: item.price,
       qty: item.qty,
-      size: item.size,
-      type: item.type,
       variantId: item.variantId,
     }));
 
@@ -72,7 +72,7 @@ export async function createOrder(paymentMethod: string) {
         },
       });
 
-      // 3. Διαγραφή καλαθιού
+      // Διαγραφή καλαθιού
       await tx.cart.delete({
         where: { id: cart.id },
       });
@@ -143,17 +143,14 @@ type SalesDataType = {
 
 // Get sales data and order summary
 export async function getOrderSummary() {
-  // Get counts for each resource
   const ordersCount = await prisma.order.count();
   const productsCount = await prisma.product.count();
   const usersCount = await prisma.user.count();
 
-  // Calculate the total sales
   const totalSales = await prisma.order.aggregate({
     _sum: { totalPrice: true },
   });
 
-  // Get monthly sales
   const salesDataRaw = await prisma.$queryRaw<
     Array<{ month: string; totalSales: Prisma.Decimal }>
   >`SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`;
@@ -163,7 +160,6 @@ export async function getOrderSummary() {
     totalSales: Number(entry.totalSales),
   }));
 
-  // Get latest sales
   const latestSales = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
     include: {
@@ -246,7 +242,6 @@ export async function updateOrderToPaid({
   orderId: string;
   paymentResult?: PaymentResult;
 }) {
-  // 1. Check if the order exists
   const order = await prisma.order.findFirst({
     where: { id: orderId },
     include: { orderitems: true },
@@ -255,7 +250,6 @@ export async function updateOrderToPaid({
   if (!order) throw new Error("Order not found");
   if (order.isPaid) throw new Error("Order is already paid");
 
-  // 2. Update order to paid
   await prisma.order.update({
     where: { id: orderId },
     data: {
@@ -265,7 +259,6 @@ export async function updateOrderToPaid({
     },
   });
 
-  // 3. Get updated order data along with the user for the email receipt
   const updatedOrder = await prisma.order.findFirst({
     where: { id: orderId },
     include: {
@@ -276,7 +269,6 @@ export async function updateOrderToPaid({
 
   if (!updatedOrder) throw new Error("Order not found");
 
-  // 4. Send the confirmation email
   sendPurchaseReceipt({
     order: {
       ...updatedOrder,
@@ -285,6 +277,5 @@ export async function updateOrderToPaid({
     },
   });
 
-  // 5. Revalidate the order details page
   revalidatePath(`/order/${orderId}`);
 }
