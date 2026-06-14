@@ -2,104 +2,117 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
+import { toast } from "sonner";
+import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
 
-const METHOD_CONFIG: Record<
-  string,
-  { value: string; title: string; sub: string }
-> = {
-  Stripe: {
-    value: "Stripe",
-    title: "Χρεωστική / Πιστωτική Κάρτα",
-    sub: "Πληρωμή με Visa, Mastercard ή άλλη κάρτα μέσω Stripe",
-  },
-  "Apple Pay / Google Pay": {
-    value: "DigitalWallet",
-    title: "Apple Pay / Google Pay",
-    sub: "Γρήγορη και ασφαλής πληρωμή μέσω του ψηφιακού σας πορτοφολιού",
-  },
-  "Cash On Delivery": {
-    value: "COD",
-    title: "Αντικαταβολή",
-    sub: "Πληρωμή με μετρητά κατά την παράδοση",
-  },
-};
+interface FormProps {
+  shippingMethod: string;
+  currentPaymentMethod: string;
+  allowedMethods: string[];
+}
 
 const PaymentMethodForm = ({
   shippingMethod,
   currentPaymentMethod,
   allowedMethods,
-}: {
-  shippingMethod: string;
-  currentPaymentMethod: string;
-  allowedMethods: string[];
-}) => {
+}: FormProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [method, setMethod] = useState(() => {
-    if (currentPaymentMethod) return currentPaymentMethod;
-    return shippingMethod === "Apple Pay / Google Pay" ? "Stripe" : "COD";
-  });
+  const isElta = shippingMethod.toLowerCase() === "elta";
+  const defaultMethod = isElta ? currentPaymentMethod || "COD" : "Stripe";
+
+  const [selectedMethod, setSelectedMethod] = useState<string>(defaultMethod);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     startTransition(async () => {
-      await updateUserPaymentMethod({ type: method });
-      router.push("/place-order");
+      // Στέλνουμε το string. Το action θα αναλάβει να το κάνει format για το Zod schema.
+      const res = await updateUserPaymentMethod(selectedMethod);
+
+      if (res.success) {
+        toast.success(res.message);
+        router.push("/check-out/place-order");
+      } else {
+        toast.error(res.message || "Κάτι πήγε στραβά.");
+      }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        {allowedMethods.map((rawMethod) => {
-          const config = METHOD_CONFIG[rawMethod];
-          if (!config) return null;
-
-          if (config.value === "COD" && shippingMethod === "boxnow") {
-            return null;
-          }
-
-          return (
-            <label
-              key={config.value}
-              className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
-                method === config.value
-                  ? "border-[#c5a059] bg-zinc-900/40"
-                  : "border-white/5 bg-transparent"
-              }`}
+      <RadioGroup
+        value={selectedMethod}
+        onValueChange={setSelectedMethod}
+        className="space-y-4"
+      >
+        {isElta && allowedMethods.includes("COD") && (
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer [&:has([data-state=checked])]:border-[#c5a059]">
+            <RadioGroupItem
+              value="COD"
+              id="COD"
+              className="border-zinc-700 text-[#c5a059] focus-visible:ring-[#c5a059]"
+            />
+            <Label
+              htmlFor="COD"
+              className="flex items-center gap-4 cursor-pointer w-full"
             >
-              <div className="flex items-center gap-4">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value={config.value}
-                  checked={method === config.value}
-                  onChange={(e) => setMethod(e.target.value)}
-                  className="accent-[#c5a059]"
-                />
-                <div>
-                  <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                    {config.title}
-                  </span>
-                  <span className="text-neutral-500 text-[10px] tracking-wide block mt-0.5">
-                    {config.sub}
-                  </span>
-                </div>
+              <FaTruckFast className="w-5 h-5 text-zinc-400" />
+              <div>
+                <span className="text-white text-xs font-bold uppercase tracking-wider block">
+                  Αντικαταβολή (COD)
+                </span>
+                <span className="text-zinc-500 text-[11px] block mt-0.5">
+                  Πληρωμή με μετρητά κατά την παράδοση (+2.50€).
+                </span>
               </div>
-            </label>
-          );
-        })}
-      </div>
+            </Label>
+          </div>
+        )}
 
-      <button
+        {allowedMethods.includes("Stripe") && (
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer [&:has([data-state=checked])]:border-[#c5a059]">
+            <RadioGroupItem
+              value="Stripe"
+              id="Stripe"
+              className="border-zinc-700 text-[#c5a059] focus-visible:ring-[#c5a059]"
+            />
+            <Label
+              htmlFor="Stripe"
+              className="flex items-center gap-4 cursor-pointer w-full"
+            >
+              <FaRegCreditCard className="w-5 h-5 text-zinc-400" />
+              <div>
+                <span className="text-white text-xs font-bold uppercase tracking-wider block">
+                  Ηλεκτρονική Πληρωμή (Stripe)
+                </span>
+                <span className="text-zinc-500 text-[11px] block mt-0.5">
+                  Πιστωτική/Χρεωστική Κάρτα, Apple Pay, Google Pay, Revolut Pay.
+                </span>
+              </div>
+            </Label>
+          </div>
+        )}
+      </RadioGroup>
+
+      {!isElta && (
+        <p className="text-zinc-500 text-[11px] italic">
+          * Η αντικαταβολή δεν είναι διαθέσιμη για αποστολές με BoxNow.
+        </p>
+      )}
+
+      <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-[#c5a059] text-black py-4 rounded-none text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all uppercase disabled:opacity-50 mt-8"
+        className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase shadow-none mt-6"
       >
-        {isPending ? "Saving..." : "CONTINUE TO REVIEW"}
-      </button>
+        {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ..." : "ΣΥΝΕΧΕΙΑ"}
+      </Button>
     </form>
   );
 };
