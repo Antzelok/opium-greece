@@ -113,6 +113,7 @@ const PlaceOrderForm = ({ paymentMethod, totalPrice }: FormProps) => {
             <StripeForm
               paymentMethod={paymentMethod}
               paymentIntentId={paymentIntentId}
+              clientSecret={clientSecret}
             />
           </Elements>
         )
@@ -161,13 +162,17 @@ function CODForm() {
   );
 }
 
+interface StripeFormProps {
+  paymentMethod: string;
+  paymentIntentId: string;
+  clientSecret: string;
+}
+
 function StripeForm({
   paymentMethod,
   paymentIntentId,
-}: {
-  paymentMethod: string;
-  paymentIntentId: string;
-}) {
+  clientSecret,
+}: StripeFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -176,45 +181,68 @@ function StripeForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !clientSecret) return;
+
+    setError(null);
 
     startTransition(async () => {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        setError(submitError.message || "Σφάλμα στα στοιχεία κάρτας.");
-        return;
-      }
+      try {
+        // 1. Επικύρωση της φόρμας της Stripe
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+          setError(submitError.message || "Σφάλμα στα στοιχεία κάρτας.");
+          return;
+        }
 
-      const orderRes = await createOrder(paymentMethod);
+        // 2. Δημιουργία της παραγγελίας στη βάση δεδομένων
+        const orderRes = await createOrder(paymentMethod);
 
-      if (!orderRes.success || !orderRes.redirectTo) {
-        setError(orderRes.message);
-        return;
-      }
+        if (!orderRes.success || !orderRes.redirectTo) {
+          setError(orderRes.message || "Απέτυχε η δημιουργία της παραγγελίας στη βάση δεδομένων.");
+          return;
+        }
 
-      const orderId = orderRes.redirectTo.split("/").pop();
+        const orderId = orderRes.redirectTo.split("/").pop();
+        if (!orderId) {
+          setError("Δεν βρέθηκε έγκυρο ID παραγγελίας.");
+          return;
+        }
 
-      await fetch("/api/webhooks/stripe-update-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentIntentId, orderId }),
-      });
+        // 3. Σύνδεση του orderId με το Payment Intent στη Stripe
+        try {
+          const updateRes = await fetch("/api/webhooks/stripe-update-intent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentIntentId, orderId }),
+          });
+          
+          if (!updateRes.ok) {
+            throw new Error("Το Stripe update endpoint απέτυχε");
+          }
+        } catch (fetchErr) {
+          console.error("❌ Σφάλμα στο stripe-update-intent:", fetchErr);
+          setError("Απέτυχε η σύνδεση της πληρωμής με την παραγγελία σας.");
+          return;
+        }
 
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
-        {
+        // 4. Ολοκλήρωση και επιβεβαίωση πληρωμής (Κάρτες, Revolut Pay, Apple/Google Pay)
+        const result = await stripe.confirmPayment({
           elements,
-          clientSecret: paymentIntentId,
+          clientSecret: clientSecret,
           confirmParams: {
             return_url: `${window.location.origin}${orderRes.redirectTo}?payment_success=true`,
           },
-          redirect: "if_required",
-        },
-      );
+        }) as any; // 👑 Type casting σε 'any' για να λυθεί οριστικά το Union check της TS
 
-      if (stripeError) {
-        setError(stripeError.message || "Η πληρωμή απέτυχε.");
-      } else if (paymentIntent && paymentIntent.status === "succeeded") {
-        router.push(`${orderRes.redirectTo}?payment_success=true`);
+        if (result.error) {
+          console.error("Stripe confirmPayment Error:", result.error);
+          setError(result.error.message || "Η πληρωμή απορρίφθηκε από τη Stripe.");
+        } else if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
+          router.push(`${orderRes.redirectTo}?payment_success=true`);
+        }
+      } catch (err) {
+        console.error("Γενικό σφάλμα:", err);
+        setError("Προέκυψε απρόσμενο σφάλμα κατά την επεξεργασία της πληρωμής.");
       }
     });
   };
