@@ -3,9 +3,7 @@
 import { auth } from "@/auth";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { convertToPlainObject, formatError } from "../utils";
-import { insertOrderSchema } from "../validators";
 import { prisma } from "@/db/prisma";
 import { CartItem, PaymentResult, ShippingAddress } from "@/types";
 import { revalidatePath } from "next/cache";
@@ -13,107 +11,85 @@ import { PAGE_SIZE } from "../constants";
 import { Prisma } from "@prisma/client";
 import { sendPurchaseReceipt } from "@/email";
 
-// Create order and create the order items
-export async function createOrder() {
+export async function createOrder(paymentMethod: string) {
   try {
     const session = await auth();
-    if (!session) throw new Error("User is not authenticated");
-
     const cart = await getMyCart();
-    const userId = session?.user?.id;
-    if (!userId) throw new Error("User not found");
 
-    const user = await getUserById(userId);
-
-    // Cart check
     if (!cart || cart.items.length === 0) {
       return {
         success: false,
-        message: "Your cart is empty",
+        message: "Το καλάθι σας είναι άδειο.",
         redirectTo: "/cart",
       };
     }
 
-    // Address check
-    if (!user.address) {
+    const userId = session?.user?.id || null;
+    let shippingAddress;
+
+    if (userId) {
+      const user = await getUserById(userId);
+      if (!user) return { success: false, message: "Ο χρήστης δεν βρέθηκε." };
+      shippingAddress = user.address;
+    } else {
+      shippingAddress = cart.shippingAddress;
+    }
+
+    if (!shippingAddress) {
       return {
         success: false,
-        message: "No shipping address",
-        redirectTo: "/shipping-address",
+        message: "Δεν βρέθηκαν στοιχεία αποστολής.",
+        redirectTo: "/check-out/shipping-address",
       };
     }
 
-    // ΔΙΟΡΘΩΣΗ TYPESCRIPT: Μετατροπή του Json σε ShippingAddress
-    const shippingAddress = user.address as unknown as ShippingAddress;
+    const orderItems = (cart.items as CartItem[]).map((item) => ({
+      name: item.name,
+      slug: item.slug || item.name.toLowerCase().replace(/ /g, "-"),
+      image: item.image,
+      price: item.price,
+      qty: item.qty,
+      size: item.size,
+      type: item.type,
+      variantId: item.variantId,
+    }));
 
-    // Payment method check
-    if (!user.paymentMethod) {
-      return {
-        success: false,
-        message: "No payment method",
-        redirectTo: "/payment-method",
-      };
-    }
-
-    // Υπολογισμός τελικών τιμών backend (προσθήκη +2€ αν είναι ELTA ή BoxNow)
-    const hasShippingFee =
-      shippingAddress.shippingMethod === "elta" ||
-      shippingAddress.shippingMethod === "boxnow";
-
-    const shippingPrice = hasShippingFee ? 2.0 : Number(cart.shippingPrice);
-    const totalPrice = Number(cart.itemsPrice) + shippingPrice;
-
-    // Create order object
-    const order = insertOrderSchema.parse({
-      userId: user.id,
-      shippingAddress: shippingAddress,
-      paymentMethod: user.paymentMethod,
-      itemsPrice: cart.itemsPrice,
-      shippingPrice: shippingPrice,
-      totalPrice: totalPrice,
-    });
-
-    // Create a transaction to create order and order items in database
     const insertedOrderId = await prisma.$transaction(async (tx) => {
-      // Create order
-      const insertedOrder = await tx.order.create({ data: order });
-      // Create order items from the cart items
-      for (const item of cart.items as CartItem[]) {
-        await tx.orderItem.create({
-          data: {
-            ...item,
-            price: item.price,
-            orderId: insertedOrder.id,
-          },
-        });
-      }
-
-      // Clear cart
-      await tx.cart.update({
-        where: { id: cart.id },
+      const newOrder = await tx.order.create({
         data: {
-          items: [],
-          totalPrice: 0,
-          shippingPrice: 0,
-          itemsPrice: 0,
+          userId: userId,
+          guestEmail: userId ? null : cart.guestEmail,
+          shippingAddress: shippingAddress,
+          paymentMethod: paymentMethod,
+          itemsPrice: cart.itemsPrice,
+          shippingPrice: cart.shippingPrice,
+          totalPrice: cart.totalPrice,
+          isPaid: false,
+          isDelivered: false,
+          orderitems: {
+            create: orderItems,
+          },
         },
       });
-      return insertedOrder.id;
+
+      // 3. Διαγραφή καλαθιού
+      await tx.cart.delete({
+        where: { id: cart.id },
+      });
+
+      return newOrder.id;
     });
 
-    if (!insertedOrderId) throw new Error("Order not created");
+    if (!insertedOrderId)
+      throw new Error("Η δημιουργία της παραγγελίας απέτυχε.");
 
     return {
       success: true,
-      message: "Order created",
+      message: "Η παραγγελία δημιουργήθηκε με επιτυχία.",
       redirectTo: `/order/${insertedOrderId}`,
     };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
-    return {
-      success: false,
-      message: formatError(error),
-    };
+    return { success: false, message: formatError(error) };
   }
 }
 

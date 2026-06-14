@@ -130,9 +130,7 @@ export async function updateUserAddress(data: ShippingAddress) {
 }
 
 // Update user's payment method
-export async function updateUserPaymentMethod(
-  data: z.infer<typeof paymentMethodSchema>,
-) {
+export async function updateUserPaymentMethod(methodType: string) {
   try {
     const session = await auth();
     const currentUser = await prisma.user.findFirst({
@@ -141,11 +139,12 @@ export async function updateUserPaymentMethod(
 
     if (!currentUser) throw new Error("User not found");
 
-    const paymentMethod = paymentMethodSchema.parse(data);
+    // Περνάμε το string ως object `{ type: ... }` για να περάσει το Zod validation
+    const validatedData = paymentMethodSchema.parse({ type: methodType });
 
     await prisma.user.update({
       where: { id: currentUser.id },
-      data: { paymentMethod: paymentMethod.type },
+      data: { paymentMethod: validatedData.type },
     });
 
     return {
