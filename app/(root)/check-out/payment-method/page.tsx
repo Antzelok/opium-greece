@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/actions/user.actions";
+import { getMyCart } from "@/lib/actions/cart.actions";
 import CheckoutSteps from "@/components/shared/checkout-steps";
 import PaymentMethodForm from "./payment-method-form";
 import { Metadata } from "next";
@@ -17,8 +18,16 @@ const PaymentMethodPage = async () => {
   const user = await getUserById(session.user.id);
   if (!user) redirect("/sign-in");
 
+  const cart = await getMyCart();
+
+  // Get shipping method from cart (session) first, then user profile
   const shippingMethod =
-    (user.address as { shippingMethod?: string })?.shippingMethod || "Stripe";
+    (cart?.shippingAddress as { shippingMethod?: string })?.shippingMethod ||
+    (user.address as { shippingMethod?: string })?.shippingMethod;
+
+  if (!shippingMethod) {
+    redirect("/check-out/shipping");
+  }
 
   return (
     <div className="space-y-8">
@@ -37,6 +46,6 @@ const PaymentMethodPage = async () => {
       </div>
     </div>
   );
-}
+};
 
 export default PaymentMethodPage;
