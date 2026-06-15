@@ -198,7 +198,10 @@ function StripeForm({
         const orderRes = await createOrder(paymentMethod);
 
         if (!orderRes.success || !orderRes.redirectTo) {
-          setError(orderRes.message || "Απέτυχε η δημιουργία της παραγγελίας στη βάση δεδομένων.");
+          setError(
+            orderRes.message ||
+              "Απέτυχε η δημιουργία της παραγγελίας στη βάση δεδομένων.",
+          );
           return;
         }
 
@@ -215,7 +218,7 @@ function StripeForm({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentIntentId, orderId }),
           });
-          
+
           if (!updateRes.ok) {
             throw new Error("Το Stripe update endpoint απέτυχε");
           }
@@ -225,24 +228,31 @@ function StripeForm({
           return;
         }
 
-        // 4. Ολοκλήρωση και επιβεβαίωση πληρωμής (Κάρτες, Revolut Pay, Apple/Google Pay)
         const result = await stripe.confirmPayment({
           elements,
           clientSecret: clientSecret,
           confirmParams: {
             return_url: `${window.location.origin}${orderRes.redirectTo}?payment_success=true`,
           },
-        }) as any; // 👑 Type casting σε 'any' για να λυθεί οριστικά το Union check της TS
+          redirect: "if_required",
+        }); // 👑 Type casting σε 'any' για να λυθεί οριστικά το Union check της TS
 
         if (result.error) {
           console.error("Stripe confirmPayment Error:", result.error);
-          setError(result.error.message || "Η πληρωμή απορρίφθηκε από τη Stripe.");
-        } else if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
+          setError(
+            result.error.message || "Η πληρωμή απορρίφθηκε από τη Stripe.",
+          );
+        } else if (
+          result.paymentIntent &&
+          result.paymentIntent.status === "succeeded"
+        ) {
           router.push(`${orderRes.redirectTo}?payment_success=true`);
         }
       } catch (err) {
         console.error("Γενικό σφάλμα:", err);
-        setError("Προέκυψε απρόσμενο σφάλμα κατά την επεξεργασία της πληρωμής.");
+        setError(
+          "Προέκυψε απρόσμενο σφάλμα κατά την επεξεργασία της πληρωμής.",
+        );
       }
     });
   };
