@@ -47,11 +47,13 @@ const PlaceOrderPage = async () => {
 
   // Η μέθοδος πληρωμής που επιλέχθηκε στο προηγούμενο βήμα αποθηκεύεται στον User, 
   // αλλά για τον Guest πρέπει να δώσουμε μια default ή να την διαβάσουμε από κάπου (π.χ. Stripe)
-  const chosenPaymentMethod = dbUser?.paymentMethod || "Stripe";
+ // Διαβάζει την επιλογή από το καλάθι (για Guests) ή από το προφίλ (για Users)
+// 👑 ΔΙΟΡΘΩΣΗ: Αλλάζουμε το fallback σε "COD" για να ταιριάζει με το Form component σου
+const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD";
 
   return (
     <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6">
-      <CheckoutSteps current={2} />
+      <CheckoutSteps current={3} />
 
       {/* Στοιχεία Αποστολής */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">

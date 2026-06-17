@@ -10,7 +10,6 @@ export const AuthConfig = {
       const protectedPaths = [
         /\/profile/,
         /\/user\/(.*)/,
-        /\/order\/(.*)/,
         /\/admin/,
       ];
 

@@ -26,6 +26,15 @@ export async function createOrder(paymentMethod: string) {
 
     const userId = session?.user?.id || null;
     
+    // Έλεγχος αν είναι Guest: Αν δεν υπάρχει userId, πρέπει οπωσδήποτε να έχουμε guestEmail στο καλάθι
+    if (!userId && !cart.guestEmail) {
+      return {
+        success: false,
+        message: "Παρακαλώ εισάγετε το email σας για να προχωρήσετε ως επισκέπτης.",
+        redirectTo: "/check-out", // Ή όπου ζητάς το email του guest
+      };
+    }
+
     // Παίρνουμε τη διεύθυνση από το καλάθι
     let shippingAddress = cart.shippingAddress;
 
@@ -44,7 +53,6 @@ export async function createOrder(paymentMethod: string) {
       };
     }
 
-    // 👑 ΔΙΟΡΘΩΣΗ: Αφαιρέθηκαν τα πεδία 'size' και 'type' για να ταιριάζουν με το Prisma Schema σου
     const orderItems = (cart.items as CartItem[]).map((item) => ({
       name: item.name,
       slug: item.slug || item.name.toLowerCase().replace(/ /g, "-"),
@@ -58,7 +66,7 @@ export async function createOrder(paymentMethod: string) {
       const newOrder = await tx.order.create({
         data: {
           userId: userId,
-          guestEmail: userId ? null : cart.guestEmail,
+          guestEmail: userId ? null : cart.guestEmail, // Αποθήκευση του email αν είναι guest
           shippingAddress: shippingAddress,
           paymentMethod: paymentMethod,
           itemsPrice: cart.itemsPrice,
@@ -72,7 +80,7 @@ export async function createOrder(paymentMethod: string) {
         },
       });
 
-      // Διαγραφή καλαθιού
+      // Διαγραφή καλαθιού μετά την επιτυχημένη παραγγελία
       await tx.cart.delete({
         where: { id: cart.id },
       });
