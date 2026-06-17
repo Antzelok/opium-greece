@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { cookies } from "next/headers"; // 👑 ΠΡΟΣΘΗΚΗ IMPORT ΓΙΑ ΤΑ COOKIES
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
 import { convertToPlainObject, formatError } from "../utils";
@@ -91,10 +92,14 @@ export async function createOrder(paymentMethod: string) {
     if (!insertedOrderId)
       throw new Error("Η δημιουργία της παραγγελίας απέτυχε.");
 
+    // 👑 ΚΑΘΑΡΙΣΜΟΣ COOKIE & REDIRECT ΣΤΗΝ ΑΡΧΙΚΗ (/)
+    const cookieStore = await cookies();
+    cookieStore.delete("sessionCartId");
+
     return {
       success: true,
       message: "Η παραγγελία δημιουργήθηκε με επιτυχία.",
-      redirectTo: `/order/${insertedOrderId}`,
+      redirectTo: "/", // <-- Σε πετάει κατευθείαν στο /
     };
   } catch (error) {
     return { success: false, message: formatError(error) };
@@ -285,5 +290,5 @@ export async function updateOrderToPaid({
     },
   });
 
-  revalidatePath(`/order/${orderId}`);
+  revalidatePath("/admin/orders");
 }

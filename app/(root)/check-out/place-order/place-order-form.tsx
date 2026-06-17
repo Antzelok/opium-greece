@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "sonner";
 import {
   Elements,
   PaymentElement,
@@ -132,6 +133,13 @@ function CODForm() {
     startTransition(async () => {
       const orderRes = await createOrder("COD");
       if (orderRes.success && orderRes.redirectTo) {
+        toast.success("Η παραγγελία σας καταχωρήθηκε με επιτυχία!", {
+          style: {
+            background: "#0A0A0A",
+            color: "#C5A25D",
+            border: "1px solid #C5A25D",
+          },
+        });
         router.push(orderRes.redirectTo);
       } else {
         setError(orderRes.message);
@@ -187,14 +195,12 @@ function StripeForm({
 
     startTransition(async () => {
       try {
-        // 1. Επικύρωση της φόρμας της Stripe
         const { error: submitError } = await elements.submit();
         if (submitError) {
           setError(submitError.message || "Σφάλμα στα στοιχεία κάρτας.");
           return;
         }
 
-        // 2. Δημιουργία της παραγγελίας στη βάση δεδομένων
         const orderRes = await createOrder(paymentMethod);
 
         if (!orderRes.success || !orderRes.redirectTo) {
@@ -211,7 +217,6 @@ function StripeForm({
           return;
         }
 
-        // 3. Σύνδεση του orderId με το Payment Intent στη Stripe
         try {
           const updateRes = await fetch("/api/webhooks/stripe-update-intent", {
             method: "POST",
@@ -235,7 +240,7 @@ function StripeForm({
             return_url: `${window.location.origin}${orderRes.redirectTo}?payment_success=true`,
           },
           redirect: "if_required",
-        }); // 👑 Type casting σε 'any' για να λυθεί οριστικά το Union check της TS
+        });
 
         if (result.error) {
           console.error("Stripe confirmPayment Error:", result.error);
@@ -246,6 +251,17 @@ function StripeForm({
           result.paymentIntent &&
           result.paymentIntent.status === "succeeded"
         ) {
+          // 👑 STYLED TOAST ΓΙΑ STRIPE
+          toast.success(
+            "Η πληρωμή ολοκληρώθηκε και η παραγγελία καταχωρήθηκε!",
+            {
+              style: {
+                background: "#0A0A0A",
+                color: "#C5A25D",
+                border: "1px solid #C5A25D",
+              },
+            },
+          );
           router.push(`${orderRes.redirectTo}?payment_success=true`);
         }
       } catch (err) {
