@@ -29,20 +29,25 @@ const PlaceOrderPage = async () => {
   }
 
   const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in");
+  const userId = session?.user?.id;
+  const isGuest = !userId && cart.guestEmail;
 
-  const dbUser = await getUserById(session.user.id);
-  if (!dbUser) redirect("/sign-in");
+  // Αν δεν είναι ούτε user ούτε guest, στείλτον για sign-in
+  if (!userId && !isGuest) redirect("/sign-in");
 
-  const shippingAddress = (dbUser?.address ||
-    cart.shippingAddress) as unknown as ShippingAddress;
+  // Φέρνουμε τον χρήστη μόνο αν υπάρχει session
+  const dbUser = userId ? await getUserById(userId) : null;
+
+  // Στοιχεία διεύθυνσης από το καλάθι ή από το προφίλ
+  const shippingAddress = (cart.shippingAddress || dbUser?.address) as unknown as ShippingAddress;
 
   if (!shippingAddress || !shippingAddress.shippingMethod) {
     redirect("/check-out/shipping-address");
   }
 
-  // Διαβάζουμε την επιλογή πληρωμής που αποθηκεύτηκε στη βάση στο προηγούμενο step
-  const chosenPaymentMethod = dbUser.paymentMethod || "Stripe";
+  // Η μέθοδος πληρωμής που επιλέχθηκε στο προηγούμενο βήμα αποθηκεύεται στον User, 
+  // αλλά για τον Guest πρέπει να δώσουμε μια default ή να την διαβάσουμε από κάπου (π.χ. Stripe)
+  const chosenPaymentMethod = dbUser?.paymentMethod || "Stripe";
 
   return (
     <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6">
@@ -76,6 +81,14 @@ const PlaceOrderPage = async () => {
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.phoneNumber}
+              </span>
+            </p>
+            <p>
+              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
+                Email
+              </span>
+              <span className="text-white font-medium">
+                {shippingAddress.email || cart.guestEmail}
               </span>
             </p>
           </div>
@@ -143,18 +156,6 @@ const PlaceOrderPage = async () => {
                         {item.name}
                       </h4>
                       <div className="flex flex-wrap gap-2 pt-0.5">
-                        <Badge
-                          variant="secondary"
-                          className="bg-zinc-900 text-zinc-400 font-medium text-xs px-2 py-0 rounded-none border border-white/5"
-                        >
-                          {item.size}
-                        </Badge>
-                        <Badge
-                          variant="secondary"
-                          className="bg-zinc-900 text-zinc-400 font-medium text-xs px-2 py-0 rounded-none border border-white/5"
-                        >
-                          {item.type}
-                        </Badge>
                         <span className="text-xs text-zinc-500 self-center font-medium pl-1">
                           x{item.qty}
                         </span>

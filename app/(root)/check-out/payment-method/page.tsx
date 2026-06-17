@@ -13,17 +13,26 @@ export const metadata: Metadata = {
 
 const PaymentMethodPage = async () => {
   const session = await auth();
-  if (!session || !session.user?.id) redirect("/sign-in");
-
-  const user = await getUserById(session.user.id);
-  if (!user) redirect("/sign-in");
-
   const cart = await getMyCart();
+
+  // Αν δεν υπάρχει καλάθι, γύρνα πίσω
+  if (!cart) redirect("/cart");
+
+  // Έλεγχος: Πρέπει να είναι ΕΙΤΕ συνδεδεμένος χρήστης ΕΙΤΕ να έχει βάλει guest email
+  const userId = session?.user?.id;
+  const isGuest = !userId && cart.guestEmail;
+
+  if (!userId && !isGuest) {
+    redirect("/sign-in");
+  }
+
+  // Παίρνουμε τον χρήστη από τη βάση ΜΟΝΟ αν είναι συνδεδεμένος
+  const user = userId ? await getUserById(userId) : null;
 
   // Get shipping method from cart (session) first, then user profile
   const shippingMethod =
     (cart?.shippingAddress as { shippingMethod?: string })?.shippingMethod ||
-    (user.address as { shippingMethod?: string })?.shippingMethod;
+    (user?.address as { shippingMethod?: string })?.shippingMethod;
 
   if (!shippingMethod) {
     redirect("/check-out/shipping");
@@ -40,7 +49,7 @@ const PaymentMethodPage = async () => {
 
         <PaymentMethodForm
           shippingMethod={shippingMethod}
-          currentPaymentMethod={user.paymentMethod || ""}
+          currentPaymentMethod={user?.paymentMethod || ""}
           allowedMethods={PAYMENT_METHODS}
         />
       </div>
