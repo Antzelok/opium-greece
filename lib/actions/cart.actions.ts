@@ -121,13 +121,18 @@ export async function AddItemToCart(data: CartItem) {
 
 export async function getMyCart() {
   const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-  if (!sessionCartId) return undefined;
-
   const session = await auth();
   const userId = session?.user?.id ? (session.user.id as string) : undefined;
 
+  if (!sessionCartId && !userId) return undefined;
+
   const cart = await prisma.cart.findFirst({
-    where: userId ? { userId: userId } : { sessionCartId: sessionCartId },
+    where: {
+      OR: [
+        ...(userId ? [{ userId: userId }] : []),
+        ...(sessionCartId ? [{ sessionCartId: sessionCartId }] : []),
+      ],
+    },
   });
 
   if (!cart) return undefined;
@@ -294,38 +299,40 @@ export async function updateCartShippingAddress(
   data: z.infer<typeof shippingAddressSchema>,
 ) {
   try {
-    // 1. Get the session cart ID from cookies
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-    if (!sessionCartId) {
+    const session = await auth();
+    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+
+    if (!sessionCartId && !userId) {
       return { success: false, message: "Cart session not found" };
     }
 
-    // 2. Validate the incoming data against the Zod schema
     const validatedAddress = shippingAddressSchema.parse(data);
 
-    // 3. Find the current cart in the database to get the itemsPrice
-    const cart = await prisma.cart.findUnique({
-      where: { sessionCartId: sessionCartId },
+    const cart = await prisma.cart.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ userId: userId }] : []),
+          ...(sessionCartId ? [{ sessionCartId: sessionCartId }] : []),
+        ],
+      },
     });
 
     if (!cart) {
       return { success: false, message: "Cart not found" };
     }
 
-    // 4. Calculate shipping fee based on the selected method (2.00€ for ELTA or BoxNow)
     const shippingPrice =
       validatedAddress.shippingMethod === "elta" ||
       validatedAddress.shippingMethod === "boxnow"
         ? 2.0
         : 0.0;
 
-    // 5. Calculate the new total price
     const itemsPrice = Number(cart.itemsPrice);
     const newTotalPrice = itemsPrice + shippingPrice;
 
-    // 6. Update the cart with the shipping address, shipping price, and new total price
     await prisma.cart.update({
-      where: { sessionCartId: sessionCartId },
+      where: { id: cart.id },
       data: {
         shippingAddress: validatedAddress as unknown as Prisma.InputJsonValue,
         shippingPrice: shippingPrice,
@@ -333,7 +340,6 @@ export async function updateCartShippingAddress(
       },
     });
 
-    // 7. Revalidate checkout pages to reflect changes instantly in the UI
     revalidatePath("/shipping-address");
     revalidatePath("/payment-method");
     revalidatePath("/place-order");
@@ -350,10 +356,21 @@ export async function updateCartShippingAddress(
 export async function updateCartShippingMethod(shippingMethod: string) {
   try {
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-    if (!sessionCartId)
+    const session = await auth();
+    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+
+    if (!sessionCartId && !userId)
       return { success: false, message: "Cart session not found" };
 
-    const cart = await prisma.cart.findUnique({ where: { sessionCartId } });
+    const cart = await prisma.cart.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ userId: userId }] : []),
+          ...(sessionCartId ? [{ sessionCartId: sessionCartId }] : []),
+        ],
+      },
+    });
+    
     if (!cart) return { success: false, message: "Cart not found" };
 
     const shippingPrice =
@@ -361,7 +378,7 @@ export async function updateCartShippingMethod(shippingMethod: string) {
     const newTotalPrice = Number(cart.itemsPrice) + shippingPrice;
 
     await prisma.cart.update({
-      where: { sessionCartId },
+      where: { id: cart.id },
       data: {
         shippingPrice,
         totalPrice: newTotalPrice,
@@ -379,10 +396,24 @@ export async function updateCartShippingMethod(shippingMethod: string) {
 export async function updateCartPaymentMethod(paymentMethod: string) {
   try {
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
-    if (!sessionCartId) return { success: false, message: "Cart session not found" };
+    const session = await auth();
+    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+
+    if (!sessionCartId && !userId) return { success: false, message: "Cart session not found" };
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ userId: userId }] : []),
+          ...(sessionCartId ? [{ sessionCartId: sessionCartId }] : []),
+        ],
+      },
+    });
+
+    if (!cart) return { success: false, message: "Cart not found" };
 
     await prisma.cart.update({
-      where: { sessionCartId },
+      where: { id: cart.id },
       data: { paymentMethod },
     });
 
