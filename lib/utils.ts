@@ -56,7 +56,7 @@ export function round2(value: number | string) {
   }
 }
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat("en-DE", {
+const CURRENCY_FORMATTER = new Intl.NumberFormat("el-GR", {
   currency: "EUR",
   style: "currency",
   minimumFractionDigits: 2,
@@ -74,7 +74,7 @@ export function formatCurrency(amount: number | string | null) {
 }
 
 // Format Number
-const NUMBER_FORMATTER = new Intl.NumberFormat("en-DE");
+const NUMBER_FORMATTER = new Intl.NumberFormat("el-GR");
 
 export function formatNumber(number: number) {
   return NUMBER_FORMATTER.format(number);
@@ -104,18 +104,18 @@ export const formatDateTime = (dateString: Date) => {
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric", // numeric hour (e.g., '8')
     minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour12: false, // use 12-hour clock (true) or 24-hour clock (false)
   };
   const formattedDateTime: string = new Date(dateString).toLocaleString(
-    "en-US",
+    "el-GR",
     dateTimeOptions,
   );
   const formattedDate: string = new Date(dateString).toLocaleString(
-    "en-US",
+    "el-GR",
     dateOptions,
   );
   const formattedTime: string = new Date(dateString).toLocaleString(
-    "en-US",
+    "el-GR",
     timeOptions,
   );
   return {
