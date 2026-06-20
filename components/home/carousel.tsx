@@ -6,8 +6,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -17,9 +15,8 @@ interface SlideItem {
 }
 
 const slides: SlideItem[] = [
-  { image: "/hero.jpg", alt: "Opium Luxury Interior" },
-  { image: "/hero.jpg", alt: "Fragrance Detail View" },
-  { image: "/hero.jpg", alt: "Perfume Craftsmanship" },
+  { image: "/carousel.jpg", alt: "Opium Luxury Interior" },
+  { image: "/carousel1.jpg", alt: "Opium Luxury Interior" },
 ];
 
 const CarouselSection = () => {
@@ -104,12 +101,6 @@ const CarouselSection = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-
-              {/* Navigation Controls - Hidden on mobile, visible on hover desktop */}
-              <div className="absolute bottom-6 right-12 hidden md:flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <CarouselPrevious className="relative left-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all outline-none" />
-                <CarouselNext className="relative right-0 translate-y-0 bg-black/60 border-white/10 text-white hover:bg-[#C5A25D] hover:text-black rounded-none h-12 w-12 transition-all outline-none" />
-              </div>
             </Carousel>
           </motion.div>
         </div>
