@@ -9,13 +9,11 @@ import { cartItemSchema, insertCartSchema } from "../validators";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
-interface CalcPriceResult {
-  itemsPrice: string;
-  shippingPrice: string;
-  totalPrice: string;
-}
-
-const calcPrice = (items: CartItem[], country: string = "GR", shippingMethod: string = "") => {
+const calcPrice = (
+  items: CartItem[],
+  country: string = "GR",
+  shippingMethod: string = "",
+) => {
   const itemsPrice = round2(
     items.reduce((acc, item) => acc + Number(item.price) * item.qty, 0),
   );
@@ -89,14 +87,19 @@ export async function AddItemToCart(data: CartItem) {
         cart.items.push(item);
       }
 
-      const shippingAddressObj = (cart.shippingAddress as Record<string, string | undefined>) || {};
+      const shippingAddressObj =
+        (cart.shippingAddress as Record<string, string | undefined>) || {};
       const currentShippingMethod = shippingAddressObj.shippingMethod || "";
 
       await prisma.cart.update({
         where: { id: cart.id },
         data: {
           items: cart.items as Prisma.CartUpdateitemsInput[],
-          ...calcPrice(cart.items as CartItem[], shippingAddressObj.country || "GR", currentShippingMethod),
+          ...calcPrice(
+            cart.items as CartItem[],
+            shippingAddressObj.country || "GR",
+            currentShippingMethod,
+          ),
         },
       });
 
@@ -150,21 +153,31 @@ export async function RemoveItemFromCart(variantId: string) {
     const cart = await getMyCart();
     if (!cart) throw new Error("Cart not found");
 
-    const existItem = (cart.items as CartItem[]).find((x) => x.variantId === variantId);
+    const existItem = (cart.items as CartItem[]).find(
+      (x) => x.variantId === variantId,
+    );
     if (!existItem) throw new Error("Item not found in cart");
 
     if (existItem.qty === 1) {
-      cart.items = (cart.items as CartItem[]).filter((x) => x.variantId !== variantId);
+      cart.items = (cart.items as CartItem[]).filter(
+        (x) => x.variantId !== variantId,
+      );
     } else {
-      (cart.items as CartItem[]).find((x) => x.variantId === variantId)!.qty = existItem.qty - 1;
+      (cart.items as CartItem[]).find((x) => x.variantId === variantId)!.qty =
+        existItem.qty - 1;
     }
 
-    const shippingAddressObj = (cart.shippingAddress as Record<string, string | undefined>) || {};
+    const shippingAddressObj =
+      (cart.shippingAddress as Record<string, string | undefined>) || {};
     await prisma.cart.update({
       where: { id: cart.id },
       data: {
         items: cart.items as Prisma.CartUpdateitemsInput[],
-        ...calcPrice(cart.items as CartItem[], shippingAddressObj.country || "GR", shippingAddressObj.shippingMethod || ""),
+        ...calcPrice(
+          cart.items as CartItem[],
+          shippingAddressObj.country || "GR",
+          shippingAddressObj.shippingMethod || "",
+        ),
       },
     });
 
@@ -186,7 +199,8 @@ export async function updateCartShippingMethod(shippingMethod: string) {
       updatedPaymentMethod = "Stripe";
     }
 
-    const currentAddress = (cart.shippingAddress as Record<string, string | undefined>) || {};
+    const currentAddress =
+      (cart.shippingAddress as Record<string, string | undefined>) || {};
 
     await prisma.cart.update({
       where: { id: cart.id },
@@ -215,8 +229,12 @@ export async function updateCartPaymentMethod(paymentMethod: string) {
     const cart = await getMyCart();
     if (!cart) return { success: false, message: "Cart not found" };
 
-    const shippingAddressObj = (cart.shippingAddress as Record<string, string | undefined>) || {};
-    if (shippingAddressObj.shippingMethod === "boxnow" && paymentMethod !== "Stripe") {
+    const shippingAddressObj =
+      (cart.shippingAddress as Record<string, string | undefined>) || {};
+    if (
+      shippingAddressObj.shippingMethod === "boxnow" &&
+      paymentMethod !== "Stripe"
+    ) {
       return { success: false, message: "BoxNow requires Stripe payment." };
     }
 
@@ -233,12 +251,15 @@ export async function updateCartPaymentMethod(paymentMethod: string) {
   }
 }
 
-export async function updateCartShippingAddress(addressData: Record<string, string | number | undefined>) {
+export async function updateCartShippingAddress(
+  addressData: Record<string, string | number | undefined>,
+) {
   try {
     const cart = await getMyCart();
     if (!cart) return { success: false, message: "Cart not found" };
 
-    const currentAddress = (cart.shippingAddress as Record<string, string | undefined>) || {};
+    const currentAddress =
+      (cart.shippingAddress as Record<string, string | undefined>) || {};
 
     await prisma.cart.update({
       where: { id: cart.id },
@@ -274,19 +295,74 @@ export async function updateCartGuestEmail(email: string) {
   }
 }
 
-export async function AddMultipleItemsToCart(data: CartItem, count: number) {
+export async function AddMultipleItemsToCart(itemsData: CartItem[]) {
   try {
-    let lastResult = { success: false, message: "" };
-    
-    // Καλεί την AddItemToCart όσες φορές ορίζει το count (π.χ. 2 ή 3 τεμάχια)
-    for (let i = 0; i < count; i++) {
-      const res = await AddItemToCart(data);
-      if (i === count - 1) {
-        lastResult = res;
-      }
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    if (!sessionCartId) throw new Error("Cart session not found");
+
+    const session = await auth();
+    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+
+    const cart = await getMyCart();
+
+    const newItems = itemsData.map((data) => cartItemSchema.parse(data));
+    if (newItems.length === 0) throw new Error("No items selected");
+
+    const firstVariant = await prisma.productVariant.findFirst({
+      where: { id: newItems[0].variantId },
+      include: { product: true },
+    });
+
+    if (!cart) {
+      const newCart = insertCartSchema.parse({
+        userId: userId,
+        items: newItems,
+        sessionCartId: sessionCartId,
+        ...calcPrice(newItems),
+      });
+
+      await prisma.cart.create({
+        data: newCart,
+      });
+    } else {
+      const currentItems = cart.items as CartItem[];
+
+      newItems.forEach((newItem) => {
+        const existItem = currentItems.find(
+          (x) => x.variantId === newItem.variantId,
+        );
+        if (existItem) {
+          existItem.qty = existItem.qty + newItem.qty;
+        } else {
+          currentItems.push(newItem);
+        }
+      });
+
+      const shippingAddressObj =
+        (cart.shippingAddress as Record<string, string | undefined>) || {};
+      const currentShippingMethod = shippingAddressObj.shippingMethod || "";
+
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: {
+          items: currentItems as Prisma.CartUpdateitemsInput[],
+          ...calcPrice(
+            currentItems,
+            shippingAddressObj.country || "GR",
+            currentShippingMethod,
+          ),
+        },
+      });
     }
-    
-    return lastResult;
+
+    if (firstVariant) {
+      revalidatePath(`/product/${firstVariant.product.slug}`);
+    }
+
+    return {
+      success: true,
+      message: "Items added to cart successfully",
+    };
   } catch (error) {
     return {
       success: false,

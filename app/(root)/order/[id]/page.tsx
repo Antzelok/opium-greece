@@ -41,7 +41,6 @@ const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
   const shippingAddress = order.shippingAddress as ShippingAddress;
   const paymentSuccess = resolvedSearchParams.payment_success === "true";
 
-  // Ασφαλής έλεγχος με trim και lowercase για να μην μπερδεύεται το ELTA / elta
   const isElta = shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
 
   return (
