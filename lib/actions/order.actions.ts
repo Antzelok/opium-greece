@@ -99,7 +99,7 @@ export async function createOrder(paymentMethod: string) {
     return {
       success: true,
       message: "Η παραγγελία δημιουργήθηκε με επιτυχία.",
-      redirectTo: "/", // <-- Σε πετάει κατευθείαν στο /
+      redirectTo: `/order/${insertedOrderId}`
     };
   } catch (error) {
     return { success: false, message: formatError(error) };

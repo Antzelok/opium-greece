@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
+import { updateCartPaymentMethod } from "@/lib/actions/cart.actions";
 import { toast } from "sonner";
 import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
 
@@ -32,8 +32,7 @@ const PaymentMethodForm = ({
     e.preventDefault();
 
     startTransition(async () => {
-      // Στέλνουμε το string. Το action θα αναλάβει να το κάνει format για το Zod schema.
-      const res = await updateUserPaymentMethod(selectedMethod);
+      const res = await updateCartPaymentMethod(selectedMethod);
 
       if (res.success) {
         toast.success(res.message);

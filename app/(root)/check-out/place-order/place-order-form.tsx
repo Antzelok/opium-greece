@@ -25,6 +25,11 @@ interface FormProps {
   totalPrice: number;
 }
 
+interface StripeIntentResponse {
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
 const PlaceOrderForm = ({ paymentMethod, totalPrice }: FormProps) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
@@ -43,7 +48,7 @@ const PlaceOrderForm = ({ paymentMethod, totalPrice }: FormProps) => {
       body: JSON.stringify({ amount: totalPrice }),
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: StripeIntentResponse) => {
         if (isMounted) {
           setClientSecret(data.clientSecret);
           setPaymentIntentId(data.paymentIntentId);
@@ -251,7 +256,6 @@ function StripeForm({
           result.paymentIntent &&
           result.paymentIntent.status === "succeeded"
         ) {
-          // 👑 STYLED TOAST ΓΙΑ STRIPE
           toast.success(
             "Η πληρωμή ολοκληρώθηκε και η παραγγελία καταχωρήθηκε!",
             {

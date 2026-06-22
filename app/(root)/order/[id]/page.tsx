@@ -16,16 +16,20 @@ export const metadata: Metadata = {
 };
 
 interface OrderPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     payment_success?: string;
-  };
+  }>;
 }
 
 const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
-  const order = await getOrderById(params.id);
+  // 👑 NEXT.JS 15 FIX: Unwrapping dynamic properties with await
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
+  const order = await getOrderById(resolvedParams.id);
 
   if (!order) {
     redirect("/");
@@ -35,7 +39,10 @@ const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
   const isOwnOrder = session?.user?.id === order.userId || order.guestEmail;
 
   const shippingAddress = order.shippingAddress as ShippingAddress;
-  const paymentSuccess = searchParams.payment_success === "true";
+  const paymentSuccess = resolvedSearchParams.payment_success === "true";
+
+  // Ασφαλής έλεγχος με trim και lowercase για να μην μπερδεύεται το ELTA / elta
+  const isElta = shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
 
   return (
     <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6 py-8">
@@ -131,7 +138,7 @@ const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
 
           <Separator className="bg-white/5 my-4" />
 
-          {shippingAddress.shippingMethod.toLowerCase() === "elta" ? (
+          {isElta ? (
             <div className="bg-zinc-900/20 p-4 border border-white/5 space-y-1">
               <span className="text-zinc-500 font-semibold block text-[10px] uppercase tracking-wider mb-1">
                 Delivery Address
