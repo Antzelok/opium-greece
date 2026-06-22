@@ -273,3 +273,24 @@ export async function updateCartGuestEmail(email: string) {
     return { success: false, message: formatError(error) };
   }
 }
+
+export async function AddMultipleItemsToCart(data: CartItem, count: number) {
+  try {
+    let lastResult = { success: false, message: "" };
+    
+    // Καλεί την AddItemToCart όσες φορές ορίζει το count (π.χ. 2 ή 3 τεμάχια)
+    for (let i = 0; i < count; i++) {
+      const res = await AddItemToCart(data);
+      if (i === count - 1) {
+        lastResult = res;
+      }
+    }
+    
+    return lastResult;
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
+}
