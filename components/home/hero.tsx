@@ -10,7 +10,7 @@ const Hero = () => {
       {/* Background Image με Next/Image */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Image
-          src="/hero.jpg"
+          src="/carousel.jpg"
           alt="Opium Luxury Fragrance Hero"
           sizes="100vw"
           fill

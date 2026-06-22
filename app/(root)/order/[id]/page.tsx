@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { OrderItem, ShippingAddress } from "@/types";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -25,9 +25,7 @@ interface OrderPageProps {
 }
 
 const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
-  // 👑 NEXT.JS 15 FIX: Unwrapping dynamic properties with await
   const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
 
   const order = await getOrderById(resolvedParams.id);
 
@@ -39,59 +37,23 @@ const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
   const isOwnOrder = session?.user?.id === order.userId || order.guestEmail;
 
   const shippingAddress = order.shippingAddress as ShippingAddress;
-  const paymentSuccess = resolvedSearchParams.payment_success === "true";
-
-  const isElta = shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
+  const isElta =
+    shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
 
   return (
-    <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6 py-8">
+    <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6 py-15 px-5">
       {/* Order Status Section */}
       <div className="space-y-4">
-        {paymentSuccess && (
-          <Card className="bg-green-500/10 border-green-500/20 rounded-none p-4">
-            <CardContent className="pt-0 flex items-start gap-4">
-              <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-green-500 font-bold text-sm uppercase tracking-wider">
-                  Payment Completed Successfully!
-                </h3>
-                <p className="text-green-400 text-xs mt-1">
-                  You will receive a confirmation email shortly.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {order.isPaid ? (
-          <Card className="bg-green-500/10 border-green-500/20 rounded-none p-4">
-            <CardContent className="pt-0 flex items-start gap-4">
-              <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-green-500 font-bold text-sm uppercase tracking-wider">
-                  Order Confirmed
-                </h3>
-                <p className="text-green-400 text-xs mt-1">
-                  Order Number: <span className="font-mono">{order.id}</span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="bg-yellow-500/10 border-yellow-500/20 rounded-none p-4">
-            <CardContent className="pt-0 flex items-start gap-4">
-              <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-yellow-500 font-bold text-sm uppercase tracking-wider">
-                  Awaiting Payment
-                </h3>
-                <p className="text-yellow-400 text-xs mt-1">
-                  Your order is waiting for payment confirmation.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <Card className="bg-green-500/10 border-green-500/20 rounded-none p-4">
+          <CardContent className="pt-0 flex items-center gap-4">
+            <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-green-500 font-bold text-sm tracking-wider">
+                ORDER COMPLETED SUCCESSFULLY!
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Shipping Details Section */}
@@ -256,19 +218,13 @@ const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
                   ? "Cash on Delivery (COD)"
                   : "Online Payment (Stripe)"}
               </p>
-              <p className="text-zinc-500 text-xs mt-1">
-                {order.isPaid ? "✓ Paid" : "⏳ Pending"}
-              </p>
+              <p className="text-zinc-500 text-xs mt-1">✓ Paid</p>
             </div>
             <Badge
-              className={
-                order.isPaid
-                  ? "bg-green-500/20 text-green-400 border-green-500/30"
-                  : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-              }
+              className="bg-green-500/20 text-green-400 border-green-500/30"
               variant="outline"
             >
-              {order.isPaid ? "PAID" : "PENDING"}
+              PAID
             </Badge>
           </div>
         </CardContent>

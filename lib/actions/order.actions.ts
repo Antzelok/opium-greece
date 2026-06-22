@@ -96,7 +96,7 @@ export async function createOrder(paymentMethod: string) {
     return {
       success: true,
       message: "Η παραγγελία δημιουργήθηκε με επιτυχία.",
-      redirectTo: `/check-out/order/${insertedOrderId}`,
+      redirectTo: `/order/${insertedOrderId}`,
     };
   } catch (error) {
     return { success: false, message: formatError(error) };
@@ -110,7 +110,15 @@ export async function getOrderById(orderId: string) {
       id: orderId,
     },
     include: {
-      orderitems: true,
+      orderitems: {
+        include: {
+          variant: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      },
       user: { select: { name: true, email: true } },
     },
   });
