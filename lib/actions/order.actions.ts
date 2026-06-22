@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { cookies } from "next/headers"; // 👑 ΠΡΟΣΘΗΚΗ IMPORT ΓΙΑ ΤΑ COOKIES
+import { cookies } from "next/headers";
 import { getMyCart } from "./cart.actions";
 import { getUserById } from "./user.actions";
 import { convertToPlainObject, formatError } from "../utils";
@@ -26,17 +26,16 @@ export async function createOrder(paymentMethod: string) {
     }
 
     const userId = session?.user?.id || null;
-    
-    // Έλεγχος αν είναι Guest: Αν δεν υπάρχει userId, πρέπει οπωσδήποτε να έχουμε guestEmail στο καλάθι
+
     if (!userId && !cart.guestEmail) {
       return {
         success: false,
-        message: "Παρακαλώ εισάγετε το email σας για να προχωρήσετε ως επισκέπτης.",
-        redirectTo: "/check-out", // Ή όπου ζητάς το email του guest
+        message:
+          "Παρακαλώ εισάγετε το email σας για να προχωρήσετε ως επισκέπτης.",
+        redirectTo: "/check-out",
       };
     }
 
-    // Παίρνουμε τη διεύθυνση από το καλάθι
     let shippingAddress = cart.shippingAddress;
 
     if (!shippingAddress && userId) {
@@ -67,7 +66,7 @@ export async function createOrder(paymentMethod: string) {
       const newOrder = await tx.order.create({
         data: {
           userId: userId,
-          guestEmail: userId ? null : cart.guestEmail, // Αποθήκευση του email αν είναι guest
+          guestEmail: userId ? null : cart.guestEmail,
           shippingAddress: shippingAddress,
           paymentMethod: paymentMethod,
           itemsPrice: cart.itemsPrice,
@@ -81,7 +80,6 @@ export async function createOrder(paymentMethod: string) {
         },
       });
 
-      // Διαγραφή καλαθιού μετά την επιτυχημένη παραγγελία
       await tx.cart.delete({
         where: { id: cart.id },
       });
@@ -92,14 +90,13 @@ export async function createOrder(paymentMethod: string) {
     if (!insertedOrderId)
       throw new Error("Η δημιουργία της παραγγελίας απέτυχε.");
 
-    // 👑 ΚΑΘΑΡΙΣΜΟΣ COOKIE & REDIRECT ΣΤΗΝ ΑΡΧΙΚΗ (/)
     const cookieStore = await cookies();
     cookieStore.delete("sessionCartId");
 
     return {
       success: true,
       message: "Η παραγγελία δημιουργήθηκε με επιτυχία.",
-      redirectTo: `/order/${insertedOrderId}`
+      redirectTo: `/check-out/order/${insertedOrderId}`,
     };
   } catch (error) {
     return { success: false, message: formatError(error) };
