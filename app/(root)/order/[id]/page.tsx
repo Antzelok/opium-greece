@@ -24,7 +24,7 @@ interface OrderPageProps {
   }>;
 }
 
-const OrderPage = async ({ params, searchParams }: OrderPageProps) => {
+const OrderPage = async ({ params }: OrderPageProps) => {
   const resolvedParams = await params;
 
   const order = await getOrderById(resolvedParams.id);

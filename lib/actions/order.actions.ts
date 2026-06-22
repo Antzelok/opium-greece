@@ -12,6 +12,7 @@ import { PAGE_SIZE } from "../constants";
 import { Prisma } from "@prisma/client";
 import { sendPurchaseReceipt } from "@/email";
 
+// Create order and create the order items
 export async function createOrder(paymentMethod: string) {
   try {
     const session = await auth();
@@ -89,6 +90,26 @@ export async function createOrder(paymentMethod: string) {
 
     if (!insertedOrderId)
       throw new Error("Η δημιουργία της παραγγελίας απέτυχε.");
+
+    // Φέρνουμε την ολοκληρωμένη παραγγελία από τη βάση μαζί με τα items και τα στοιχεία χρήστη
+    const orderForEmail = await prisma.order.findFirst({
+      where: { id: insertedOrderId },
+      include: {
+        orderitems: true,
+        user: { select: { name: true, email: true } },
+      },
+    });
+
+    // Στέλνουμε το email επιβεβαίωσης αμέσως με την καταχώρηση
+    if (orderForEmail) {
+      sendPurchaseReceipt({
+        order: {
+          ...orderForEmail,
+          shippingAddress: orderForEmail.shippingAddress as ShippingAddress,
+          paymentResult: orderForEmail.paymentResult as PaymentResult,
+        },
+      });
+    }
 
     const cookieStore = await cookies();
     cookieStore.delete("sessionCartId");
