@@ -217,7 +217,6 @@ export async function getOrderSummary() {
   };
 }
 
-// Get all orders
 export async function getAllOrders({
   limit = PAGE_SIZE,
   page,
@@ -227,29 +226,42 @@ export async function getAllOrders({
   page: number;
   query: string;
 }) {
+  // Εδώ φιλτράρουμε ΜΟΝΟ στα πεδία που όντως έχεις στο schema σου
   const queryFilter: Prisma.OrderWhereInput =
     query && query !== "all"
       ? {
-          user: {
-            name: {
-              contains: query,
-              mode: "insensitive",
-            } as Prisma.StringFilter,
-          },
+          OR: [
+            // 1. Email εγγεγραμμένου χρήστη (μέσω της σχέσης user)
+            {
+              user: {
+                email: {
+                  contains: query,
+                  mode: "insensitive",
+                } as Prisma.StringFilter,
+              },
+            },
+            // 2. Email επισκέπτη (απευθείας στο μοντέλο Order)
+            {
+              guestEmail: {
+                contains: query,
+                mode: "insensitive",
+              } as Prisma.StringFilter,
+            },
+          ],
         }
       : {};
 
   const data = await prisma.order.findMany({
-    where: {
-      ...queryFilter,
-    },
+    where: { ...queryFilter },
     orderBy: { createdAt: "desc" },
     take: limit,
     skip: (page - 1) * limit,
-    include: { user: { select: { name: true } } },
+    include: { user: { select: { name: true, email: true } } },
   });
 
-  const dataCount = await prisma.order.count();
+  const dataCount = await prisma.order.count({
+    where: { ...queryFilter },
+  });
 
   return {
     data,
