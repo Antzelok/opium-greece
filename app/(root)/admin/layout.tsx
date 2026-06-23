@@ -2,6 +2,7 @@ import { APP_NAME } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 import MainNav from "./main-nav";
+import AdminSearch from "@/components/admin/admin-search";
 
 export default function AdminLayout({
   children,
@@ -10,7 +11,7 @@ export default function AdminLayout({
 }>) {
   return (
     <>
-      <div className="flex flex-col pt-16 text-white">
+      <div className="flex flex-col pt-16 bg-white">
         <div className="border-b container mx-auto">
           <div className="flex items-center h-16 px-4">
             <Link href="/" className="w-22">
@@ -23,6 +24,7 @@ export default function AdminLayout({
             </Link>
             <MainNav className="mx-6" />
             <div className="ml-auto items-center flex space-x-4">
+              <AdminSearch />
             </div>
           </div>
         </div>

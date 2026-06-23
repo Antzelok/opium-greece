@@ -30,7 +30,7 @@ const MainNav = ({
   const pathname = usePathname();
   return (
     <nav
-      className={cn("flex items-center text-white space-x-4 lg:space-x-6", className)}
+      className={cn("flex items-center text-black space-x-4 lg:space-x-6", className)}
       {...props}
     >
       {links.map((item) => (
