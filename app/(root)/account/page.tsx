@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import Image from "next/image";
 
-async function AccountPage() {
+const AccountPage = async () => {
   const session = await auth();
 
   if (!session) {
@@ -70,7 +70,7 @@ async function AccountPage() {
               <p className="text-neutral-500 uppercase tracking-tighter text-[10px] font-bold">
                 Member Role
               </p>
-              <p className="font-medium text-white">Verified User</p>
+              <p className="font-medium text-white">{user.role}</p>
             </div>
           </div>
 
