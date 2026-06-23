@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Cart } from "@/types";
-import CartDrawer from "@/components/shared/cart-drawer";
+import CartDrawer from "./cart-drawer";
+
 
 const navItems = [
   { title: "ALL", href: "/shop-all" },

@@ -3,7 +3,6 @@ import Footer from "@/components/layout/footer";
 import { Toaster } from "sonner";
 import { getMyCart } from "@/lib/actions/cart.actions";
 
-
 export default async function RootLayout({
   children,
 }: Readonly<{
