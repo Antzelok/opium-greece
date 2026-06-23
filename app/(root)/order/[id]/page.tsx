@@ -40,6 +40,9 @@ const OrderPage = async ({ params }: OrderPageProps) => {
   const isElta =
     shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
 
+  // 👑 Υπολογισμός του email (από το account του user ή από το guest πεδίο ή από το JSON address)
+  const displayEmail = order.user?.email || order.guestEmail || shippingAddress.email;
+
   return (
     <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6 py-15 px-5">
       {/* Order Status Section */}
@@ -66,7 +69,8 @@ const OrderPage = async ({ params }: OrderPageProps) => {
         <CardContent className="text-sm space-y-4 text-zinc-300 pt-0">
           <Separator className="bg-white/5 mb-4" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 leading-relaxed">
+          {/* 3 Columns πλέον για Name, Phone και Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 leading-relaxed">
             <p>
               <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
                 Name
@@ -81,6 +85,15 @@ const OrderPage = async ({ params }: OrderPageProps) => {
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.phoneNumber}
+              </span>
+            </p>
+            {/* 👈 ΠΡΟΣΘΗΚΗ EMAIL */}
+            <p>
+              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
+                Email
+              </span>
+              <span className="text-white font-medium break-all">
+                {displayEmail || "-"}
               </span>
             </p>
           </div>

@@ -66,7 +66,7 @@ const AdminOrdersPage = async (props: {
                 <TableCell>
                   {formatDateTime(order.createdAt).dateTime}
                 </TableCell>
-                <TableCell>{order.user?.name ?? order.guestEmail ?? "Unknown"}</TableCell>
+                <TableCell>{order.guestEmail ?? order.user?.email ?? "Unknown"}</TableCell>
                 <TableCell>{formatCurrency(order.totalPrice)}</TableCell>
                 <TableCell>
                   {order.isPaid && order.paidAt
