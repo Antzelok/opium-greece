@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import slugify from "slugify";
 import Image from "next/image";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,10 +28,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UploadButton } from "@/lib/uploadthing";
+import { Product } from "@/types";
+import z from "zod";
+import { toast } from "sonner";
 
 type ProductFormProps = {
   type: "Create" | "Update";
-  product?: any; // Adjust the type based on your product structure
+  product?: Product;
 };
 
 const ProductForm = ({ type, product }: ProductFormProps) => {
@@ -52,7 +54,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
             description: product.description ?? "",
             images: product.images ?? [],
             variants:
-              product.variants?.map((v: any) => ({
+              product.variants?.map((v) => ({
                 id: v.id ?? "",
                 productId: v.productId ?? "",
                 size: v.size ?? "",
@@ -76,7 +78,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
     }
   };
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: z.infer<typeof insertProductSchema>) => {
     startTransition(async () => {
       const res =
         type === "Create"
@@ -84,9 +86,10 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           : await updateProduct(values);
 
       if (res.success) {
+        toast.success(res.message);
         router.push("/admin/products");
       } else {
-        alert(res.message);
+        toast.error(res.message);
       }
     });
   };
@@ -165,7 +168,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["For Him", "For Her", "Niche", "Unisex"].map((cat) => (
+                    {["Men", "Women", "Niche", "Unisex"].map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>
@@ -318,7 +321,13 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                   <FormItem>
                     <FormLabel>Price (€)</FormLabel>
                     <FormControl>
-                      <Input type="text" {...field} />
+                      <Input
+                        type="text"
+                        {...field}
+                        value={field.value as string}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                      {/* <Input type="text" {...field} /> */}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
