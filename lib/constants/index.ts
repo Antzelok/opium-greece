@@ -26,16 +26,23 @@ export const SignUpDefaultValues = {
 };
 
 export const productDefaultValues = {
+  id: "",
   name: "",
   slug: "",
-  category: "",
-  images: [],
+  category: "Unisex" as const,
+  images: [] as string[],
   brand: "",
   description: "",
-  price: "0",
-  stock: 0,
+  variants: [
+    {
+      id: "",
+      productId: "",
+      size: "100ml",
+      type: "Perfume" as const, 
+      price: "",
+    },
+  ],
 };
-
 export const USER_ROLES = process.env.USER_ROLES
   ? process.env.USER_ROLES.split(", ")
   : ["admin", "user"];
