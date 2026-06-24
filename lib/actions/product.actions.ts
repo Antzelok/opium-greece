@@ -32,8 +32,6 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     },
   });
 
-  // Κάνουμε cast σε unknown και μετά σε Product[] για να "ηρεμήσουμε" το TS
-  // αφού εμπιστευόμαστε ότι η βάση έχει σωστές τιμές λόγω Zod validation στο insert
   return convertToPlainObject(data) as Product[];
 }
 
@@ -73,7 +71,6 @@ export async function getAllProducts({
   price?: string;
   sort?: string;
 }) {
-  // Name search filter
   const queryFilter: Prisma.ProductWhereInput =
     query && query !== "all"
       ? {
@@ -84,10 +81,8 @@ export async function getAllProducts({
         }
       : {};
 
-  // Category filter
   const categoryFilter = category && category !== "all" ? { category } : {};
 
-  // Price filter targeting nested Product Variants
   const priceFilter: Prisma.ProductWhereInput =
     price && price !== "all"
       ? {
@@ -102,7 +97,6 @@ export async function getAllProducts({
         }
       : {};
 
-  // Sorting logic based on creation date
   let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" };
 
   if (sort === "oldest") {
@@ -157,16 +151,25 @@ export async function deleteProduct(id: string) {
   }
 }
 
-// Create new product with nested variants
+// Create new product with nested variants (Διορθωμένο)
 export async function createProduct(data: z.infer<typeof insertProductSchema>) {
   try {
     const product = insertProductSchema.parse(data);
+    
+    // Αφαιρούμε το variants και το id (αν είναι κενό string) για να μην μπερδευτεί η Prisma
+    const { variants, id, ...productData } = product;
 
     await prisma.product.create({
       data: {
-        ...product,
+        ...productData,
+        // Αν το id έχει πραγματική τιμή (π.χ. non-empty), το βάζουμε, αλλιώς αφήνουμε την DB να το παράξει
+        ...(id && id.trim() !== "" ? { id } : {}),
         variants: {
-          create: product.variants,
+          create: variants.map((v) => ({
+            size: v.size,
+            type: v.type,
+            price: v.price,
+          })),
         },
       },
     });
@@ -192,7 +195,7 @@ export async function getAllCategories() {
   return data;
 }
 
-// Get featured products (Returns latest products as a general list)
+// Get featured products
 export async function getFeaturedProducts() {
   const data = await prisma.product.findMany({
     include: { variants: true },
@@ -201,4 +204,38 @@ export async function getFeaturedProducts() {
   });
 
   return convertToPlainObject(data);
+}
+
+// Update product (Διορθωμένο)
+export async function updateProduct(data: z.infer<typeof insertProductSchema>) {
+  try {
+    const product = insertProductSchema.parse(data);
+    const { variants, id, ...productData } = product;
+
+    if (!id) throw new Error("Product ID is required for update");
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        ...productData,
+        variants: {
+          deleteMany: {},
+          create: variants.map((v) => ({
+            size: v.size,
+            type: v.type,
+            price: v.price,
+          })),
+        },
+      },
+    });
+
+    revalidatePath("/admin/products");
+
+    return {
+      success: true,
+      message: "Product updated successfully",
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }
