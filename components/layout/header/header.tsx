@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { IoMenu, IoSearch, IoClose } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
-import { RiAdminLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -29,7 +28,6 @@ const navItems = [
 
 const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-
   const navLinkClass =
     "text-sm font-medium tracking-widest text-neutral-200 hover:text-white transition-colors";
 
@@ -53,8 +51,8 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               className="w-72 bg-black p-0 border-r border-white/5 text-white outline-none [&>button]:hidden"
             >
               <div className="sr-only">
-                <SheetTitle>Opium Greece Menu</SheetTitle>
-                <SheetDescription>Main navigation</SheetDescription>
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>Navigation</SheetDescription>
               </div>
               <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
                 <Image
@@ -63,11 +61,10 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
                   width={100}
                   height={35}
                   priority
-                  className="h-auto w-auto"
                 />
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-neutral-500 hover:text-white transition-colors outline-none p-1"
+                  className="text-neutral-500 hover:text-white"
                 >
                   <IoClose className="h-6! w-6!" />
                 </button>
@@ -86,6 +83,18 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
                     {item.title}
                   </Link>
                 ))}
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin/overview"
+                    className={cn(
+                      navLinkClass,
+                      "px-6 py-5 border-b border-white/5 uppercase text-red-400",
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    ADMIN
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
@@ -97,22 +106,10 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               width={100}
               height={35}
               priority
-              className="h-auto w-auto"
             />
           </Link>
 
           <div className="flex items-center gap-1">
-            {user?.role === "admin" && (
-              <Link href="/admin/overview">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-200 hover:bg-white/10"
-                >
-                  <RiAdminLine className="h-6! w-6!" />
-                </Button>
-              </Link>
-            )}
             <Button
               variant="ghost"
               size="icon"
@@ -142,7 +139,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               width={120}
               height={45}
               priority
-              className="brightness-110 hover:opacity-80 transition-opacity h-auto w-auto"
+              className="brightness-110 hover:opacity-80 transition-opacity"
             />
           </Link>
 
@@ -152,20 +149,17 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
                 {item.title}
               </Link>
             ))}
+            {user?.role === "admin" && (
+              <Link
+                href="/admin/overview"
+                className={cn(navLinkClass, "text-[#C5A25D]")}
+              >
+                ADMIN
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-1">
-            {user?.role === "admin" && (
-              <Link href="/admin/overview">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-200 hover:bg-white/10"
-                >
-                  <RiAdminLine className="h-6! w-6!" />
-                </Button>
-              </Link>
-            )}
             <Button
               variant="ghost"
               size="icon"
