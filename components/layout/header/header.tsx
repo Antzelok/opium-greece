@@ -58,7 +58,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               </div>
               <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
                 <Image
-                  src="/opium-logo.jpg"
+                  src="/opium.png"
                   alt="Logo"
                   width={100}
                   height={35}
@@ -92,7 +92,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
 
           <Link href="/" className="absolute left-1/2 -translate-x-1/2">
             <Image
-              src="/opium-logo.jpg"
+              src="/opium.png"
               alt="Logo"
               width={100}
               height={35}
@@ -137,7 +137,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
         <div className="hidden lg:flex items-center justify-between w-full">
           <Link href="/" className="shrink-0">
             <Image
-              src="/opium-logo.jpg"
+              src="/opium.png"
               alt="Logo"
               width={120}
               height={45}
