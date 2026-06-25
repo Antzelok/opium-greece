@@ -19,6 +19,8 @@ import { Prisma } from "@prisma/client";
 import { getMyCart } from "./cart.actions";
 import { Resend } from "resend";
 import { randomBytes } from "crypto";
+import { promises as fs } from "fs";
+import path from "path";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -34,11 +36,13 @@ export async function signInWithCredentials(
   const { email, password } = data;
 
   const user = await prisma.user.findUnique({ where: { email } });
-
+  {
+    /*}
   if (user && !user.emailVerified) {
     return { success: false, message: "Please verify your email first." };
   }
-
+*/
+  }
   try {
     const callbackUrl = (formData.get("callbackUrl") as string) || "/";
 
@@ -59,6 +63,7 @@ export async function signOutUser() {
 }
 
 // Sign up user
+// Sign up user
 export async function signUpUser(prevState: unknown, formData: FormData) {
   try {
     const data = signUpFormSchema.parse({
@@ -70,15 +75,12 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     const hashedPassword = hashSync(data.password, 10);
 
-    console.log("Προσπάθεια δημιουργίας χρήστη στη βάση...");
     const newUser = await prisma.user.create({
       data: { name: data.name, email: data.email, password: hashedPassword },
     });
-    console.log("Χρήστης δημιουργήθηκε με ID:", newUser.id);
 
     const token = randomBytes(32).toString("hex");
 
-    console.log("Προσπάθεια δημιουργίας token...");
     await prisma.verificationToken.create({
       data: {
         identifier: data.email,
@@ -86,17 +88,24 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
         expires: new Date(Date.now() + 3600000),
       },
     });
-    console.log("Token δημιουργήθηκε!");
 
-    console.log("Προσπάθεια αποστολής email στο:", data.email);
-    const emailResult = await resend.emails.send({
+    // Ανάγνωση του HTML αρχείου
+    const filePath = path.join(
+      process.cwd(),
+      "components/email/template.html",
+    );
+    let emailHtml = await fs.readFile(filePath, "utf8");
+
+    // Αντικατάσταση του placeholder με το πραγματικό URL
+    const verificationUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}`;
+    emailHtml = emailHtml.replace("{{URL}}", verificationUrl);
+
+    await resend.emails.send({
       from: "Opium <onboarding@resend.dev>",
       to: data.email,
       subject: "Verify your email",
-      html: `<p>Click <a href="${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}">here</a> to verify your account.</p>`,
+      html: emailHtml,
     });
-
-    console.log("Resend αποτέλεσμα:", emailResult);
 
     return {
       success: true,
@@ -107,7 +116,6 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     return { success: false, message: formatError(error) };
   }
 }
-
 // Get user by ID
 export async function getUserById(userId: string) {
   const user = await prisma.user.findFirst({

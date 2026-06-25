@@ -8,7 +8,7 @@ import { SignUpDefaultValues } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SignUpButton from "@/components/auth/SignUpButton";
-import EmailVerification from "@/components/auth/email-verification";
+import EmailVerification from "@/components/email/email-verification";
 
 const SignUpForm = () => {
   const [data, action] = useActionState(signUpUser, {
