@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IoMenu, IoSearch, IoClose } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
+import { RiAdminLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -17,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Cart } from "@/types";
 import CartDrawer from "./cart-drawer";
 
-
 const navItems = [
   { title: "ALL", href: "/shop-all" },
   { title: "FOR HIM", href: "/for-him" },
@@ -27,7 +27,7 @@ const navItems = [
   { title: "STORES", href: "/stores" },
 ];
 
-const Header = ({ cart }: { cart?: Cart }) => {
+const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navLinkClass =
@@ -48,7 +48,6 @@ const Header = ({ cart }: { cart?: Cart }) => {
                 <IoMenu className="h-6! w-6!" />
               </Button>
             </SheetTrigger>
-
             <SheetContent
               side="left"
               className="w-72 bg-black p-0 border-r border-white/5 text-white outline-none [&>button]:hidden"
@@ -57,8 +56,6 @@ const Header = ({ cart }: { cart?: Cart }) => {
                 <SheetTitle>Opium Greece Menu</SheetTitle>
                 <SheetDescription>Main navigation</SheetDescription>
               </div>
-
-              {/* CUSTOM HEADER */}
               <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
                 <Image
                   src="/opium-logo.jpg"
@@ -75,7 +72,6 @@ const Header = ({ cart }: { cart?: Cart }) => {
                   <IoClose className="h-6! w-6!" />
                 </button>
               </div>
-
               <div className="flex flex-col">
                 {navItems.map((item) => (
                   <Link
@@ -106,6 +102,17 @@ const Header = ({ cart }: { cart?: Cart }) => {
           </Link>
 
           <div className="flex items-center gap-1">
+            {user?.role === "admin" && (
+              <Link href="/admin/overview">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-neutral-200 hover:bg-white/10"
+                >
+                  <RiAdminLine className="h-6! w-6!" />
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -148,6 +155,17 @@ const Header = ({ cart }: { cart?: Cart }) => {
           </div>
 
           <div className="flex items-center gap-1">
+            {user?.role === "admin" && (
+              <Link href="/admin/overview">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-neutral-200 hover:bg-white/10"
+                >
+                  <RiAdminLine className="h-6! w-6!" />
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"
