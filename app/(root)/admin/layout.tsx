@@ -16,7 +16,7 @@ export default function AdminLayout({
           <div className="flex items-center h-16 px-4">
             <Link href="/" className="w-22">
               <Image
-                src="/opium-logo.jpg"
+                src="/opium.png"
                 height={80}
                 width={80}
                 alt={APP_NAME}
