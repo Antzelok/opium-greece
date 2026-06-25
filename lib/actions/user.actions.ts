@@ -22,24 +22,27 @@ import { randomBytes } from "crypto";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Sign in user with credentials
 export async function signInWithCredentials(
   prevState: unknown,
   formData: FormData,
 ) {
+  const data = signInFormSchema.parse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  const { email, password } = data;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (user && !user.emailVerified) {
+    return { success: false, message: "Please verify your email first." };
+  }
+
   try {
     const callbackUrl = (formData.get("callbackUrl") as string) || "/";
 
-    const user = signInFormSchema.parse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
-
-    await signIn("credentials", {
-      ...user,
-      redirectTo: callbackUrl,
-    });
-
+    await signIn("credentials", { email, password, redirectTo: callbackUrl });
     return { success: true, message: "Signed in successfully" };
   } catch (error) {
     if (isRedirectError(error)) {
@@ -48,7 +51,6 @@ export async function signInWithCredentials(
     return { success: false, message: "Invalid email or password" };
   }
 }
-
 // Sign user out
 export async function signOutUser() {
   const currentCart = await getMyCart();

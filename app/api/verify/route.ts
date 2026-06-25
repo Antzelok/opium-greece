@@ -19,8 +19,12 @@ export async function GET(request: Request) {
   });
 
   await prisma.verificationToken.delete({
-    where: { identifier_token: { identifier: vToken.identifier, token: vToken.token } },
+    where: {
+      identifier_token: { identifier: vToken.identifier, token: vToken.token },
+    },
   });
 
-  return NextResponse.redirect(new URL("/sign-in?verified=true", process.env.NEXT_PUBLIC_APP_URL));
+  return NextResponse.redirect(
+    new URL("/sign-in?verified=true", process.env.NEXT_PUBLIC_SERVER_URL),
+  );
 }

@@ -1,19 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useActionState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signUpUser } from "@/lib/actions/user.actions";
 import { SignUpDefaultValues } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SignUpButton from "@/components/auth/SignUpButton";
+import { toast } from "sonner";
 
 const SignUpForm = () => {
   const [data, action] = useActionState(signUpUser, {
     success: false,
     message: "",
   });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (data.message) {
+      if (data.success) {
+        toast.success(data.message);
+        router.push("/sign-in");
+      } else {
+        toast.error(data.message);
+      }
+    }
+  }, [data, router]);
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
