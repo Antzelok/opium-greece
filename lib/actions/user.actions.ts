@@ -17,6 +17,10 @@ import { PAGE_SIZE } from "../constants";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { getMyCart } from "./cart.actions";
+import { Resend } from "resend";
+import { randomBytes } from "crypto";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Sign in user with credentials
 export async function signInWithCredentials(
@@ -55,37 +59,49 @@ export async function signOutUser() {
 // Sign up user
 export async function signUpUser(prevState: unknown, formData: FormData) {
   try {
-    const user = signUpFormSchema.parse({
+    const data = signUpFormSchema.parse({
       name: formData.get("name"),
       email: formData.get("email"),
       password: formData.get("password"),
       confirmPassword: formData.get("confirmPassword"),
     });
 
-    const plainPassword = user.password;
+    const hashedPassword = hashSync(data.password, 10);
 
-    user.password = hashSync(user.password, 10);
+    console.log("Προσπάθεια δημιουργίας χρήστη στη βάση...");
+    const newUser = await prisma.user.create({
+      data: { name: data.name, email: data.email, password: hashedPassword },
+    });
+    console.log("Χρήστης δημιουργήθηκε με ID:", newUser.id);
 
-    await prisma.user.create({
+    const token = randomBytes(32).toString("hex");
+
+    console.log("Προσπάθεια δημιουργίας token...");
+    await prisma.verificationToken.create({
       data: {
-        name: user.name,
-        email: user.email,
-        password: user.password,
+        identifier: data.email,
+        token,
+        expires: new Date(Date.now() + 3600000),
       },
     });
+    console.log("Token δημιουργήθηκε!");
 
-    await signIn("credentials", {
-      email: user.email,
-      password: plainPassword,
+    console.log("Προσπάθεια αποστολής email στο:", data.email);
+    const emailResult = await resend.emails.send({
+      from: "Opium <onboarding@resend.dev>",
+      to: data.email,
+      subject: "Verify your email",
+      html: `<p>Click <a href="${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}">here</a> to verify your account.</p>`,
     });
+
+    console.log("Resend αποτέλεσμα:", emailResult);
+
     return {
       success: true,
-      message: "User registered successfully",
+      message: "Account created! Please check your email to verify.",
     };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
+    console.error("SIGN_UP_CRITICAL_ERROR:", error);
     return { success: false, message: formatError(error) };
   }
 }
