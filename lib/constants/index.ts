@@ -34,15 +34,12 @@ export const productDefaultValues = {
   brand: "",
   description: "",
   variants: [
-    {
-      id: "",
-      productId: "",
-      size: "100ml",
-      type: "Perfume" as const, 
-      price: "",
-    },
+    { id: "", productId: "", size: "30ml", type: "Perfume" as const, price: "55.00" },
+    { id: "", productId: "", size: "50ml", type: "Perfume" as const, price: "70.00" },
+    { id: "", productId: "", size: "100ml", type: "Perfume" as const, price: "85.00" },
   ],
 };
+
 export const USER_ROLES = process.env.USER_ROLES
   ? process.env.USER_ROLES.split(", ")
   : ["admin", "user"];

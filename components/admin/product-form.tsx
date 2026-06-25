@@ -267,17 +267,19 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           </div>
 
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-4 items-end border-b pb-4">
+            <div
+              key={field.id}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-b pb-4"
+            >
               <FormField
                 control={form.control}
                 name={`variants.${index}.size`}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Size</FormLabel>
+                  <FormItem className="space-y-0">
+                    <FormLabel className="mb-1 block">Size</FormLabel>
                     <FormControl>
-                      <Input placeholder="100ml" {...field} />
+                      <Input {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -286,12 +288,12 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                 control={form.control}
                 name={`variants.${index}.type`}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
+                  <FormItem className="space-y-0">
+                    <FormLabel className="mb-1 block">Type</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Type" />
+                          <SelectValue />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -309,7 +311,6 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -318,8 +319,8 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                 control={form.control}
                 name={`variants.${index}.price`}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (€)</FormLabel>
+                  <FormItem className="space-y-0">
+                    <FormLabel className="mb-1 block">Price (€)</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
@@ -327,33 +328,35 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                         value={field.value as string}
                         onChange={(e) => field.onChange(e.target.value)}
                       />
-                      {/* <Input type="text" {...field} /> */}
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => remove(index)}
-                >
-                  Remove
-                </Button>
-              )}
+              <div className="pt-6">
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => remove(index)}
+                    className="w-20"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
+          <div className="mt-8">
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending
+                ? "Submitting..."
+                : type === "Create"
+                  ? "Create Product"
+                  : "Update Product"}
+            </Button>
+          </div>
         </div>
-
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending
-            ? "Submitting..."
-            : type === "Create"
-              ? "Create Product"
-              : "Update Product"}
-        </Button>
       </form>
     </Form>
   );
