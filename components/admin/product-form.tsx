@@ -96,7 +96,6 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
 
   return (
     <Form {...form}>
-      {/* Διατήρηση του console.log στα errors για σιγουριά */}
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) =>
           console.log("Zod Errors:", errors),
@@ -181,7 +180,6 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           />
         </div>
 
-        {/* UPLOADTHING IMAGES FIELD */}
         <FormField
           control={form.control}
           name="images"
@@ -245,7 +243,6 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           )}
         />
 
-        {/* VARIANTS SECTION */}
         <div className="border p-4 rounded-md space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Product Variants</h3>
@@ -269,7 +266,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-b pb-4"
+              className="flex items-center justify-start border-b pb-4 gap-6"
             >
               <FormField
                 control={form.control}
@@ -290,7 +287,15 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                 render={({ field }) => (
                   <FormItem className="space-y-0">
                     <FormLabel className="mb-1 block">Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        if (val !== "Perfume") {
+                          form.setValue(`variants.${index}.size`, "Standard");
+                        }
+                      }}
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
