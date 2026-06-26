@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const EmailVerification = () => {
+const VerificationNotice = () => {
   return (
     <Card className="bg-neutral-900 border-white/10 text-white">
       <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
@@ -33,4 +33,4 @@ const EmailVerification = () => {
   );
 };
 
-export default EmailVerification;
+export default VerificationNotice;

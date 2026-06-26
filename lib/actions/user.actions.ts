@@ -19,8 +19,7 @@ import { Prisma } from "@prisma/client";
 import { getMyCart } from "./cart.actions";
 import { Resend } from "resend";
 import { randomBytes } from "crypto";
-import { promises as fs } from "fs";
-import path from "path";
+import VerificationEmail from "@/email-verif/verification-email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -63,7 +62,6 @@ export async function signOutUser() {
 }
 
 // Sign up user
-// Sign up user
 export async function signUpUser(prevState: unknown, formData: FormData) {
   try {
     const data = signUpFormSchema.parse({
@@ -89,22 +87,14 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
       },
     });
 
-    // Ανάγνωση του HTML αρχείου
-    const filePath = path.join(
-      process.cwd(),
-      "components/email/template.html",
-    );
-    let emailHtml = await fs.readFile(filePath, "utf8");
-
-    // Αντικατάσταση του placeholder με το πραγματικό URL
     const verificationUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}`;
-    emailHtml = emailHtml.replace("{{URL}}", verificationUrl);
 
+    // Χρήση του React Component όπως στο sendPurchaseReceipt
     await resend.emails.send({
       from: "Opium <onboarding@resend.dev>",
       to: data.email,
       subject: "Verify your email",
-      html: emailHtml,
+      react: VerificationEmail({ url: verificationUrl }),
     });
 
     return {
@@ -116,6 +106,7 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     return { success: false, message: formatError(error) };
   }
 }
+
 // Get user by ID
 export async function getUserById(userId: string) {
   const user = await prisma.user.findFirst({

@@ -8,7 +8,7 @@ import { SignUpDefaultValues } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SignUpButton from "@/components/auth/SignUpButton";
-import EmailVerification from "@/components/email/email-verification";
+import VerificationNotice from "@/email-verif/verification-notice";
 
 const SignUpForm = () => {
   const [data, action] = useActionState(signUpUser, {
@@ -25,7 +25,7 @@ const SignUpForm = () => {
   return (
     <>
       {data.success ? (
-        <EmailVerification />
+        <VerificationNotice />
       ) : (
         <form action={action} className="space-y-4">
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
