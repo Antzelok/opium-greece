@@ -89,7 +89,6 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}`;
 
-    // Χρήση του React Component όπως στο sendPurchaseReceipt
     await resend.emails.send({
       from: "Opium <onboarding@resend.dev>",
       to: data.email,
@@ -156,7 +155,6 @@ export async function updateUserPaymentMethod(methodType: string) {
 
     if (!currentUser) throw new Error("User not found");
 
-    // Περνάμε το string ως object `{ type: ... }` για να περάσει το Zod validation
     const validatedData = paymentMethodSchema.parse({ type: methodType });
 
     await prisma.user.update({

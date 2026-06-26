@@ -91,7 +91,6 @@ export async function createOrder(paymentMethod: string) {
     if (!insertedOrderId)
       throw new Error("Η δημιουργία της παραγγελίας απέτυχε.");
 
-    // Φέρνουμε την ολοκληρωμένη παραγγελία από τη βάση μαζί με τα items και τα στοιχεία χρήστη
     const orderForEmail = await prisma.order.findFirst({
       where: { id: insertedOrderId },
       include: {
@@ -100,7 +99,6 @@ export async function createOrder(paymentMethod: string) {
       },
     });
 
-    // Στέλνουμε το email επιβεβαίωσης αμέσως με την καταχώρηση
     if (orderForEmail) {
       sendPurchaseReceipt({
         order: {
@@ -226,12 +224,10 @@ export async function getAllOrders({
   page: number;
   query: string;
 }) {
-  // Εδώ φιλτράρουμε ΜΟΝΟ στα πεδία που όντως έχεις στο schema σου
   const queryFilter: Prisma.OrderWhereInput =
     query && query !== "all"
       ? {
           OR: [
-            // 1. Email εγγεγραμμένου χρήστη (μέσω της σχέσης user)
             {
               user: {
                 email: {
@@ -240,7 +236,6 @@ export async function getAllOrders({
                 } as Prisma.StringFilter,
               },
             },
-            // 2. Email επισκέπτη (απευθείας στο μοντέλο Order)
             {
               guestEmail: {
                 contains: query,

@@ -88,7 +88,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
                     href="/admin/overview"
                     className={cn(
                       navLinkClass,
-                      "px-6 py-5 border-b border-white/5 uppercase text-red-400",
+                      "px-6 py-5 border-b border-white/5 uppercase text-[#C5A25D]",
                     )}
                     onClick={() => setIsOpen(false)}
                   >

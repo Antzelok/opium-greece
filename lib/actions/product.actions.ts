@@ -19,7 +19,9 @@ export async function getLatestProducts() {
   return convertToPlainObject(data);
 }
 
-export async function getProductsByCategory(category: string): Promise<Product[]> {
+export async function getProductsByCategory(
+  category: string,
+): Promise<Product[]> {
   const data = await prisma.product.findMany({
     where: {
       category: category,
@@ -28,7 +30,7 @@ export async function getProductsByCategory(category: string): Promise<Product[]
       variants: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
   });
 
@@ -155,14 +157,12 @@ export async function deleteProduct(id: string) {
 export async function createProduct(data: z.infer<typeof insertProductSchema>) {
   try {
     const product = insertProductSchema.parse(data);
-    
-    // Αφαιρούμε το variants και το id (αν είναι κενό string) για να μην μπερδευτεί η Prisma
+
     const { variants, id, ...productData } = product;
 
     await prisma.product.create({
       data: {
         ...productData,
-        // Αν το id έχει πραγματική τιμή (π.χ. non-empty), το βάζουμε, αλλιώς αφήνουμε την DB να το παράξει
         ...(id && id.trim() !== "" ? { id } : {}),
         variants: {
           create: variants.map((v) => ({
