@@ -22,6 +22,7 @@ const navItems = [
   { title: "FOR HIM", href: "/for-him" },
   { title: "FOR HER", href: "/for-her" },
   { title: "NICHE", href: "/niche" },
+  { title: "UNISEX", href: "/unisex" },
   { title: "MYSTERY-BOX", href: "/mystery-box" },
   { title: "STORES", href: "/stores" },
 ];
@@ -55,13 +56,15 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
                 <SheetDescription>Navigation</SheetDescription>
               </div>
               <div className="flex items-center justify-between px-6 py-7 border-b border-white/5">
-                <Image
-                  src="/opium.png"
-                  alt="Logo"
-                  width={100}
-                  height={35}
-                  priority
-                />
+                <Link href="/">
+                  <Image
+                    src="/opium.png"
+                    alt="Logo"
+                    width={100}
+                    height={35}
+                    priority
+                  />
+                </Link>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="text-neutral-500 hover:text-white"
