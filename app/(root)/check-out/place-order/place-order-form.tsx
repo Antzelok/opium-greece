@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createOrder } from "@/lib/actions/order.actions";
+import { createOrder, updateOrderToPaid } from "@/lib/actions/order.actions";
 import { useRouter } from "next/navigation";
 import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "sonner";
 import {
@@ -22,49 +21,15 @@ const stripePromise = loadStripe(
 
 interface FormProps {
   paymentMethod: string;
-  totalPrice: number;
+  stripeClientSecret: string | null;
+  stripePaymentIntentId: string | null;
 }
 
-interface StripeIntentResponse {
-  clientSecret: string;
-  paymentIntentId: string;
-}
-
-const PlaceOrderForm = ({ paymentMethod, totalPrice }: FormProps) => {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
-  const [loadingIntent, setLoadingIntent] = useState(
-    paymentMethod === "Stripe",
-  );
-
-  useEffect(() => {
-    if (paymentMethod !== "Stripe") return;
-
-    let isMounted = true;
-
-    fetch("/api/webhooks/stripe-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalPrice }),
-    })
-      .then((res) => res.json())
-      .then((data: StripeIntentResponse) => {
-        if (isMounted) {
-          setClientSecret(data.clientSecret);
-          setPaymentIntentId(data.paymentIntentId);
-          setLoadingIntent(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Stripe Intent Error:", err);
-        if (isMounted) setLoadingIntent(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [paymentMethod, totalPrice]);
-
+const PlaceOrderForm = ({
+  paymentMethod,
+  stripeClientSecret,
+  stripePaymentIntentId,
+}: FormProps) => {
   if (paymentMethod === "COD") {
     return (
       <div className="space-y-4">
@@ -98,31 +63,32 @@ const PlaceOrderForm = ({ paymentMethod, totalPrice }: FormProps) => {
         </div>
       </div>
 
-      {loadingIntent ? (
-        <div className="flex items-center justify-center py-12 gap-3 text-zinc-500 text-xs uppercase tracking-widest font-medium">
-          <AiOutlineLoading3Quarters className="animate-spin text-[#c5a059] w-4 h-4" />
-          <span>Φόρτωση ασφαλούς περιβάλλοντος...</span>
-        </div>
+      {stripeClientSecret && stripePaymentIntentId ? (
+        <Elements
+          stripe={stripePromise}
+          options={{
+            clientSecret: stripeClientSecret,
+            appearance: {
+              theme: "night",
+              variables: { colorPrimary: "#c5a059", borderRadius: "0px" },
+            },
+          }}
+        >
+          <StripeForm
+            paymentMethod={paymentMethod}
+            paymentIntentId={stripePaymentIntentId}
+            clientSecret={stripeClientSecret}
+          />
+        </Elements>
       ) : (
-        clientSecret &&
-        paymentIntentId && (
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: "night",
-                variables: { colorPrimary: "#c5a059", borderRadius: "0px" },
-              },
-            }}
-          >
-            <StripeForm
-              paymentMethod={paymentMethod}
-              paymentIntentId={paymentIntentId}
-              clientSecret={clientSecret}
-            />
-          </Elements>
-        )
+        <Alert
+          variant="destructive"
+          className="bg-red-500/10 border-red-500/20 text-red-500 rounded-none p-4"
+        >
+          <AlertDescription className="text-xs font-mono">
+            Αδυναμία φόρτωσης του συστήματος πληρωμής. Παρακαλώ ανανεώστε τη σελίδα.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
@@ -256,6 +222,16 @@ function StripeForm({
           result.paymentIntent &&
           result.paymentIntent.status === "succeeded"
         ) {
+          // Σήμανση ως πληρωμένο + αποστολή receipt αμέσως (δεν περιμένουμε webhook)
+          await updateOrderToPaid({
+            orderId,
+            paymentResult: {
+              id: result.paymentIntent.id,
+              status: "COMPLETED",
+              email_address: "",
+              pricePaid: (result.paymentIntent.amount / 100).toFixed(2),
+            },
+          });
           toast.success(
             "Η πληρωμή ολοκληρώθηκε και η παραγγελία καταχωρήθηκε!",
             {

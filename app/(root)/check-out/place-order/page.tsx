@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { CartItem, ShippingAddress } from "@/types";
 import PlaceOrderForm from "./place-order-form";
+import Stripe from "stripe";
 
 export const metadata: Metadata = {
   title: "Review Order",
@@ -50,6 +51,25 @@ const PlaceOrderPage = async () => {
  // Διαβάζει την επιλογή από το καλάθι (για Guests) ή από το προφίλ (για Users)
 // 👑 ΔΙΟΡΘΩΣΗ: Αλλάζουμε το fallback σε "COD" για να ταιριάζει με το Form component σου
 const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD";
+
+  // Δημιουργία PaymentIntent server-side για Stripe ώστε να μην υπάρχει useEffect στο client
+  let stripeClientSecret: string | null = null;
+  let stripePaymentIntentId: string | null = null;
+
+  if (chosenPaymentMethod === "Stripe") {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: Math.round(Number(cart.totalPrice) * 100),
+        currency: "eur",
+        automatic_payment_methods: { enabled: true },
+        metadata: { orderId: "" },
+      },
+      { idempotencyKey: `cart_${cart.id}_intent` },
+    );
+    stripeClientSecret = paymentIntent.client_secret;
+    stripePaymentIntentId = paymentIntent.id;
+  }
 
   return (
     <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6">
@@ -177,7 +197,8 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
         <CardContent className="pt-6">
           <PlaceOrderForm
             paymentMethod={chosenPaymentMethod}
-            totalPrice={Number(cart.totalPrice)}
+            stripeClientSecret={stripeClientSecret}
+            stripePaymentIntentId={stripePaymentIntentId}
           />
         </CardContent>
       </Card>
