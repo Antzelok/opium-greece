@@ -35,33 +35,31 @@ const PlaceOrderPage = async () => {
   const userId = session?.user?.id;
   const isGuest = !userId && cart.guestEmail;
 
-
   if (!userId && !isGuest) redirect("/sign-in");
 
   const dbUser = userId ? await getUserById(userId) : null;
 
-  const shippingAddress = (cart.shippingAddress || dbUser?.address) as unknown as ShippingAddress;
+  const shippingAddress = (cart.shippingAddress ||
+    dbUser?.address) as unknown as ShippingAddress;
 
   if (!shippingAddress || !shippingAddress.shippingMethod) {
     redirect("/check-out/shipping-address");
   }
 
- 
-const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD";
+  const chosenPaymentMethod =
+    cart.paymentMethod || dbUser?.paymentMethod || "COD";
 
   let stripeClientSecret: string | null = null;
   let stripePaymentIntentId: string | null = null;
 
   if (chosenPaymentMethod === "Stripe") {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-    const paymentIntent = await stripe.paymentIntents.create(
-      {
-        amount: Math.round(Number(cart.totalPrice) * 100),
-        currency: "eur",
-        automatic_payment_methods: { enabled: true },
-       // metadata: { orderId: "" },
-      },
-    );
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(Number(cart.totalPrice) * 100),
+      currency: "eur",
+      automatic_payment_methods: { enabled: true },
+      // metadata: { orderId: "" },
+    });
     stripeClientSecret = paymentIntent.client_secret;
     stripePaymentIntentId = paymentIntent.id;
   }
@@ -94,10 +92,10 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
             </p>
             <p>
               <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Τηλέφωνο
+                Επώνυμο
               </span>
               <span className="text-white font-medium">
-                {shippingAddress.phoneNumber}
+                {shippingAddress.lastName}
               </span>
             </p>
             <p>
@@ -106,6 +104,14 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.email || cart.guestEmail}
+              </span>
+            </p>
+            <p>
+              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
+                Τηλέφωνο
+              </span>
+              <span className="text-white font-medium">
+                {shippingAddress.phoneNumber}
               </span>
             </p>
           </div>
@@ -160,7 +166,7 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
               <div key={item.variantId} className="space-y-6">
                 <div className="flex items-center justify-between py-2">
                   <div className="flex items-center gap-5">
-                    <div className="relative w-16 h-16 bg-zinc-900 border border-white/5 shrink-0">
+                    <div className="relative w-16 h-16  border border-white/5 shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -169,12 +175,22 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
                       />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-white uppercase tracking-wide">
+                      <h4 className="font-bold text-sm text-[#c5a059] uppercase tracking-wide">
                         {item.name}
                       </h4>
                       <div className="flex flex-wrap gap-2 pt-0.5">
-                        <span className="text-xs text-zinc-500 self-center font-medium pl-1">
+                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
                           x{item.qty}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pt-0.5">
+                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
+                          {item.type}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pt-0.5">
+                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
+                          {item.size}
                         </span>
                       </div>
                     </div>
