@@ -28,7 +28,7 @@ const SignUpForm = () => {
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
           <div className="space-y-1">
-            <Label htmlFor="name" className="text-neutral-300">
+            <Label htmlFor="name" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
               Name
             </Label>
             <Input
@@ -43,7 +43,7 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="email" className="text-neutral-300">
+            <Label htmlFor="email" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
               Email
             </Label>
             <Input
@@ -58,7 +58,7 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="password" className="text-neutral-300">
+            <Label htmlFor="password" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
               Password
             </Label>
             <Input
@@ -73,7 +73,7 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="confirmPassword" className="text-neutral-300">
+            <Label htmlFor="confirmPassword" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
               Confirm Password
             </Label>
             <Input
@@ -90,12 +90,12 @@ const SignUpForm = () => {
           <SignUpButton />
 
           {data && !data.success && (
-            <div className="text-center text-[#c5a059] text-sm font-medium py-2 rounded-md">
+            <div className="text-center text-[#c5a059] text-[11px] font-medium py-2 rounded-md uppercase tracking-wider">
               {data.message}
             </div>
           )}
 
-          <div className="text-sm text-center text-neutral-400 pt-2">
+          <div className="text-[11px] text-center text-neutral-500 uppercase tracking-widest">
             Already have an account?{" "}
             <Link
               href="/sign-in"

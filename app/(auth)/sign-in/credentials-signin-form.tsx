@@ -32,7 +32,7 @@ const CredentialsSignInForm = ({
       <div className="space-y-2">
         <Label
           htmlFor="email"
-          className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+          className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
         >
           Email Address
         </Label>
@@ -50,7 +50,7 @@ const CredentialsSignInForm = ({
       <div className="space-y-2">
         <Label
           htmlFor="password"
-          className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+          className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
         >
           Password
         </Label>
