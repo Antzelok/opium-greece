@@ -21,7 +21,7 @@ import Stripe from "stripe";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Review Order",
+  title: "Place Order",
 };
 
 const PlaceOrderPage = async () => {
@@ -59,7 +59,7 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
         amount: Math.round(Number(cart.totalPrice) * 100),
         currency: "eur",
         automatic_payment_methods: { enabled: true },
-        metadata: { orderId: "" },
+       // metadata: { orderId: "" },
       },
     );
     stripeClientSecret = paymentIntent.client_secret;

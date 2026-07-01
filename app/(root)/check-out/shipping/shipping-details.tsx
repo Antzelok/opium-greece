@@ -19,6 +19,7 @@ import {
 } from "@/lib/actions/cart.actions";
 import { shippingAddressSchema } from "@/lib/validators";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
 
 interface BoxNowSelectedData {
   boxnowLockerId: string;
@@ -201,7 +202,7 @@ const ShippingDetailsPage = () => {
   return (
     <>
       <CheckoutSteps current={1} />
-      <div className="max-w-5xl mx-auto space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
+      <div className="max-w-5xl space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
         {createPortal(
           <div
             id="boxnowmap"
@@ -261,17 +262,15 @@ const ShippingDetailsPage = () => {
 
               {shippingMethod === "boxnow" && (
                 <div className="animate-in fade-in zoom-in-95 duration-200">
-                  <button
+                  <Button
                     type="button"
                     onClick={openBoxNow}
                     className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors w-full sm:w-auto"
                   >
-                    {boxNowLocker
-                      ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ"
-                      : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ ΑΠΟ ΧΑΡΤΗ"}
-                  </button>
+                    {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ"}
+                  </Button>
                   {boxNowLocker && (
-                    <p className="text-[#c5a059] text-[9px] font-mono mt-2 uppercase tracking-normal wrap-break-word">
+                    <p className="text-[#c5a059] text-[11px] font-mono mt-2 uppercase tracking-normal wrap-break-word">
                       Locker: {boxNowLocker.id} <br />
                       <span className="text-zinc-400 font-sans normal-case">
                         {boxNowLocker.address}
@@ -399,13 +398,13 @@ const ShippingDetailsPage = () => {
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#c5a059] text-black py-4 md:py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
+              className="w-full h-13 bg-[#c5a059] text-black py-4 md:py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
             >
               {isSubmitting ? "Processing..." : "Continue to Payment"}
-            </button>
+            </Button>
           </form>
         )}
       </div>

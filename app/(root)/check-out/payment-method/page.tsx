@@ -15,10 +15,8 @@ const PaymentMethodPage = async () => {
   const session = await auth();
   const cart = await getMyCart();
 
-  // Αν δεν υπάρχει καλάθι, γύρνα πίσω
   if (!cart) redirect("/cart");
 
-  // Έλεγχος: Πρέπει να είναι ΕΙΤΕ συνδεδεμένος χρήστης ΕΙΤΕ να έχει βάλει guest email
   const userId = session?.user?.id;
   const isGuest = !userId && cart.guestEmail;
 
@@ -26,10 +24,8 @@ const PaymentMethodPage = async () => {
     redirect("/sign-in");
   }
 
-  // Παίρνουμε τον χρήστη από τη βάση ΜΟΝΟ αν είναι συνδεδεμένος
   const user = userId ? await getUserById(userId) : null;
 
-  // Get shipping method from cart (session) first, then user profile
   const shippingMethod =
     (cart?.shippingAddress as { shippingMethod?: string })?.shippingMethod ||
     (user?.address as { shippingMethod?: string })?.shippingMethod;
@@ -40,7 +36,7 @@ const PaymentMethodPage = async () => {
 
   return (
     <div className="space-y-8">
-      <CheckoutSteps current={1} />
+      <CheckoutSteps current={2} />
 
       <div className="bg-zinc-950 border border-white/5 p-8 rounded-none">
         <h2 className="text-[#c5a059] tracking-[0.2em] text-[10px] font-bold mb-8 uppercase">

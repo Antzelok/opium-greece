@@ -28,14 +28,13 @@ const PaymentMethodForm = ({
 
   const [selectedMethod, setSelectedMethod] = useState<string>(defaultMethod);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     startTransition(async () => {
       const res = await updateCartPaymentMethod(selectedMethod);
 
       if (res.success) {
-        toast.success(res.message);
         router.push("/check-out/place-order");
       } else {
         toast.error(res.message || "Κάτι πήγε στραβά.");
@@ -51,7 +50,7 @@ const PaymentMethodForm = ({
         className="space-y-4"
       >
         {isElta && allowedMethods.includes("COD") && (
-          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer [&:has([data-state=checked])]:border-[#c5a059]">
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer has-data-[state=checked]:border-[#c5a059]">
             <RadioGroupItem
               value="COD"
               id="COD"
@@ -64,7 +63,7 @@ const PaymentMethodForm = ({
               <FaTruckFast className="w-5 h-5 text-zinc-400" />
               <div>
                 <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                  Αντικαταβολή (COD)
+                  Αντικαταβολή
                 </span>
                 <span className="text-zinc-500 text-[11px] block mt-0.5">
                   Πληρωμή με μετρητά κατά την παράδοση (+2.50€).
@@ -75,7 +74,7 @@ const PaymentMethodForm = ({
         )}
 
         {allowedMethods.includes("Stripe") && (
-          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer [&:has([data-state=checked])]:border-[#c5a059]">
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer has-data-[state=checked]:border-[#c5a059]">
             <RadioGroupItem
               value="Stripe"
               id="Stripe"
@@ -88,7 +87,7 @@ const PaymentMethodForm = ({
               <FaRegCreditCard className="w-5 h-5 text-zinc-400" />
               <div>
                 <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                  Ηλεκτρονική Πληρωμή (Stripe)
+                  Ηλεκτρονική Πληρωμή
                 </span>
                 <span className="text-zinc-500 text-[11px] block mt-0.5">
                   Πιστωτική/Χρεωστική Κάρτα, Apple Pay, Google Pay, Revolut Pay.
