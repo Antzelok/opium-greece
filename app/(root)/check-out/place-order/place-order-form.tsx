@@ -54,7 +54,7 @@ const PlaceOrderForm = ({
       <div className="p-5 border border-[#c5a059]/10 bg-[#c5a059]/5 rounded-none flex items-center gap-4">
         <FaRegCreditCard className="w-5 h-5 text-[#c5a059]" />
         <div>
-          <h4 className="text-zinc-200 font-bold text-sm uppercase tracking-wider block">
+          <h4 className="text-zinc-200 font-bold text-sm block">
             ΗΛΕΚΤΡΟΝΙΚΗ ΠΛΗΡΩΜΗ
           </h4>
           <p className="text-zinc-400 text-xs">
@@ -65,6 +65,7 @@ const PlaceOrderForm = ({
 
       {stripeClientSecret && stripePaymentIntentId ? (
         <Elements
+          key={stripeClientSecret}
           stripe={stripePromise}
           options={{
             clientSecret: stripeClientSecret,
@@ -75,18 +76,19 @@ const PlaceOrderForm = ({
           }}
         >
           <StripeForm
-            paymentMethod={paymentMethod}
-            paymentIntentId={stripePaymentIntentId}
             clientSecret={stripeClientSecret}
+            paymentIntentId={stripePaymentIntentId}
+            paymentMethod={paymentMethod}
           />
         </Elements>
       ) : (
         <Alert
-          variant="destructive"
           className="bg-red-500/10 border-red-500/20 text-red-500 rounded-none p-4"
+          variant="destructive"
         >
           <AlertDescription className="text-xs font-mono">
-            Αδυναμία φόρτωσης του συστήματος πληρωμής. Παρακαλώ ανανεώστε τη σελίδα.
+            Αδυναμία φόρτωσης του συστήματος πληρωμής. Παρακαλώ ανανεώστε τη
+            σελίδα.
           </AlertDescription>
         </Alert>
       )}
@@ -122,8 +124,8 @@ function CODForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <Alert
-          variant="destructive"
           className="bg-red-500/10 border-red-500/20 text-red-500 rounded-none p-4"
+          variant="destructive"
         >
           <AlertDescription className="text-xs font-mono leading-relaxed">
             {error}
@@ -131,9 +133,9 @@ function CODForm() {
         </Alert>
       )}
       <Button
-        type="submit"
-        disabled={isPending}
         className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase shadow-none"
+        disabled={isPending}
+        type="submit"
       >
         {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ..." : "ΟΛΟΚΛΗΡΩΣΗ ΠΑΡΑΓΓΕΛΙΑΣ"}
       </Button>
@@ -222,7 +224,6 @@ function StripeForm({
           result.paymentIntent &&
           result.paymentIntent.status === "succeeded"
         ) {
-          // Σήμανση ως πληρωμένο + αποστολή receipt αμέσως (δεν περιμένουμε webhook)
           await updateOrderToPaid({
             orderId,
             paymentResult: {
@@ -260,8 +261,8 @@ function StripeForm({
     >
       {error && (
         <Alert
-          variant="destructive"
           className="bg-red-500/10 border-red-500/20 text-red-500 rounded-none p-4"
+          variant="destructive"
         >
           <AlertDescription className="text-xs font-mono leading-relaxed">
             {error}
@@ -272,9 +273,9 @@ function StripeForm({
       <PaymentElement options={{ layout: "tabs" }} />
 
       <Button
-        type="submit"
-        disabled={isPending || !stripe || !elements}
         className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase mt-4 shadow-none"
+        disabled={isPending || !stripe || !elements}
+        type="submit"
       >
         {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ ΠΛΗΡΩΜΗΣ..." : "ΠΛΗΡΩΜΗ & ΟΛΟΚΛΗΡΩΣΗ"}
       </Button>

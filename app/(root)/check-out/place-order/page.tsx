@@ -18,6 +18,8 @@ import { CartItem, ShippingAddress } from "@/types";
 import PlaceOrderForm from "./place-order-form";
 import Stripe from "stripe";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Review Order",
 };
@@ -33,26 +35,20 @@ const PlaceOrderPage = async () => {
   const userId = session?.user?.id;
   const isGuest = !userId && cart.guestEmail;
 
-  // Αν δεν είναι ούτε user ούτε guest, στείλτον για sign-in
+
   if (!userId && !isGuest) redirect("/sign-in");
 
-  // Φέρνουμε τον χρήστη μόνο αν υπάρχει session
   const dbUser = userId ? await getUserById(userId) : null;
 
-  // Στοιχεία διεύθυνσης από το καλάθι ή από το προφίλ
   const shippingAddress = (cart.shippingAddress || dbUser?.address) as unknown as ShippingAddress;
 
   if (!shippingAddress || !shippingAddress.shippingMethod) {
     redirect("/check-out/shipping-address");
   }
 
-  // Η μέθοδος πληρωμής που επιλέχθηκε στο προηγούμενο βήμα αποθηκεύεται στον User, 
-  // αλλά για τον Guest πρέπει να δώσουμε μια default ή να την διαβάσουμε από κάπου (π.χ. Stripe)
- // Διαβάζει την επιλογή από το καλάθι (για Guests) ή από το προφίλ (για Users)
-// 👑 ΔΙΟΡΘΩΣΗ: Αλλάζουμε το fallback σε "COD" για να ταιριάζει με το Form component σου
+ 
 const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD";
 
-  // Δημιουργία PaymentIntent server-side για Stripe ώστε να μην υπάρχει useEffect στο client
   let stripeClientSecret: string | null = null;
   let stripePaymentIntentId: string | null = null;
 
@@ -65,7 +61,6 @@ const chosenPaymentMethod = cart.paymentMethod || dbUser?.paymentMethod || "COD"
         automatic_payment_methods: { enabled: true },
         metadata: { orderId: "" },
       },
-      { idempotencyKey: `cart_${cart.id}_intent` },
     );
     stripeClientSecret = paymentIntent.client_secret;
     stripePaymentIntentId = paymentIntent.id;
