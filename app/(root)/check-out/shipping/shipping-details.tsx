@@ -78,7 +78,7 @@ const ShippingDetailsPage = () => {
     phoneNumber: "",
   });
 
-  // Reset shipping price to 0.00€ when entering the page so it's not pre-applied
+
   useEffect(() => {
     if (!isClient) return;
     startTransition(async () => {

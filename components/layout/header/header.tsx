@@ -166,7 +166,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-neutral-200 hover:bg-white/10"
+              className="text-neutral-200 hover:text-white hover:bg-white/10 transition-colors"
             >
               <IoSearch className="h-6! w-6!" />
             </Button>
@@ -174,7 +174,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-neutral-200 hover:bg-white/10"
+                className="text-neutral-200 hover:text-white hover:bg-white/10 transition-colors"
               >
                 <CgProfile className="h-6! w-6!" />
               </Button>

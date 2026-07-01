@@ -266,7 +266,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-center justify-start border-b pb-4 gap-6"
+              className="grid grid-cols-1 md:grid-cols-4 border-b pb-4 gap-6"
             >
               <FormField
                 control={form.control}
