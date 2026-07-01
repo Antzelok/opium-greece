@@ -33,7 +33,7 @@ const SignInPage = async (props: {
         <CardHeader className="space-y-4 flex flex-col items-center">
           <Link href="/" className="transition-opacity hover:opacity-80">
             <Image
-              src="/opium-logo.jpg"
+              src="/opium.png"
               height={45}
               width={120}
               alt={`${APP_NAME} logo`}

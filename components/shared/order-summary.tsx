@@ -27,7 +27,7 @@ const OrderSummary = async () => {
             </span>
           </div>
 
-          {shippingPrice > 0 && (
+          {shippingPrice >= 0 && (
             <div className="flex justify-between items-center text-neutral-500 text-[11px] uppercase tracking-widest mt-2">
               <span>Shipping</span>
               <span className="text-white font-mono">

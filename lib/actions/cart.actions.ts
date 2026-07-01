@@ -23,9 +23,9 @@ const calcPrice = (
     shippingPrice = 2.0;
   } else {
     if (country === "CY") {
-      shippingPrice = itemsPrice > 80 ? 0 : 10;
+      shippingPrice = itemsPrice > 80 ? 0 : 2;
     } else {
-      shippingPrice = itemsPrice > 60 ? 0 : 5;
+      shippingPrice = itemsPrice > 60 ? 0 : 2;
     }
   }
 

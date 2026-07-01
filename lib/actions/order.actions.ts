@@ -99,7 +99,6 @@ export async function createOrder(paymentMethod: string) {
       },
     });
 
-    // Αποστολή email μόνο για COD — για Stripe το στέλνει το webhook μετά την επιβεβαίωση πληρωμής
     if (paymentMethod === "COD" && orderForEmail) {
       sendPurchaseReceipt({
         order: {
@@ -295,7 +294,7 @@ export async function updateOrderToPaid({
   });
 
   if (!order) throw new Error("Order not found");
-  if (order.isPaid) return; // Idempotent — αν είναι ήδη πληρωμένο, επιστρέφουμε χωρίς σφάλμα
+  if (order.isPaid) return;
 
   await prisma.order.update({
     where: { id: orderId },

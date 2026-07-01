@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import CredentialsSignInForm from "@/app/(auth)/sign-in/credentials-signin-form";
@@ -11,12 +11,10 @@ import { Label } from "@/components/ui/label";
 const CheckOutPage = async () => {
   const session = await auth();
 
-  // 1. Αν ο χρήστης είναι ήδη συνδεδεμένος, τον προσπερνάμε στο shipping
   if (session?.user) {
     redirect("/check-out/shipping");
   }
 
-  // 2. Server Action Handler για τον Guest (τρέχει στον server χωρίς client state)
   const handleGuestAction = async (formData: FormData) => {
     "use server";
     const email = formData.get("email") as string;
@@ -31,7 +29,6 @@ const CheckOutPage = async () => {
     <div className="space-y-10">
       <CheckoutSteps current={0} />
 
-      <Card className="bg-zinc-950 border-white/5 rounded-none md:p-6">
         <CardContent className="p-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             
@@ -79,7 +76,6 @@ const CheckOutPage = async () => {
 
           </div>
         </CardContent>
-      </Card>
     </div>
   );
 };

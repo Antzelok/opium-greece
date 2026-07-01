@@ -19,9 +19,6 @@ const SignUpForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  const inputStyles =
-    "bg-neutral-900 border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] transition-all";
-
   return (
     <>
       {data.success ? (
@@ -41,7 +38,7 @@ const SignUpForm = () => {
               required
               autoComplete="name"
               defaultValue={SignUpDefaultValues.name}
-              className={inputStyles}
+              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
             />
           </div>
 
@@ -56,7 +53,7 @@ const SignUpForm = () => {
               required
               autoComplete="email"
               defaultValue={SignUpDefaultValues.email}
-              className={inputStyles}
+              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
             />
           </div>
 
@@ -71,7 +68,7 @@ const SignUpForm = () => {
               required
               autoComplete="new-password"
               defaultValue={SignUpDefaultValues.password}
-              className={inputStyles}
+              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
             />
           </div>
 
@@ -86,14 +83,14 @@ const SignUpForm = () => {
               required
               autoComplete="new-password"
               defaultValue={SignUpDefaultValues.confirmPassword}
-              className={inputStyles}
+              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
             />
           </div>
 
           <SignUpButton />
 
           {data && !data.success && (
-            <div className="text-center text-[#c5a059] text-sm font-medium bg-[#c5a059]/10 py-2 rounded-md border border-[#c5a059]/20">
+            <div className="text-center text-[#c5a059] text-sm font-medium py-2 rounded-md">
               {data.message}
             </div>
           )}

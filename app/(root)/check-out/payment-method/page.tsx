@@ -38,17 +38,15 @@ const PaymentMethodPage = async () => {
     <div className="space-y-8">
       <CheckoutSteps current={2} />
 
-      <div className="bg-zinc-950 border border-white/5 p-8 rounded-none">
-        <h2 className="text-[#c5a059] tracking-[0.2em] text-[10px] font-bold mb-8 uppercase">
-          Select Payment Method
-        </h2>
+      <h2 className="text-[#c5a059] tracking-[0.2em] text-[10px] font-bold mb-8 uppercase">
+        Select Payment Method
+      </h2>
 
-        <PaymentMethodForm
-          shippingMethod={shippingMethod}
-          currentPaymentMethod={user?.paymentMethod || ""}
-          allowedMethods={PAYMENT_METHODS}
-        />
-      </div>
+      <PaymentMethodForm
+        shippingMethod={shippingMethod}
+        currentPaymentMethod={user?.paymentMethod || ""}
+        allowedMethods={PAYMENT_METHODS}
+      />
     </div>
   );
 };
