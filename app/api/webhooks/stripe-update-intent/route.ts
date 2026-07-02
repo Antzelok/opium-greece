@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ενημερώνουμε το ήδη υπάρχον Intent με το ID της παραγγελίας από τη βάση μας
     await stripe.paymentIntents.update(paymentIntentId, {
       metadata: {
         orderId,

@@ -5,23 +5,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount } = await req.json();
+    const { amount, orderId } = await req.json();
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
-    // Δημιουργία του Payment Intent στη Stripe
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Μετατροπή σε cents (π.χ. 10.50€ -> 1050)
+      amount: Math.round(amount * 100),
       currency: "eur",
-      // Ενεργοποιεί αυτόματα Revolut Pay, Apple Pay, Google Pay και Κάρτες
-      // ανάλογα με τι έχεις ανάψει στο Stripe Dashboard σου
       automatic_payment_methods: {
         enabled: true,
       },
       metadata: {
-        orderId: "", // Αρχικά άδειο, θα πάρει τιμή στο επόμενο step
+        orderId,
       },
     });
 
