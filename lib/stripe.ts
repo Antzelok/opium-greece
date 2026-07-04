@@ -1,4 +1,4 @@
-import { loadStripe } from "@stripe/stripe-js";
+{/*import { loadStripe } from "@stripe/stripe-js";
 
 let stripePromise: Promise<any> | null = null;
 
@@ -8,3 +8,4 @@ export const getStripe = () => {
   }
   return stripePromise;
 };
+*/}
