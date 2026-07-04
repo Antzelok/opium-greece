@@ -10,6 +10,7 @@ import { OrderItem, ShippingAddress } from "@/types";
 import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Order Details",
@@ -26,71 +27,71 @@ interface OrderPageProps {
 
 const OrderPage = async ({ params }: OrderPageProps) => {
   const resolvedParams = await params;
-
   const order = await getOrderById(resolvedParams.id);
 
   if (!order) {
     redirect("/");
   }
 
-  const session = await auth();
-  const isOwnOrder = session?.user?.id === order.userId || order.guestEmail;
-
   const shippingAddress = order.shippingAddress as ShippingAddress;
   const isElta =
     shippingAddress.shippingMethod?.trim().toLowerCase() === "elta";
 
-  // 👑 Υπολογισμός του email (από το account του user ή από το guest πεδίο ή από το JSON address)
-  const displayEmail = order.user?.email || order.guestEmail || shippingAddress.email;
+  const displayEmail =
+    order.user?.email || order.guestEmail || shippingAddress.email;
 
   return (
-    <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6 py-15 px-5">
+    <div className="space-y-10 bg-black text-white pr-0 lg:pr-6 py-15 px-5">
       {/* Order Status Section */}
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         <Card className="bg-green-500/10 border-green-500/20 rounded-none p-4">
-          <CardContent className="pt-0 flex items-center gap-4">
-            <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-green-500 font-bold text-sm tracking-wider">
-                ORDER COMPLETED SUCCESSFULLY!
-              </h3>
-            </div>
-          </CardContent>
+          <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-green-500 font-bold text-sm tracking-wider">
+              ORDER COMPLETED SUCCESSFULLY!
+            </h3>
+          </div>
         </Card>
       </div>
 
       {/* Shipping Details Section */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Shipping Details
+        <CardHeader>
+          <CardTitle className="text-[#c5a059] text-[12px] font-bold tracking-[0.2em] italic">
+            SHIPPING DETAILS
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-sm space-y-4 text-zinc-300 pt-0">
+        <div className="text-sm space-y-4 text-zinc-300 p-4 pt-0">
           <Separator className="bg-white/5 mb-4" />
 
-          {/* 3 Columns πλέον για Name, Phone και Email */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 leading-relaxed">
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Name
+              <span className="text-zinc-400 font-medium block text-[11px] tracking-wider mb-0.5">
+                FIRST NAME
               </span>
               <span className="text-white font-medium">
-                {shippingAddress.firstName} {shippingAddress.lastName}
+                {shippingAddress.firstName}
               </span>
             </p>
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Phone
+              <span className="text-zinc-400 font-medium block text-[11px] tracking-wider mb-0.5">
+                LAST NAME
+              </span>
+              <span className="text-white font-medium">
+                {shippingAddress.lastName}
+              </span>
+            </p>
+            <p>
+              <span className="text-zinc-400 font-medium block text-[11px] tracking-wider mb-0.5">
+                PHONE
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.phoneNumber}
               </span>
             </p>
-            {/* 👈 ΠΡΟΣΘΗΚΗ EMAIL */}
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Email
+              <span className="text-zinc-400 font-medium block text-[11px] tracking-wider mb-0.5">
+                EMAIL
               </span>
               <span className="text-white font-medium break-all">
                 {displayEmail || "-"}
@@ -99,8 +100,8 @@ const OrderPage = async ({ params }: OrderPageProps) => {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <span className="text-zinc-500 text-xs uppercase tracking-wider">
-              Method:
+            <span className="text-zinc-400 text-[12px] font-semibold tracking-wider">
+              SHIPPING METHOD:
             </span>
             <Badge
               variant="outline"
@@ -113,141 +114,131 @@ const OrderPage = async ({ params }: OrderPageProps) => {
           <Separator className="bg-white/5 my-4" />
 
           {isElta ? (
-            <div className="bg-zinc-900/20 p-4 border border-white/5 space-y-1">
-              <span className="text-zinc-500 font-semibold block text-[10px] uppercase tracking-wider mb-1">
-                Delivery Address
+            <div>
+              <span className="text-zinc-400 font-semibold block text-[12px] italic tracking-wider mb-5">
+                DELIVERY ADDRESS
               </span>
-              <p className="text-white text-sm leading-relaxed">
-                {shippingAddress.streetName} {shippingAddress.streetNumber},{" "}
-                {shippingAddress.postalCode}
-              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-zinc-400 block text-[11px] tracking-wider mb-1">
+                    COUNTRY
+                  </span>
+                  <p className="text-white">{shippingAddress.country || "-"}</p>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[11px] tracking-wider mb-1">
+                    MUNICIPALITY / CITY
+                  </span>
+                  <p className="text-white">
+                    {shippingAddress.municipality || "-"} /{" "}
+                    {shippingAddress.city || "-"}
+                  </p>
+                </div>
+                <div className="md:col-span-2">
+                  <span className="text-zinc-400 block text-[11px] tracking-wider mb-1">
+                    STREET ADDRESS
+                  </span>
+                  <p className="text-white">
+                    {shippingAddress.streetName} {shippingAddress.streetNumber},{" "}
+                    {shippingAddress.postalCode}
+                  </p>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="bg-zinc-900/20 p-4 border border-white/5 space-y-2">
-              <span className="text-zinc-500 font-semibold block text-[10px] uppercase tracking-wider mb-1">
-                BoxNow Locker
+              <span className="text-zinc-400 font-semibold block text-[12px] tracking-wider mb-5">
+                BOXNOW LOCKER
               </span>
               <p className="font-mono text-sm text-white bg-black px-3 py-2 border border-white/5 inline-block">
                 {shippingAddress.boxnowLockerId}
               </p>
             </div>
           )}
-        </CardContent>
+        </div>
       </Card>
 
       {/* Order Items Section */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <CardHeader className="pb-4">
           <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Order Items
+            ORDER ITEMS
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="space-y-6">
-            {order.orderitems.map((item: OrderItem) => (
-              <div key={item.variantId} className="space-y-6">
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-5">
-                    <div className="relative w-16 h-16 bg-zinc-900 border border-white/5 shrink-0">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-white uppercase tracking-wide">
-                        {item.name}
-                      </h4>
-                      <div className="flex flex-wrap gap-2 pt-0.5">
-                        <Badge
-                          variant="secondary"
-                          className="bg-zinc-900 text-zinc-400 font-medium text-xs px-2 py-0 rounded-none border border-white/5"
-                        >
-                          Qty: {item.qty}
-                        </Badge>
-                      </div>
-                    </div>
+        <div className="space-y-6">
+          {order.orderitems.map((item: OrderItem) => (
+            <div key={item.variantId} className="space-y-6">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-5">
+                  <div className="relative w-16 h-16 bg-zinc-900 border border-white/5 shrink-0">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold text-sm">
-                      €{Number(item.price).toFixed(2)}
-                    </p>
-                    <p className="text-zinc-500 text-xs">x{item.qty}</p>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-sm text-[#c5a059] uppercase tracking-wide">
+                      {item.name}
+                    </h4>
+                    <Badge
+                      variant="secondary"
+                      className="bg-zinc-900 text-zinc-400 font-medium text-xs px-2 py-0 rounded-none border border-white/5"
+                    >
+                      Qty: {item.qty}
+                    </Badge>
+                    <h4 className="font-bold text-sm text-[#c5a059] uppercase tracking-wide"></h4>
                   </div>
                 </div>
-                <Separator className="bg-white/5 last:hidden" />
+                <div className="text-right">
+                  <p className="text-white font-bold text-sm">
+                    {formatCurrency(Number(item.price) * item.qty)}
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
+              <Separator className="bg-white/5 last:hidden" />
+            </div>
+          ))}
+        </div>
       </Card>
 
       {/* Cost Summary Section */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Cost Summary
+          <CardTitle className="text-[#c5a059] text-[11px] font-bold tracking-[0.2em] italic">
+            COST SUMMARY
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-zinc-400">Subtotal</span>
             <span className="text-white font-medium">
-              €{Number(order.itemsPrice).toFixed(2)}
+              {formatCurrency(Number(order.itemsPrice))}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-400">Shipping</span>
             <span className="text-white font-medium">
-              €{Number(order.shippingPrice).toFixed(2)}
+              {formatCurrency(Number(order.shippingPrice))}
             </span>
           </div>
           <Separator className="bg-white/5" />
           <div className="flex justify-between text-lg">
-            <span className="text-[#c5a059] font-bold uppercase tracking-wider">
-              Total
+            <span className="text-[#c5a059] font-bold tracking-wider">
+              TOTAL
             </span>
             <span className="text-[#c5a059] font-black text-xl">
-              €{Number(order.totalPrice).toFixed(2)}
+              {formatCurrency(Number(order.totalPrice))}
             </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Payment Method Section */}
-      <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Payment Method
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white font-bold text-sm uppercase tracking-wider">
-                {order.paymentMethod === "COD"
-                  ? "Cash on Delivery (COD)"
-                  : "Online Payment (Stripe)"}
-              </p>
-              <p className="text-zinc-500 text-xs mt-1">✓ Paid</p>
-            </div>
-            <Badge
-              className="bg-green-500/20 text-green-400 border-green-500/30"
-              variant="outline"
-            >
-              PAID
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Back to Shop Button */}
       <div className="flex gap-3">
         <Link href="/" className="flex-1">
-          <Button className="w-full bg-zinc-800 text-white hover:bg-zinc-700 rounded-none text-xs font-bold uppercase h-12">
-            Back to Shop
+          <Button className="w-full bg-zinc-800 text-white hover:bg-[#c5a059] rounded-none text-xs font-bold h-12">
+            BACK TO SHOP
           </Button>
         </Link>
       </div>

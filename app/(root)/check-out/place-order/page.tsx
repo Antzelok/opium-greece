@@ -205,6 +205,7 @@ const PlaceOrderPage = async () => {
       {/* Φόρμα Ολοκλήρωσης */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <PlaceOrderForm
+        key={stripeClientSecret || "loading"}
           paymentMethod={chosenPaymentMethod}
           stripeClientSecret={stripeClientSecret}
           stripePaymentIntentId={stripePaymentIntentId}
