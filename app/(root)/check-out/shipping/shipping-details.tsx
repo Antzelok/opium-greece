@@ -76,8 +76,10 @@ const ShippingDetailsPage = () => {
     streetNumber: "",
     postalCode: "",
     phoneNumber: "",
+    country: "",
+    city: "",
+    municipality: "",
   });
-
 
   useEffect(() => {
     if (!isClient) return;
@@ -227,27 +229,24 @@ const ShippingDetailsPage = () => {
           document.body,
         )}
 
-        {/* Shipping Methods */}
         <div className="space-y-4 md:space-y-6">
-          <h3 className="text-[#c5a059] text-[11px] font-bold uppercase tracking-[0.2em] italic">
-            Shipping Method
+          <h3 className="text-[#c5a059] text-[14px] font-bold italic">
+            SHIPPING METHOD
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            {/* ELTA Button */}
             <button
               type="button"
               onClick={selectElta}
-              className={`block p-5 md:p-6 border rounded-xl text-[10px] uppercase tracking-widest text-center transition-all duration-300 ${
+              className={`block p-5 md:p-6 border rounded-xl text-[11px] racking-widest text-center transition-all duration-300 ${
                 shippingMethod === "elta"
                   ? "border-[#c5a059] bg-[#c5a059]/5 text-white"
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
               }`}
             >
-              ELTA Courier (+2.00€)
+              ELTA COURIER (+2.00€)
             </button>
 
-            {/* BoxNow Button */}
             <div
               onClick={selectBoxNow}
               className={`block p-5 md:p-6 border rounded-xl text-center transition-all duration-300 cursor-pointer ${
@@ -256,8 +255,8 @@ const ShippingDetailsPage = () => {
                   : "border-white/5 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800"
               }`}
             >
-              <span className="block text-[10px] uppercase tracking-widest mb-3">
-                BoxNow Locker (+2.00€)
+              <span className="block text-[11px] tracking-widest mb-3">
+                BOXNOW LOCKER (+2.00€)
               </span>
 
               {shippingMethod === "boxnow" && (
@@ -265,13 +264,13 @@ const ShippingDetailsPage = () => {
                   <Button
                     type="button"
                     onClick={openBoxNow}
-                    className="bg-[#c5a059] text-black font-bold text-[9px] uppercase tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors w-full sm:w-auto"
+                    className="bg-[#c5a059] text-black font-bold text-[9px] tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors w-FULL sm:w-auto"
                   >
                     {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ"}
                   </Button>
                   {boxNowLocker && (
-                    <p className="text-[#c5a059] text-[11px] font-mono mt-2 uppercase tracking-normal wrap-break-word">
-                      Locker: {boxNowLocker.id} <br />
+                    <p className="text-[#c5a059] text-[11px] font-mono mt-2 tracking-normal wrap-break-word">
+                      LOCKER: {boxNowLocker.id} <br />
                       <span className="text-zinc-400 font-sans normal-case">
                         {boxNowLocker.address}
                       </span>
@@ -283,7 +282,6 @@ const ShippingDetailsPage = () => {
           </div>
         </div>
 
-        {/* Form Details */}
         {shippingMethod && (
           <form
             onSubmit={handleSubmit}
@@ -296,9 +294,9 @@ const ShippingDetailsPage = () => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                  First Name
+              <div className="space-y-2 mb-3">
+                <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                  FIRST NAME
                 </Label>
                 <Input
                   name="firstName"
@@ -309,9 +307,9 @@ const ShippingDetailsPage = () => {
                   className={inputStyle}
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                  Last Name
+              <div className="space-y-2 mb-4">
+                <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                  LAST NAME
                 </Label>
                 <Input
                   name="lastName"
@@ -325,9 +323,9 @@ const ShippingDetailsPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                  Email
+              <div className="space-y-2 mb-4">
+                <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                  EMAIL
                 </Label>
                 <Input
                   name="email"
@@ -339,9 +337,9 @@ const ShippingDetailsPage = () => {
                   className={inputStyle}
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                  Phone
+              <div className="space-y-2 mb-4">
+                <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                  PHONE
                 </Label>
                 <Input
                   name="phoneNumber"
@@ -355,43 +353,86 @@ const ShippingDetailsPage = () => {
             </div>
 
             {shippingMethod === "elta" && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-in slide-in-from-top-2 duration-300">
-                <div className="md:col-span-2 space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                    Street Name
+              <div className="space-y-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="space-y-2">
+                  <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                    COUNTRY
                   </Label>
                   <Input
-                    name="streetName"
-                    placeholder="STREET"
-                    value={formData.streetName}
+                    name="country"
+                    placeholder="GREECE"
+                    value={formData.country}
                     onChange={handleInputChange}
-                    required={shippingMethod === "elta"}
+                    required
                     className={inputStyle}
                   />
+                </div>
+                <div className="grid grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                      MUNICIPALITY
+                    </Label>
+                    <Input
+                      name="municipality"
+                      placeholder="ATHENS"
+                      value={formData.municipality}
+                      onChange={handleInputChange}
+                      required
+                      className={inputStyle}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                      CITY
+                    </Label>
+                    <Input
+                      name="city"
+                      placeholder="ATHENS"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      required
+                      className={inputStyle}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="md:col-span-1 space-y-2">
+                    <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                      STREET NAME
+                    </Label>
+                    <Input
+                      name="streetName"
+                      placeholder="STREET"
+                      value={formData.streetName}
+                      onChange={handleInputChange}
+                      required
+                      className={inputStyle}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                      NUMBER
+                    </Label>
+                    <Input
+                      name="streetNumber"
+                      placeholder="NO"
+                      value={formData.streetNumber}
+                      onChange={handleInputChange}
+                      required
+                      className={inputStyle}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                    Number
-                  </Label>
-                  <Input
-                    name="streetNumber"
-                    placeholder="NO"
-                    value={formData.streetNumber}
-                    onChange={handleInputChange}
-                    required={shippingMethod === "elta"}
-                    className={inputStyle}
-                  />
-                </div>
-                <div className="grid-cols-1 md:col-span-3 space-y-2">
-                  <Label className="text-[9px] uppercase tracking-widest text-zinc-500 ml-1">
-                    Postal Code
+                  <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
+                    POSTAL CODE
                   </Label>
                   <Input
                     name="postalCode"
                     placeholder="000 00"
                     value={formData.postalCode}
                     onChange={handleInputChange}
-                    required={shippingMethod === "elta"}
+                    required
                     className={inputStyle}
                   />
                 </div>

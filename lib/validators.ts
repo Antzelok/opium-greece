@@ -65,51 +65,76 @@ export const insertCartSchema = z.object({
   guestEmail: z.string().email().optional().nullable(),
 });
 
-// --- SHIPPING ADDRESS SCHEMA (ΔΙΟΡΘΩΜΕΝΟ) ---
 export const shippingAddressSchema = z
   .object({
-    shippingMethod: z.string().min(1, "Παρακαλώ επιλέξτε μέθοδο αποστολής"),
+    shippingMethod: z.string().min(1, "Επιλέξτε μέθοδο"),
     firstName: z.string().min(2, "Το όνομα είναι υποχρεωτικό"),
     lastName: z.string().min(2, "Το επώνυμο είναι υποχρεωτικό"),
     email: z.string().email("Μη έγκυρο email"),
-    streetName: z.string().optional(),
-    streetNumber: z.string().optional(),
-    postalCode: z.string().optional(),
-    phoneNumber: z
-      .string()
-      .min(10, "Το τηλέφωνο πρέπει να είναι τουλάχιστον 10 ψηφία"),
-    boxnowLockerId: z.string().optional(),
+    phoneNumber: z.string().min(10, "Το τηλέφωνο είναι υποχρεωτικό"),
+    country: z.string().optional().or(z.literal("")),
+    municipality: z.string().optional().or(z.literal("")),
+    city: z.string().optional().or(z.literal("")),
+    streetName: z.string().optional().or(z.literal("")),
+    streetNumber: z.string().optional().or(z.literal("")),
+    postalCode: z.string().optional().or(z.literal("")),
+    boxnowLockerId: z.string().optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     if (data.shippingMethod === "elta") {
-      if (!data.streetName || data.streetName.trim().length < 3) {
+      if (!data.country || data.country.length < 2) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Η οδός είναι υποχρεωτική για αποστολή με Courier",
+          message: "Η χώρα είναι υποχρεωτική",
+          path: ["country"],
+        });
+      }
+      if (!data.municipality || data.municipality.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Ο δήμος είναι υποχρεωτικός",
+          path: ["municipality"],
+        });
+      }
+      if (!data.city || data.city.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Η πόλη είναι υποχρεωτική",
+          path: ["city"],
+        });
+      }
+      if (!data.streetName || data.streetName.length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Η οδός είναι υποχρεωτική",
           path: ["streetName"],
         });
       }
-      if (!data.streetNumber || data.streetNumber.trim().length < 1) {
+      if (!data.streetNumber || data.streetNumber.length < 1) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Ο αριθμός είναι υποχρεωτικός",
           path: ["streetNumber"],
         });
       }
-      if (!data.postalCode || data.postalCode.trim().length !== 5) {
+      if (!data.postalCode || data.postalCode.length !== 5) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Ο Τ.Κ. είναι υποχρεωτικός και πρέπει να είναι 5 ψηφία",
+          message: "Ο Τ.Κ. πρέπει να είναι 5 ψηφία",
           path: ["postalCode"],
         });
       }
     }
-    if (data.shippingMethod === "boxnow" && !data.boxnowLockerId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Παρακαλώ επιλέξτε μια θυρίδα BoxNow από τον χάρτη",
-        path: ["boxnowLockerId"],
-      });
+
+    // Αν επιλέξει BoxNow
+    if (data.shippingMethod === "boxnow") {
+      if (!data.boxnowLockerId || data.boxnowLockerId.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Επιλέξτε θυρίδα BoxNow",
+          path: ["boxnowLockerId"],
+        });
+      }
     }
   });
 
@@ -137,6 +162,7 @@ export const insertOrderSchema = z.object({
 export const insertOrderItemSchema = z.object({
   variantId: z.string(),
   slug: z.string(),
+
   image: z.string(),
   name: z.string(),
   price: currency,
