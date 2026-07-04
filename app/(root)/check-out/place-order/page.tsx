@@ -58,7 +58,6 @@ const PlaceOrderPage = async () => {
       amount: Math.round(Number(cart.totalPrice) * 100),
       currency: "eur",
       automatic_payment_methods: { enabled: true },
-      // metadata: { orderId: "" },
     });
     stripeClientSecret = paymentIntent.client_secret;
     stripePaymentIntentId = paymentIntent.id;

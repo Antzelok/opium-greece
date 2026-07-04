@@ -6,7 +6,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createOrder, updateOrderToPaid } from "@/lib/actions/order.actions";
 import { useRouter } from "next/navigation";
 import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
-import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "sonner";
 import {
   Elements,
@@ -14,10 +13,9 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { getStripe } from "@/lib/stripe";
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-);
+const stripePromise = getStripe();
 
 interface FormProps {
   paymentMethod: string;
