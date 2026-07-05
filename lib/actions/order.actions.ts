@@ -75,7 +75,7 @@ export async function createOrder(paymentMethod: string) {
           totalPrice: cart.totalPrice,
           isPaid: false,
           isDelivered: false,
-          orderitems: {
+          orderItems: {
             create: orderItems,
           },
         },
@@ -94,7 +94,7 @@ export async function createOrder(paymentMethod: string) {
     const orderForEmail = await prisma.order.findFirst({
       where: { id: insertedOrderId },
       include: {
-        orderitems: true,
+        orderItems: true,
         user: { select: { name: true, email: true } },
       },
     });
@@ -129,7 +129,7 @@ export async function getOrderById(orderId: string) {
       id: orderId,
     },
     include: {
-      orderitems: {
+      orderItems: {
         include: {
           variant: {
             include: {
@@ -290,7 +290,7 @@ export async function updateOrderToPaid({
 }) {
   const order = await prisma.order.findFirst({
     where: { id: orderId },
-    include: { orderitems: true },
+    include: { orderItems: true },
   });
 
   if (!order) throw new Error("Order not found");
@@ -308,7 +308,7 @@ export async function updateOrderToPaid({
   const updatedOrder = await prisma.order.findFirst({
     where: { id: orderId },
     include: {
-      orderitems: true,
+      orderItems: true,
       user: { select: { name: true, email: true } },
     },
   });
@@ -324,5 +324,4 @@ export async function updateOrderToPaid({
   });
 
   revalidatePath(`/order/${orderId}`);
-  revalidatePath("/admin/orders");
 }

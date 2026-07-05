@@ -47,7 +47,7 @@ export type Order = Omit<
   paidAt: Date | null;
   isDelivered: boolean;
   deliveredAt: Date | null;
-  orderitems: OrderItem[];
+  orderItems: OrderItem[];
   user?: { name: string; email: string } | null;
   paymentResult: PaymentResult | null;
   shippingAddress: ShippingAddress;

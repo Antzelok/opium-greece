@@ -21,7 +21,8 @@ type OrderInformationProps = {
 };
 
 // Αντικατάστησε το localhost με το κανονικό σου domain στο production
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+const SERVER_URL =
+  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
 PurchaseReceiptEmail.PreviewProps = {
   order: {
@@ -80,7 +81,6 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
         <Head />
         <Body className="font-sans bg-[#fafafa] text-[#111111] my-auto mx-auto px-2">
           <Container className="max-w-xl mx-auto my-10 bg-white border border-solid border-[#e5e5e5] rounded-xl p-6 shadow-sm">
-            
             {/* Header / Success Alert */}
             <Section className="bg-[#10b981]/10 border border-solid border-[#10b981]/20 rounded-lg p-4 text-center mb-8">
               <Text className="text-[#10b981] font-bold text-sm tracking-wider m-0 uppercase">
@@ -125,7 +125,7 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
             {/* Order Items */}
             <Text className="text-sm font-bold text-black mb-3">Προϊόντα</Text>
             <Section className="border border-solid border-[#e5e5e5] rounded-lg p-4 mb-6">
-              {order.orderitems.map((item, index) => {
+              {order.orderItems.map((item, index) => {
                 // Φτιάχνουμε σωστά το URL της εικόνας για να ανοίγει στο email client
                 const imgUrl = item.image.startsWith("/")
                   ? `${SERVER_URL}${item.image}`
@@ -151,11 +151,14 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
                           Ποσότητα: {item.qty}
                         </Text>
                       </Column>
-                      <Column align="right" className="align-middle font-semibold text-sm text-black">
+                      <Column
+                        align="right"
+                        className="align-middle font-semibold text-sm text-black"
+                      >
                         {formatCurrency(Number(item.price) * item.qty)}
                       </Column>
                     </Row>
-                    {index < order.orderitems.length - 1 && (
+                    {index < order.orderItems.length - 1 && (
                       <Hr className="border-[#f0f0f0] my-3" />
                     )}
                   </div>
@@ -164,26 +167,37 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
             </Section>
 
             {/* Shipping & Customer Details */}
-            <Text className="text-sm font-bold text-black mb-3">Στοιχεία Αποστολής</Text>
+            <Text className="text-sm font-bold text-black mb-3">
+              Στοιχεία Αποστολής
+            </Text>
             <Section className="border border-solid border-[#e5e5e5] rounded-lg p-4 mb-6 bg-[#fefefe]">
               <Row>
                 <Column>
                   <Text className="text-xs text-gray-600 m-0 leading-relaxed">
-                    <strong className="text-black">Ονοματεπώνυμο:</strong> {order.shippingAddress?.firstName} {order.shippingAddress?.lastName}
+                    <strong className="text-black">Ονοματεπώνυμο:</strong>{" "}
+                    {order.shippingAddress?.firstName}{" "}
+                    {order.shippingAddress?.lastName}
                   </Text>
                   <Text className="text-xs text-gray-600 m-0 mt-1 leading-relaxed">
-                    <strong className="text-black">Διεύθυνση:</strong> {order.shippingAddress?.streetName} {order.shippingAddress?.streetNumber}, {order.shippingAddress?.postalCode}
+                    <strong className="text-black">Διεύθυνση:</strong>{" "}
+                    {order.shippingAddress?.streetName}{" "}
+                    {order.shippingAddress?.streetNumber},{" "}
+                    {order.shippingAddress?.postalCode}
                   </Text>
                   <Text className="text-xs text-gray-600 m-0 mt-1 leading-relaxed">
-                    <strong className="text-black">Τηλέφωνο:</strong> {order.shippingAddress?.phoneNumber}
+                    <strong className="text-black">Τηλέφωνο:</strong>{" "}
+                    {order.shippingAddress?.phoneNumber}
                   </Text>
-                  
+
                   {/* BoxNow Locker ID Check */}
-                  {order.shippingAddress?.shippingMethod === "boxnow" && order.shippingAddress?.boxnowLockerId && (
-                    <Text className="text-xs text-[#green] font-bold m-0 mt-2 bg-green-500/10 p-2 rounded border border-solid border-green-500/20 inline-block">
-                      📦 BoxNow Locker ID: {order.shippingAddress.boxnowLockerId}
-                    </Text>
-                  )}
+                  {order.shippingAddress?.shippingMethod === "boxnow" &&
+                    order.shippingAddress?.boxnowLockerId && (
+                      <Text className="text-xs text-[#green] font-bold m-0 mt-2 bg-green-500/10 p-2 rounded border border-solid border-green-500/20 inline-block">
+                        📦 BoxNow Locker ID:{" "}
+                        {order.shippingAddress.boxnowLockerId}
+                        {order.shippingAddress.boxnowLockerCity}
+                      </Text>
+                    )}
                 </Column>
               </Row>
             </Section>
@@ -191,8 +205,16 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
             {/* Totals Section */}
             <Section className="bg-black text-white rounded-lg p-4 font-mono">
               {[
-                { name: "Αξία Προϊόντων", price: order.itemsPrice, isBold: false },
-                { name: "Μεταφορικά Έξοδα", price: order.shippingPrice, isBold: false },
+                {
+                  name: "Αξία Προϊόντων",
+                  price: order.itemsPrice,
+                  isBold: false,
+                },
+                {
+                  name: "Μεταφορικά Έξοδα",
+                  price: order.shippingPrice,
+                  isBold: false,
+                },
               ].map(({ name, price }) => (
                 <Row key={name} className="py-1">
                   <Column className="text-xs text-gray-400">{name}</Column>
@@ -203,8 +225,13 @@ export default function PurchaseReceiptEmail({ order }: OrderInformationProps) {
               ))}
               <Hr className="border-gray-800 my-2" />
               <Row>
-                <Column className="text-sm font-bold text-white uppercase tracking-wider">Σύνολο Πληρωμής</Column>
-                <Column align="right" className="text-sm font-bold text-[#10b981]">
+                <Column className="text-sm font-bold text-white uppercase tracking-wider">
+                  Σύνολο Πληρωμής
+                </Column>
+                <Column
+                  align="right"
+                  className="text-sm font-bold text-[#10b981]"
+                >
                   {formatCurrency(Number(order.totalPrice))}
                 </Column>
               </Row>

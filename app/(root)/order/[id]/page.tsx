@@ -41,7 +41,7 @@ const OrderPage = async ({ params }: OrderPageProps) => {
     order.user?.email || order.guestEmail || shippingAddress.email;
 
   return (
-    <div className="space-y-10 bg-black text-white pr-0 lg:pr-6 py-15 px-5">
+    <div className="space-y-10 py-15 px-5">
       {/* Order Status Section */}
       <div className="space-y-4 ">
         <Card className="bg-green-500/10 border-green-500/20 rounded-none p-4">
@@ -150,9 +150,15 @@ const OrderPage = async ({ params }: OrderPageProps) => {
               <span className="text-zinc-400 font-semibold block text-[12px] tracking-wider mb-5">
                 BOXNOW LOCKER
               </span>
-              <p className="font-mono text-sm text-white bg-black px-3 py-2 border border-white/5 inline-block">
+              <p className="font-mono text-sm text-white px-3 py-2 border border-white/5 inline-block">
                 {shippingAddress.boxnowLockerId}
               </p>
+              <div>
+                <p className="font-mono text-sm text-white px-3 py-2 border border-white/5 inline-block">
+                  {shippingAddress.boxnowLockerAddress}{" "}
+                  {shippingAddress.boxnowLockerCity}
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -161,24 +167,25 @@ const OrderPage = async ({ params }: OrderPageProps) => {
       {/* Order Items Section */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
+          <CardTitle className="text-[#c5a059] text-[12px] font-bold tracking-[0.2em] italic">
             ORDER ITEMS
           </CardTitle>
         </CardHeader>
         <div className="space-y-6">
-          {order.orderitems.map((item: OrderItem) => (
+          {order.orderItems.map((item) => (
             <div key={item.variantId} className="space-y-6">
-              <div className="flex items-center justify-between py-2">
+              <div className="flex items-center justify-between py-2 ">
                 <div className="flex items-center gap-5">
                   <div className="relative w-16 h-16 bg-zinc-900 border border-white/5 shrink-0">
                     <Image
                       src={item.image}
                       alt={item.name}
-                      fill
-                      className="object-cover"
+                      width={64}
+                      height={64}
+                      className=""
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 p-2">
                     <h4 className="font-bold text-sm text-[#c5a059] uppercase tracking-wide">
                       {item.name}
                     </h4>
@@ -188,7 +195,8 @@ const OrderPage = async ({ params }: OrderPageProps) => {
                     >
                       Qty: {item.qty}
                     </Badge>
-                    <h4 className="font-bold text-sm text-[#c5a059] uppercase tracking-wide"></h4>
+                    <p className="text-zinc-400 text-xs">{item.variant.type}</p>
+                    <p className="text-zinc-400 text-xs">{item.variant.size}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -225,10 +233,10 @@ const OrderPage = async ({ params }: OrderPageProps) => {
           </div>
           <Separator className="bg-white/5" />
           <div className="flex justify-between text-lg">
-            <span className="text-[#c5a059] font-bold tracking-wider">
+            <span className="text-[#c5a059] font-semibold tracking-wider">
               TOTAL
             </span>
-            <span className="text-[#c5a059] font-black text-xl">
+            <span className="text-[#c5a059] font-bold text-md">
               {formatCurrency(Number(order.totalPrice))}
             </span>
           </div>
@@ -237,7 +245,7 @@ const OrderPage = async ({ params }: OrderPageProps) => {
 
       <div className="flex gap-3">
         <Link href="/" className="flex-1">
-          <Button className="w-full bg-zinc-800 text-white hover:bg-[#c5a059] rounded-none text-xs font-bold h-12">
+          <Button className="w-full  text-black bg-[#c5a059] hover:bg-white rounded-md text-xs font-bold h-12">
             BACK TO SHOP
           </Button>
         </Link>

@@ -79,6 +79,8 @@ export const shippingAddressSchema = z
     streetNumber: z.string().optional().or(z.literal("")),
     postalCode: z.string().optional().or(z.literal("")),
     boxnowLockerId: z.string().optional().or(z.literal("")),
+    boxnowLockerAddress: z.string().optional().or(z.literal("")),
+    boxnowLockerCity: z.string().optional().or(z.literal("")),
   })
   .superRefine((data, ctx) => {
     if (data.shippingMethod === "elta") {
@@ -162,7 +164,6 @@ export const insertOrderSchema = z.object({
 export const insertOrderItemSchema = z.object({
   variantId: z.string(),
   slug: z.string(),
-
   image: z.string(),
   name: z.string(),
   price: currency,
