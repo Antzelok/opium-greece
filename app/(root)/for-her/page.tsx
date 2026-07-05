@@ -3,11 +3,11 @@ import ProductCard from "@/components/shared/product/product-card";
 import { Product } from "@/types";
 
 export const metadata = {
-  title: "For Her | Luxury Collection",
+  title: "For Her",
 };
 
 const ForHerPage = async () => {
-  const womenProducts: Product[] = await getProductsByCategory("Women");
+  const womenProducts: Product[] = await getProductsByCategory("For Her");
 
   return (
     <div className="min-h-screen bg-black py-12 px-4 ">

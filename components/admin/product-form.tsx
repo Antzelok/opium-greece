@@ -167,7 +167,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["Men", "Women", "Niche", "Unisex"].map((cat) => (
+                    {["For Him", "For Her", "Niche", "Unisex"].map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>
@@ -304,9 +304,15 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                       <SelectContent>
                         {[
                           "Perfume",
-                          "Lotion",
-                          "Gel",
-                          "Oil",
+                          "Body Lotion",
+                          "Shower Gel",
+                          "Body Butter",
+                          "Body Youghurt",
+                          "Body Scrab",
+                          "Deodorant",
+                          "Body Oil",
+                          "Body Oil Glitter Shimmer",
+                          "Body Mist",
                           "Beard Oil",
                           "Car Fragrance",
                         ].map((t) => (

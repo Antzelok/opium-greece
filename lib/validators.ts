@@ -15,7 +15,20 @@ export const insertProductVariantSchema = z.object({
   productId: z.string().default(""),
   size: z.string().min(1, "Size is required (e.g., 100ml or Standard)"),
   type: z.enum(
-    ["Perfume", "Lotion", "Gel", "Oil", "Beard Oil", "Car Fragrance"],
+    [
+      "Perfume",
+      "Body Lotion",
+      "Shower Gel",
+      "Body Butter",
+      "Body Youghurt",
+      "Body Scrab",
+      "Deodorant",
+      "Body Oil",
+      "Body Oil Glitter Shimmer",
+      "Body Mist",
+      "Beard Oil",
+      "Car Fragrance",
+    ],
     {
       message: "Please select a valid product type",
     },
@@ -27,7 +40,7 @@ export const insertProductSchema = z.object({
   id: z.string().default(""),
   name: z.string().min(3, "Name must be at least 3 characters"),
   slug: z.string().min(3, "Slug must be at least 3 characters"),
-  category: z.enum(["Men", "Women", "Niche", "Unisex"], {
+  category: z.enum(["For Him", "For Her", "Niche", "Unisex"], {
     message: "Invalid category",
   }),
   brand: z.string().min(3, "Brand must be at least 3 characters"),
@@ -44,7 +57,7 @@ export const cartItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
-  category: z.enum(["Men", "Women", "Niche", "Unisex"], {
+  category: z.enum(["For Him", "For Her", "Niche", "Unisex"], {
     message: "Invalid category",
   }),
   image: z.string().min(1, "Image is required"),

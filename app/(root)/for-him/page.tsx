@@ -2,12 +2,13 @@ import { getProductsByCategory } from "@/lib/actions/product.actions";
 import ProductCard from "@/components/shared/product/product-card";
 import { Product } from "@/types";
 
+
 export const metadata = {
-  title: "For Him | Luxury Collection",
+  title: "For Him",
 };
 
 const ForHimPage = async () => {
-  const menProducts: Product[] = await getProductsByCategory("Men");
+  const menProducts: Product[] = await getProductsByCategory("For Him");
 
   return (
     <div className="min-h-screen bg-black py-12 px-4 ">
