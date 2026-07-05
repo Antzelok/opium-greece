@@ -1,8 +1,9 @@
+import { Metadata } from "next";
 import { getProductsByCategory } from "@/lib/actions/product.actions";
 import ProductCard from "@/components/shared/product/product-card";
 import { Product } from "@/types";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "For Her",
 };
 
