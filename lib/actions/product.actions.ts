@@ -195,17 +195,6 @@ export async function getAllCategories() {
   return data;
 }
 
-// Get featured products
-export async function getFeaturedProducts() {
-  const data = await prisma.product.findMany({
-    include: { variants: true },
-    orderBy: { createdAt: "desc" },
-    take: LATEST_PRODUCTS_LIMIT,
-  });
-
-  return convertToPlainObject(data);
-}
-
 // Update product (Διορθωμένο)
 export async function updateProduct(data: z.infer<typeof insertProductSchema>) {
   try {
