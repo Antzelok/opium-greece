@@ -90,7 +90,7 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     const verificationUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/verify?token=${token}`;
 
     await resend.emails.send({
-      from: "Opium <onboarding@resend.dev>",
+      from: "Opium Greece <onboarding@testaki.site>",
       to: data.email,
       subject: "Verify your email",
       react: VerificationEmail({ url: verificationUrl }),
