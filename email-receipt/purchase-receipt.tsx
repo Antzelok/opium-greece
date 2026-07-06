@@ -20,7 +20,6 @@ type OrderInformationProps = {
   order: Order;
 };
 
-// Αντικατάστησε το localhost με το κανονικό σου domain στο production
 const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
