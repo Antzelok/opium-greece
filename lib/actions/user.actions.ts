@@ -36,9 +36,11 @@ export async function signInWithCredentials(
 
   const user = await prisma.user.findUnique({ where: { email } });
   {
+    {/*}
     if (user && !user.emailVerified) {
       return { success: false, message: "Please verify your email first." };
     }
+      */}
   }
   try {
     const callbackUrl = (formData.get("callbackUrl") as string) || "/";
