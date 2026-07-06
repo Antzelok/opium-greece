@@ -30,7 +30,7 @@ const AccountPage = async () => {
           {/* Logo to match Auth Pages */}
           <Link href="/" className="transition-opacity hover:opacity-80">
             <Image
-              src="/opium-logo.jpg"
+              src="/opium.png"
               height={45}
               width={120}
               alt="Logo"

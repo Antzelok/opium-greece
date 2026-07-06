@@ -11,7 +11,7 @@ const ForHerPage = async () => {
   const womenProducts: Product[] = await getProductsByCategory("For Her");
 
   return (
-    <div className="min-h-screen bg-black py-12 px-4 ">
+    <div className="min-h-screenpy-12 px-4 ">
       {/* Header Section */}
       <header className="mb-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
         <h1 className="text-[#C5A25D] text-4xl md:text-5xl font-extralight tracking-[0.2em] uppercase italic">
