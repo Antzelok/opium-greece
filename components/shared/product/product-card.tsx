@@ -44,7 +44,7 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
         </div>
 
         <Link href={`/product/${product.slug}`}>
-          <h2 className="text-white text-sm font-light tracking-wide hover:text-[#C5A25D] transition-colors duration-300 uppercase truncate">
+          <h2 className="text-white text-[12px] font-light tracking-wide hover:text-[#C5A25D] transition-colors duration-300 uppercase truncate">
             {product.name}
           </h2>
         </Link>
@@ -55,7 +55,7 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
             {formatCurrency(firstVariant.price)}
           </div>
 
-          <div className="flex items-center gap-1.5 text-[7px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-3">
+          <div className="flex items-center gap-1.5 text-[8px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-3">
             <span>{firstVariant.type}</span>
           </div>
 

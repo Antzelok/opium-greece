@@ -23,13 +23,11 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
     new Set(),
   );
 
-  // Διαχωρισμός variants
   const primaryType =
     product.variants.length > 0 ? product.variants[0].type : "Perfume";
   const sizeVariants = product.variants.filter((v) => v.type === primaryType);
   const extrasVariants = product.variants.filter((v) => v.type !== primaryType);
 
-  // DERIVED STATE: Υπολογίζουμε αν είναι επιλεγμένο το Perfume
   const isPerfumeSelected = sizeVariants.some((v) =>
     selectedVariants.has(v.id),
   );
@@ -48,14 +46,12 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
 
   const handlePerfumeToggle = () => {
     if (isPerfumeSelected) {
-      // Αν είναι ήδη επιλεγμένο, αφαιρούμε όλα τα μεγέθη perfume
       setSelectedVariants((prev) => {
         const updated = new Set(prev);
         sizeVariants.forEach((v) => updated.delete(v.id));
         return updated;
       });
     } else {
-      // Αν το επιλέγει τώρα, επιλέγουμε αυτόματα το πρώτο διαθέσιμο μέγεθος
       toggleVariant(sizeVariants[0].id);
     }
   };

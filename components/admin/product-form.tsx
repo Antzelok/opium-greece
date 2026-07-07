@@ -167,7 +167,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["For Him", "For Her", "Niche", "Unisex"].map((cat) => (
+                    {["For Him", "For Her", "Niche", "Unisex", "Mystery Box"].map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>
