@@ -14,7 +14,7 @@ interface ProductDetailsProps {
   cart?: Cart;
 }
 
-const ProductDetails = ({ product }: ProductDetailsProps) => {
+const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -122,18 +122,18 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     <div className="flex flex-col space-y-8 md:space-y-10">
       {/* Title & Description */}
       <div className="space-y-4">
-        <h2 className="text-4xl md:text-6xl font-serif tracking-tight leading-tight">
+        <h2 className="text-2xl md:text-4xl text-[#c5a059] font-serif tracking-tight leading-tight">
           {product.name}
         </h2>
-        <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-md italic">
+        <p className="text-zinc-400 text-xs md:text-sm leading-relaxed max-w-md italic">
           {product.description}
         </p>
       </div>
 
       {/* Main Product Selector (Perfume) */}
       <div className="space-y-4">
-        <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
-          The Fragrance
+        <span className="text-[11px] tracking-[0.2em] text-zinc-400 font-bold">
+          THE FRAGRANCE
         </span>
         <button
           onClick={handlePerfumeToggle}
@@ -194,7 +194,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                 <span className="text-[10px] font-medium uppercase">
                   {variant.size}
                 </span>
-                <span className="text-[#c5a059] text-[9px] mt-1 font-mono">
+                <span className="text-[#c5a059] text-[12px] mt-1 font-mono">
                   {formatCurrency(variant.price)}
                 </span>
               </button>
@@ -206,8 +206,8 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
       {/* Complete Your Set (Extras) */}
       {extrasVariants.length > 0 && (
         <div className="space-y-4">
-          <span className="text-[10px] tracking-[0.2em] uppercase text-gray-400 font-bold">
-            Complete Your Set
+          <span className="text-[12px] tracking-[0.2em] text-zinc-400 font-bold">
+            COMPLETE YOUR SET
           </span>
           <div className="divide-y divide-white/5 border-y border-white/5">
             {extrasVariants.map((variant) => {
@@ -228,25 +228,25 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
                           : "group-hover:border-[#c5a059]/50",
                       )}
                     >
-                      {active && <HiCheck className="text-black text-[10px]" />}
+                      {active && <HiCheck className="text-black text-[12px]" />}
                     </div>
                     <div className="text-left">
                       <span
                         className={cn(
-                          "text-xs transition-colors",
+                          "text-xs transition-colors text-[13px] tracking-wider",
                           active ? "text-white" : "text-gray-400",
                         )}
                       >
                         {variant.type}
                       </span>
-                      <p className="text-[10px] text-gray-600 font-mono italic">
+                      <p className="text-[12px] text-gray-600 font-mono italic">
                         {variant.size}
                       </p>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      "text-[10px] font-mono",
+                      "text-[12px] font-mono",
                       active ? "text-[#c5a059]" : "text-gray-600",
                     )}
                   >
@@ -282,8 +282,8 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
             </button>
           </div>
           <div className="text-right">
-            <p className="text-[9px] tracking-[0.2em] text-gray-500 uppercase mb-1 font-bold">
-              Total Price
+            <p className="text-[9px] tracking-[0.2em] text-zinc-400 mb-1 font-bold">
+              TOTAL PRICE
             </p>
             <p className="text-3xl font-serif text-[#c5a059] tabular-nums">
               {formatCurrency(totalPrice)}
@@ -294,7 +294,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         <Button
           onClick={handleAddToCart}
           disabled={isPending || selectedVariants.size === 0}
-          className="w-full h-14 bg-[#c5a059] hover:bg-[#b08e4d] text-black rounded-none uppercase text-[10px] font-bold tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+          className="w-full h-14 bg-[#c5a059] hover:bg-[#b08e4d] text-black rounded-md uppercase text-sm font-bold tracking-[0.2em] transition-all active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
         >
           {isPending
             ? "Adding..."
@@ -305,4 +305,4 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   );
 };
 
-export default ProductDetails;
+export default ProductDetailsPage;

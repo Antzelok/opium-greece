@@ -43,7 +43,7 @@ const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
       <button
         disabled={isPending}
         onClick={() => handleAction("remove")}
-        className="flex items-center justify-center w-10 h-full hover:bg-[#C5A25D] hover:text-black transition-colors text-[#C5A25D] disabled:opacity-50"
+        className="flex items-center justify-center w-10 h-full rounded-md hover:bg-[#C5A25D] hover:text-black transition-colors text-[#C5A25D] disabled:opacity-50"
       >
         <Minus className="h-4 w-4" />
       </button>
@@ -68,7 +68,7 @@ const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
     <Button
       disabled={isPending}
       onClick={() => handleAction("add")}
-      className="w-full h-11 bg-[#C5A25D] hover:bg-[#b39154] text-black rounded-none uppercase text-[10px] font-bold tracking-[0.2em] transition-all duration-300"
+      className="w-full h-11 bg-[#C5A25D] hover:bg-[#b39154] text-black uppercase text-[11px] font-bold tracking-[0.2em] transition-all duration-300"
     >
       {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add To Cart"}
     </Button>
