@@ -18,9 +18,13 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  const isMysteryBox = product.category === "Mystery Box";
+
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Set<string>>(
-    new Set(),
+    isMysteryBox
+      ? new Set(product.variants.map((v) => v.id))
+      : new Set(),
   );
 
   const primaryType =
@@ -33,6 +37,7 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
   );
 
   const toggleVariant = (variantId: string) => {
+    if (isMysteryBox) return;
     setSelectedVariants((prev) => {
       const updated = new Set(prev);
       if (updated.has(variantId)) {
@@ -45,6 +50,7 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
   };
 
   const handlePerfumeToggle = () => {
+    if (isMysteryBox) return;
     if (isPerfumeSelected) {
       setSelectedVariants((prev) => {
         const updated = new Set(prev);
@@ -138,6 +144,7 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
             isPerfumeSelected
               ? "border-[#c5a059] bg-[#c5a059]/5"
               : "border-white/10 hover:border-white/20",
+            isMysteryBox && "cursor-default",
           )}
         >
           <div className="flex items-center gap-4">
@@ -185,6 +192,7 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
                   isSelected
                     ? "border-[#c5a059] bg-[#c5a059]/20 text-white"
                     : "border-white/5 hover:border-white/20 text-gray-500",
+                  isMysteryBox && "cursor-default",
                 )}
               >
                 <span className="text-[10px] font-medium uppercase">
@@ -213,7 +221,10 @@ const ProductDetailsPage = ({ product }: ProductDetailsProps) => {
                   key={variant.id}
                   onClick={() => toggleVariant(variant.id)}
                   disabled={isPending}
-                  className="w-full flex items-center justify-between py-4 group transition-colors"
+                  className={cn(
+                    "w-full flex items-center justify-between py-4 group transition-colors",
+                    isMysteryBox && "cursor-default",
+                  )}
                 >
                   <div className="flex items-center gap-4">
                     <div

@@ -1,10 +1,7 @@
-import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import Image from "next/image";
-import Link from "next/link";
-import ProductDetails from "./product-details";
 import { Product } from "@/types";
 import ProductDetailsPage from "./product-details";
 
@@ -37,7 +34,7 @@ const ProductPage = async ({ params }: Props) => {
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start">
           {/* Left Side: Product Image */}
-          <div className="relative aspect-4/5 w-full bg-[#0f0f0f] border border-white/5 flex items-center justify-center p-6 md:p-12 overflow-hidden">
+          <div className="relative aspect-4/5 w-full border border-white/5 flex items-center justify-center p-6 md:p-12 overflow-hidden">
             {/* Category Tag - Absolute */}
             <div className="absolute top-4 left-4 z-2 bg-[#c5a059] text-black text-[12px] md:text-[9px] font-bold px-2 py-1 tracking-tighter uppercase">
               {product.category}
@@ -50,7 +47,7 @@ const ProductPage = async ({ params }: Props) => {
                   alt={product.name}
                   fill
                   priority
-                  className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                  className="object-contain bg-black"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
