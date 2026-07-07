@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getProductsByCategory } from "@/lib/actions/product.actions";
 import ProductCard from "@/components/shared/product/product-card";
 import { Product } from "@/types";
-
+import { Spinner } from "@/components/ui/spinner";
 
 export const metadata: Metadata = {
   title: "For Him",
@@ -12,7 +12,7 @@ const ForHimPage = async () => {
   const menProducts: Product[] = await getProductsByCategory("For Him");
 
   return (
-    <div className="min-h-screen py-12 px-4 ">
+    <div className="py-12 px-4">
       {/* Header Section */}
       <header className="mb-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
         <h1 className="text-[#C5A25D] text-4xl md:text-5xl font-extralight tracking-[0.2em] uppercase italic">
@@ -36,11 +36,7 @@ const ForHimPage = async () => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center">
-            <p className="text-[#C5A25D] text-sm uppercase tracking-widest opacity-50">
-              Η συλλογή ενημερώνεται σύντομα.
-            </p>
-          </div>
+          <Spinner />
         )}
       </div>
 

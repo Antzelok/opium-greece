@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CartItem, Cart } from "@/types";
 import { AddItemToCart, RemoveItemFromCart } from "@/lib/actions/cart.actions";
-import { Plus, Minus, Loader2 } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { useTransition } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
   const router = useRouter();
@@ -50,7 +51,7 @@ const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
 
       <span className="text-white font-light text-sm">
         {isPending ? (
-          <Loader2 className="h-3 w-3 animate-spin text-[#C5A25D]" />
+          <Spinner />
         ) : (
           existItem.qty
         )}
@@ -68,9 +69,9 @@ const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
     <Button
       disabled={isPending}
       onClick={() => handleAction("add")}
-      className="w-full h-11 bg-[#C5A25D] hover:bg-[#b39154] text-black uppercase text-[11px] font-bold tracking-[0.2em] transition-all duration-300"
+      className="w-full h-11 bg-[#C5A25D] hover:bg-[#b39154] text-black uppercase text-[10px] font-bold tracking-[0.2em] transition-all duration-300"
     >
-      {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add To Cart"}
+      {isPending ? <Spinner /> : `Add to Cart`}
     </Button>
   );
 };

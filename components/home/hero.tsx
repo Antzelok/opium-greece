@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
-    <section className="relative h-dvh w-full overflow-hidden bg-black">
+    <section className="relative w-full h-full overflow-hidden py-17">
       {/* Background Image με Next/Image */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Image
@@ -67,14 +67,14 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-wrap gap-4 pt-4"
           >
-            <Button className="bg-[#C5A25D] hover:bg-[#A3864D] text-black px-10 py-6 text-xs font-bold tracking-widest uppercase rounded-none transition-all duration-300">
-              Shop Now
+            <Button className="bg-[#C5A25D] hover:bg-[#A3864D] text-black px-10 py-6 text-xs font-bold tracking-widest uppercase rounded transition-all duration-300">
+             SHOP NOW
             </Button>
             <Button
               variant="outline"
-              className="border-white/20 text-white hover:bg-white hover:text-black px-10 py-6 text-xs font-bold tracking-widest uppercase rounded-none bg-transparent transition-all duration-300"
+              className="border-white/20 text-white hover:bg-white hover:text-black px-10 py-6 text-xs font-bold tracking-widest rounded bg-transparent transition-all duration-300"
             >
-              Discover Scents
+              DISCOVER SCENTS
             </Button>
           </motion.div>
         </div>

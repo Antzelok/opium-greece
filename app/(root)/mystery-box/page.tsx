@@ -2,14 +2,15 @@ import { Metadata } from "next";
 import { getProductsByCategory } from "@/lib/actions/product.actions";
 import ProductCard from "@/components/shared/product/product-card";
 import { Product } from "@/types";
-
+import { Spinner } from "@/components/ui/spinner";
 
 export const metadata: Metadata = {
   title: "Mystery Box",
 };
 
 const MysteryBoxPage = async () => {
-  const mysteryBoxProducts: Product[] = await getProductsByCategory("Mystery Box");
+  const mysteryBoxProducts: Product[] =
+    await getProductsByCategory("Mystery Box");
 
   return (
     <div className="py-12 px-4 ">
@@ -36,11 +37,7 @@ const MysteryBoxPage = async () => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center">
-            <p className="text-[#C5A25D] text-sm uppercase tracking-widest opacity-50">
-              Η συλλογή ενημερώνεται σύντομα.
-            </p>
-          </div>
+          <Spinner />
         )}
       </div>
 
@@ -51,4 +48,3 @@ const MysteryBoxPage = async () => {
 };
 
 export default MysteryBoxPage;
-

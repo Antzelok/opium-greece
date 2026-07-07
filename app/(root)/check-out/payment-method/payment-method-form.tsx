@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { updateCartPaymentMethod } from "@/lib/actions/cart.actions";
 import { toast } from "sonner";
 import { FaTruckFast, FaRegCreditCard } from "react-icons/fa6";
+import { Spinner } from "@/components/ui/spinner";
 
 interface FormProps {
   shippingMethod: string;
@@ -109,7 +110,7 @@ const PaymentMethodForm = ({
         disabled={isPending}
         className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase shadow-none mt-6"
       >
-        {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ..." : "ΣΥΝΕΧΕΙΑ"}
+        {isPending ? <Spinner /> : "ΣΥΝΕΧΕΙΑ"}
       </Button>
     </form>
   );

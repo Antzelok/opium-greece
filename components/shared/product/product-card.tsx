@@ -50,7 +50,6 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
         </Link>
 
         <div className="mt-1 flex flex-col items-center gap-0.5">
-          {/* Αντικατάσταση του ProductPrice με formatCurrency για συνέπεια */}
           <div className="text-[#C5A25D] text-base font-semibold tracking-tighter">
             {formatCurrency(firstVariant.price)}
           </div>

@@ -14,6 +14,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { Spinner } from "@/components/ui/spinner";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
@@ -137,7 +138,7 @@ function CODForm() {
         disabled={isPending}
         type="submit"
       >
-        {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ..." : "ΟΛΟΚΛΗΡΩΣΗ ΠΑΡΑΓΓΕΛΙΑΣ"}
+        {isPending ? <Spinner /> : "ΟΛΟΚΛΗΡΩΣΗ ΠΑΡΑΓΓΕΛΙΑΣ"}
       </Button>
     </form>
   );
@@ -277,7 +278,7 @@ function StripeForm({
         disabled={isPending || !stripe || !elements}
         type="submit"
       >
-        {isPending ? "ΕΠΕΞΕΡΓΑΣΙΑ ΠΛΗΡΩΜΗΣ..." : "ΠΛΗΡΩΜΗ & ΟΛΟΚΛΗΡΩΣΗ"}
+        {isPending ? <Spinner /> : "ΠΛΗΡΩΜΗ & ΟΛΟΚΛΗΡΩΣΗ"}
       </Button>
     </form>
   );

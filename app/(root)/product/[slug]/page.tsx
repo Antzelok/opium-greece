@@ -4,6 +4,7 @@ import { getMyCart } from "@/lib/actions/cart.actions";
 import Image from "next/image";
 import { Product } from "@/types";
 import ProductDetailsPage from "./product-details";
+import { Spinner } from "@/components/ui/spinner";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -52,9 +53,7 @@ const ProductPage = async ({ params }: Props) => {
                 />
               </div>
             ) : (
-              <div className="text-neutral-700 text-xs tracking-widest">
-                IMAGE UNAVAILABLE
-              </div>
+             <Spinner />
             )}
           </div>
 
