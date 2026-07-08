@@ -38,7 +38,7 @@ const PaymentMethodForm = ({
       if (res.success) {
         router.push("/check-out/place-order");
       } else {
-        toast.error(res.message || "Κάτι πήγε στραβά.");
+        toast.error(res.message || "Something went wrong. Please try again.");
       }
     });
   };
@@ -51,11 +51,11 @@ const PaymentMethodForm = ({
         className="space-y-4"
       >
         {isElta && allowedMethods.includes("COD") && (
-          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer has-data-[state=checked]:border-[#c5a059]">
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-zinc-800 rounded-md cursor-pointer has-data-[state=checked]:border-[#c5a059]">
             <RadioGroupItem
               value="COD"
               id="COD"
-              className="border-zinc-700 text-[#c5a059] focus-visible:ring-[#c5a059]"
+              className="border-zinc-400 text-[#c5a059] focus-visible:ring-[#c5a059]"
             />
             <Label
               htmlFor="COD"
@@ -63,11 +63,11 @@ const PaymentMethodForm = ({
             >
               <FaTruckFast className="w-5 h-5 text-zinc-400" />
               <div>
-                <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                  Αντικαταβολή
+                <span className="text-white text-xs font-bold tracking-wider block">
+                  CASH ON DELIVERY
                 </span>
-                <span className="text-zinc-500 text-[11px] block mt-0.5">
-                  Πληρωμή με μετρητά κατά την παράδοση (+2.50€).
+                <span className="text-zinc-400 text-[12px] block mt-0.5">
+                  Cash payment upon delivery (+2.00€).
                 </span>
               </div>
             </Label>
@@ -75,11 +75,11 @@ const PaymentMethodForm = ({
         )}
 
         {allowedMethods.includes("Stripe") && (
-          <div className="flex items-center space-x-3 space-y-0 p-5 border border-white/5 bg-black rounded-none cursor-pointer has-data-[state=checked]:border-[#c5a059]">
+          <div className="flex items-center space-x-3 space-y-0 p-5 border border-zinc-800 rounded-md cursor-pointer has-data-[state=checked]:border-[#c5a059]">
             <RadioGroupItem
               value="Stripe"
               id="Stripe"
-              className="border-zinc-700 text-[#c5a059] focus-visible:ring-[#c5a059]"
+              className="border-zinc-400 text-[#c5a059] focus-visible:ring-[#c5a059]"
             />
             <Label
               htmlFor="Stripe"
@@ -87,11 +87,12 @@ const PaymentMethodForm = ({
             >
               <FaRegCreditCard className="w-5 h-5 text-zinc-400" />
               <div>
-                <span className="text-white text-xs font-bold uppercase tracking-wider block">
-                  Ηλεκτρονική Πληρωμή
+                <span className="text-white text-xs font-bold tracking-wider block">
+                  ONLINE PAYMENT
                 </span>
-                <span className="text-zinc-500 text-[11px] block mt-0.5">
-                  Πιστωτική/Χρεωστική Κάρτα, Apple Pay, Google Pay, Revolut Pay.
+                <span className="text-zinc-400 text-[12px] block mt-0.5">
+                  Credit/Debit Card, Apple Pay, Google Pay, Revolut Pay, Klarna
+                  (+2.00€).
                 </span>
               </div>
             </Label>
@@ -100,17 +101,17 @@ const PaymentMethodForm = ({
       </RadioGroup>
 
       {!isElta && (
-        <p className="text-zinc-500 text-[11px] italic">
-          * Η αντικαταβολή δεν είναι διαθέσιμη για αποστολές με BoxNow.
+        <p className="text-zinc-400 text-[12px] italic">
+          * Cash on Delivery is not available for BoxNow shipments.
         </p>
       )}
 
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase shadow-none mt-6"
+        className="w-full bg-[#C5A25D] text-black font-black text-[11px] tracking-[0.25em] hover:bg-[#b08e4d] hover:text-black h-14 rounded-md transition-all shadow-none mt-6"
       >
-        {isPending ? <Spinner /> : "ΣΥΝΕΧΕΙΑ"}
+        {isPending ? <Spinner /> : "CONTINUE"}
       </Button>
     </form>
   );

@@ -20,6 +20,7 @@ import {
 import { shippingAddressSchema } from "@/lib/validators";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 interface BoxNowSelectedData {
   boxnowLockerId: string;
@@ -204,7 +205,7 @@ const ShippingDetailsPage = () => {
   return (
     <>
       <CheckoutSteps current={1} />
-      <div className="max-w-5xl space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
+      <div className="max-w-5xl mx-auto space-y-6 md:space-y-10 bg-zinc-950 p-4 sm:p-6 md:p-10 border border-white/5 mt-6 md:mt-10 rounded-2xl shadow-xl w-[calc(100%-2rem)] sm:w-full">
         {createPortal(
           <div
             id="boxnowmap"
@@ -266,7 +267,7 @@ const ShippingDetailsPage = () => {
                     onClick={openBoxNow}
                     className="bg-[#c5a059] text-black font-bold text-[9px] tracking-wider px-4 py-2 rounded-lg hover:bg-white transition-colors w-FULL sm:w-auto"
                   >
-                    {boxNowLocker ? "ΑΛΛΑΓΗ ΘΥΡΙΔΑΣ" : "ΕΠΙΛΟΓΗ ΘΥΡΙΔΑΣ"}
+                    {boxNowLocker ? "SELECT LOCKER" : "SELECT LOCKER"}
                   </Button>
                   {boxNowLocker && (
                     <p className="text-[#c5a059] text-[11px] font-mono mt-2 tracking-normal wrap-break-word">
@@ -288,12 +289,18 @@ const ShippingDetailsPage = () => {
             className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500"
           >
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] uppercase font-mono rounded-lg wrap-break-word">
-                {error}
+              <div className="flex items-center gap-3 p-4 bg-red-950/40 border border-red-500/30 rounded-xl">
+                <AlertCircle
+                  className="text-red-400 mt-0.5 shrink-0"
+                  size={16}
+                />
+                <p className="text-red-400 text-[11px] tracking-wide leading-relaxed">
+                  PLEASE SELECT A LOCKER
+                </p>
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-12">
               <div className="space-y-2 mb-3">
                 <Label className="text-[11px] tracking-widest text-zinc-400 ml-1">
                   FIRST NAME
@@ -442,7 +449,7 @@ const ShippingDetailsPage = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-13 bg-[#c5a059] text-black py-4 md:py-5 rounded-xl text-[11px] font-black tracking-[0.3em] hover:bg-white transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
+              className="w-full h-13 bg-[#C5A25D] text-black hover:bg-[#b08e4d] py-4 md:py-5 rounded-md text-[11px] font-black tracking-[0.3em] transition-all transform active:scale-[0.98] uppercase disabled:opacity-50 shadow-lg shadow-[#c5a059]/10"
             >
               {isSubmitting ? "Processing..." : "Continue to Payment"}
             </Button>

@@ -200,7 +200,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
             <Button
               asChild
               onClick={() => setOpen(false)}
-              className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-sm h-14 text-[11px] font-black tracking-[0.3em] transition-all"
+              className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-md h-14 text-[11px] font-black tracking-[0.3em] transition-all"
             >
               <Link href={cart?.userId ? "/check-out/shipping" : "/check-out"}>
                 SECURE CHECKOUT

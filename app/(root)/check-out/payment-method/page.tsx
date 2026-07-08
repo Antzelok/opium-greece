@@ -38,8 +38,8 @@ const PaymentMethodPage = async () => {
     <div className="space-y-8">
       <CheckoutSteps current={2} />
 
-      <h2 className="text-[#c5a059] tracking-[0.2em] text-[10px] font-bold mb-8 uppercase">
-        Select Payment Method
+      <h2 className="text-[#c5a059] tracking-[0.2em] text-[12px] font-bold mb-8">
+        SELECT PAYMENT METHOD
       </h2>
 
       <PaymentMethodForm

@@ -37,11 +37,11 @@ const PlaceOrderForm = ({
         <div className="p-5 border border-white/5 bg-black rounded-none flex items-center gap-4">
           <FaTruckFast className="w-5 h-5 text-[#c5a059]" />
           <div>
-            <h4 className="text-white font-bold text-sm uppercase tracking-wider block">
-              ΑΝΤΙΚΑΤΑΒΟΛΗ
+            <h4 className="text-white font-bold text-sm tracking-wider block">
+              CASH ON DELIVERY
             </h4>
             <p className="text-zinc-500 text-xs">
-              Η πληρωμή θα γίνει με μετρητά κατά την παράδοση.
+              Payment will be made in cash upon delivery.
             </p>
           </div>
         </div>
@@ -52,14 +52,12 @@ const PlaceOrderForm = ({
 
   return (
     <div className="space-y-6">
-      <div className="p-5 border border-[#c5a059]/10 bg-[#c5a059]/5 rounded-none flex items-center gap-4">
+      <div className="p-5 border border-[#c5a059]/10 bg-[#c5a059]/5 rounded-md flex items-center gap-4">
         <FaRegCreditCard className="w-5 h-5 text-[#c5a059]" />
         <div>
-          <h4 className="text-zinc-200 font-bold text-sm block">
-            ΗΛΕΚΤΡΟΝΙΚΗ ΠΛΗΡΩΜΗ
-          </h4>
+          <h4 className="text-white font-bold text-sm block">ONLINE PAYMENT</h4>
           <p className="text-zinc-400 text-xs">
-            Υποστηρίζει Apple Pay, Google Pay, Revolut Pay και Κάρτες.
+            Credit/Debit Card, Apple Pay, Google Pay, Revolut Pay, Klarna.
           </p>
         </div>
       </div>
@@ -88,8 +86,7 @@ const PlaceOrderForm = ({
           variant="destructive"
         >
           <AlertDescription className="text-xs font-mono">
-            Αδυναμία φόρτωσης του συστήματος πληρωμής. Παρακαλώ ανανεώστε τη
-            σελίδα.
+            Please refresh the page and try again.
           </AlertDescription>
         </Alert>
       )}
@@ -107,13 +104,16 @@ function CODForm() {
     startTransition(async () => {
       const orderRes = await createOrder("COD");
       if (orderRes.success && orderRes.redirectTo) {
-        toast.success("Η παραγγελία σας καταχωρήθηκε με επιτυχία!", {
-          style: {
-            background: "#0A0A0A",
-            color: "#C5A25D",
-            border: "1px solid #C5A25D",
+        toast.success(
+          "Order placed successfully! Thank you for your purchase.",
+          {
+            style: {
+              background: "#0A0A0A",
+              color: "#C5A25D",
+              border: "1px solid #C5A25D",
+            },
           },
-        });
+        );
         router.push(orderRes.redirectTo);
       } else {
         setError(orderRes.message);
@@ -235,7 +235,7 @@ function StripeForm({
             },
           });
           toast.success(
-            "Η πληρωμή ολοκληρώθηκε και η παραγγελία καταχωρήθηκε!",
+            "Order place succesfully! Thank you for your purchase.",
             {
               style: {
                 background: "#0A0A0A",
@@ -274,11 +274,11 @@ function StripeForm({
       <PaymentElement options={{ layout: "tabs" }} />
 
       <Button
-        className="w-full bg-[#c5a059] text-black font-black text-[10px] tracking-[0.25em] hover:bg-white hover:text-black h-14 rounded-none transition-all uppercase mt-4 shadow-none"
+        className="w-full bg-[#c5a059] text-black font-black text-[12px] tracking-[0.25em] hover:bg-[#b08e4d] hover:text-black h-14 rounded-md transition-all mt-4 shadow-none"
         disabled={isPending || !stripe || !elements}
         type="submit"
       >
-        {isPending ? <Spinner /> : "ΠΛΗΡΩΜΗ & ΟΛΟΚΛΗΡΩΣΗ"}
+        {isPending ? <Spinner /> : "PLACE ORDER"}
       </Button>
     </form>
   );

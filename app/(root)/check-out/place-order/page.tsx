@@ -64,50 +64,50 @@ const PlaceOrderPage = async () => {
   }
 
   return (
-    <div className="space-y-10 bg-black text-white w-full pr-0 lg:pr-6">
+    <div className="space-y-10 w-full pr-0 lg:pr-6">
       <CheckoutSteps current={3} />
 
       {/* Στοιχεία Αποστολής */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Στοιχεία Αποστολής
+          <CardTitle className="text-[#c5a059] text-[12px] font-bold tracking-[0.2em] italic">
+            SHIPPING DETAILS
           </CardTitle>
           <CardDescription className="text-zinc-500 text-xs mt-1">
-            Παρακαλώ επιβεβαιώστε τη διεύθυνση παράδοσης.
+            Please confirm your shipping details.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-sm space-y-4 text-zinc-300 pt-0">
-          <Separator className="bg-white/5 mb-4" />
+          <Separator className="bg-zinc-800 mb-4" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 leading-relaxed">
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Όνομα
+              <span className="text-zinc-400 font-medium block text-[12px] tracking-wider mb-0.5">
+                FIRST NAME
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.firstName} {shippingAddress.lastName}
               </span>
             </p>
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Επώνυμο
+              <span className="text-zinc-400 font-medium block text-[12px] tracking-wider mb-0.5">
+                LAST NAME
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.lastName}
               </span>
             </p>
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Email
+              <span className="text-zinc-400 font-medium block text-[12px] tracking-wider mb-0.5">
+                EMAIL
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.email || cart.guestEmail}
               </span>
             </p>
             <p>
-              <span className="text-zinc-500 font-medium block text-[10px] uppercase tracking-wider mb-0.5">
-                Τηλέφωνο
+              <span className="text-zinc-400 font-medium block text-[12px] tracking-wider mb-0.5">
+                PHONE
               </span>
               <span className="text-white font-medium">
                 {shippingAddress.phoneNumber}
@@ -116,8 +116,8 @@ const PlaceOrderPage = async () => {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <span className="text-zinc-500 text-xs uppercase tracking-wider">
-              Μέθοδος:
+            <span className="text-zinc-400 text-xs tracking-wider">
+              SHIPPING METHOD:
             </span>
             <Badge
               variant="outline"
@@ -131,8 +131,8 @@ const PlaceOrderPage = async () => {
 
           {shippingAddress.shippingMethod.toLowerCase() === "elta" ? (
             <div className="bg-zinc-900/20 p-4 border border-white/5 space-y-1">
-              <span className="text-zinc-500 font-semibold block text-[10px] uppercase tracking-wider mb-1">
-                Διεύθυνση Παράδοσης
+              <span className="text-zinc-500 font-semibold block text-[12px] uppercase tracking-wider mb-1">
+                DELIVERY ADDRESS
               </span>
               <p className="text-white text-sm leading-relaxed">
                 {shippingAddress.streetName} {shippingAddress.streetNumber},{" "}
@@ -140,9 +140,9 @@ const PlaceOrderPage = async () => {
               </p>
             </div>
           ) : (
-            <div className="bg-zinc-900/20 p-4 border border-white/5 space-y-2">
+            <div className="bg-zinc-900/20 p-4 border border-zinc-800 space-y-2">
               <span className="text-zinc-500 font-semibold block text-[10px] uppercase tracking-wider mb-1">
-                Θυρίδα BoxNow
+                BOXNOW LOCKER
               </span>
               <p className="font-mono text-sm text-white bg-black px-3 py-2 border border-white/5 inline-block">
                 {shippingAddress.boxnowLockerId}
@@ -152,11 +152,11 @@ const PlaceOrderPage = async () => {
         </CardContent>
       </Card>
 
-      {/* Αντικείμενα Παραγγελίας */}
-      <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
+      {/* ORDER ITEMS */}
+      <Card className="bg-zinc-950 rounded-none p-2">
         <CardHeader className="pb-4">
-          <CardTitle className="text-[#c5a059] text-[10px] font-bold uppercase tracking-[0.2em] italic">
-            Αντικείμενα Παραγγελίας
+          <CardTitle className="text-[#c5a059] text-[12px] font-bold tracking-[0.2em] italic">
+            ORDER ITEMS
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
@@ -165,7 +165,7 @@ const PlaceOrderPage = async () => {
               <div key={item.variantId} className="space-y-6">
                 <div className="flex items-center justify-between py-2">
                   <div className="flex items-center gap-5">
-                    <div className="relative w-16 h-16  border border-white/5 shrink-0">
+                    <div className="relative w-16 h-28  border border-white/5 shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -178,17 +178,17 @@ const PlaceOrderPage = async () => {
                         {item.name}
                       </h4>
                       <div className="flex flex-wrap gap-2 pt-0.5">
-                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
+                        <span className="text-sm text-zinc-400 self-center font-medium pl-1">
                           x{item.qty}
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2 pt-0.5">
-                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
+                        <span className="text-sm text-zinc-400 self-center font-medium pl-1">
                           {item.type}
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2 pt-0.5">
-                        <span className="text-sm text-zinc-300 self-center font-medium pl-1">
+                        <span className="text-sm text-zinc-400 self-center font-medium pl-1">
                           {item.size}
                         </span>
                       </div>
@@ -205,7 +205,7 @@ const PlaceOrderPage = async () => {
       {/* Φόρμα Ολοκλήρωσης */}
       <Card className="bg-zinc-950 border-white/5 rounded-none p-2">
         <PlaceOrderForm
-        key={stripeClientSecret || "loading"}
+          key={stripeClientSecret || "loading"}
           paymentMethod={chosenPaymentMethod}
           stripeClientSecret={stripeClientSecret}
           stripePaymentIntentId={stripePaymentIntentId}
