@@ -18,12 +18,12 @@ import { Cart } from "@/types";
 import CartDrawer from "./cart-drawer";
 
 const navItems = [
-  { title: "ALL", href: "/shop-all" },
   { title: "FOR HIM", href: "/for-him" },
   { title: "FOR HER", href: "/for-her" },
   { title: "NICHE", href: "/niche" },
   { title: "UNISEX", href: "/unisex" },
   { title: "MYSTERY-BOX", href: "/mystery-box" },
+  { title: "OFFERS", href: "/offers" },
   { title: "STORES", href: "/stores" },
 ];
 

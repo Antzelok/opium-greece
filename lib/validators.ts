@@ -40,9 +40,12 @@ export const insertProductSchema = z.object({
   id: z.string().default(""),
   name: z.string().min(3, "Name must be at least 3 characters"),
   slug: z.string().min(3, "Slug must be at least 3 characters"),
-  category: z.enum(["For Him", "For Her", "Niche", "Unisex", "Mystery Box"], {
-    message: "Invalid category",
-  }),
+  category: z.enum(
+    ["For Him", "For Her", "Niche", "Unisex", "Mystery Box", "Offers"],
+    {
+      message: "Invalid category",
+    },
+  ),
   brand: z.string().min(3, "Brand must be at least 3 characters"),
   description: z.string().min(3, "Description must be at least 3 characters"),
   images: z.array(z.string()).min(1, "At least one image is required"),
@@ -57,9 +60,12 @@ export const cartItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
-  category: z.enum(["For Him", "For Her", "Niche", "Unisex", "Mystery Box"], {
-    message: "Invalid category",
-  }),
+  category: z.enum(
+    ["For Him", "For Her", "Niche", "Unisex", "Mystery Box", "Offers"],
+    {
+      message: "Invalid category",
+    },
+  ),
   image: z.string().min(1, "Image is required"),
   brand: z.string().min(1, "Brand is required"),
   price: z.string(),
