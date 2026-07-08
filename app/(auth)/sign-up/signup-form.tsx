@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { signUpUser } from "@/lib/actions/user.actions";
 import { SignUpDefaultValues } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,9 @@ const SignUpForm = () => {
     message: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
@@ -28,7 +32,10 @@ const SignUpForm = () => {
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
           <div className="space-y-1">
-            <Label htmlFor="name" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
+            <Label
+              htmlFor="name"
+              className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+            >
               Name
             </Label>
             <Input
@@ -43,7 +50,10 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="email" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
+            <Label
+              htmlFor="email"
+              className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+            >
               Email
             </Label>
             <Input
@@ -58,33 +68,61 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="password" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
+            <Label
+              htmlFor="password"
+              className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+            >
               Password
             </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              autoComplete="new-password"
-              defaultValue={SignUpDefaultValues.password}
-              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                autoComplete="new-password"
+                defaultValue={SignUpDefaultValues.password}
+                className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="confirmPassword" className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold">
+            <Label
+              htmlFor="confirmPassword"
+              className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 font-bold"
+            >
               Confirm Password
             </Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              autoComplete="new-password"
-              defaultValue={SignUpDefaultValues.confirmPassword}
-              className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all"
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                autoComplete="new-password"
+                defaultValue={SignUpDefaultValues.confirmPassword}
+                className="bg-black border-white/10 text-white focus:border-[#C5A25D] focus:ring-[#C5A25D] h-12 rounded-md transition-all pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+              >
+                {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
           </div>
 
           <SignUpButton />
