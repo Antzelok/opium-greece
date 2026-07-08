@@ -79,17 +79,17 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-8 py-7 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <HiOutlineShoppingCart className="h-5 w-5 text-[#C5A25D]" />
-            <h2 className="text-white text-[11px] font-bold uppercase tracking-[0.2em]">
-              Your Cart{" "}
-              <span className="text-neutral-500 ml-1 font-light">
+            <HiOutlineShoppingCart className="h-6 w-6 text-[#C5A25D]" />
+            <h2 className="text-white text-[12px] font-bold tracking-[0.2em]">
+              YOUR CART{" "}
+              <span className="text-zinc-400 ml-1 font-light">
                 ({itemCount})
               </span>
             </h2>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="text-neutral-500 hover:text-white transition-colors outline-none p-1"
+            className="text-zinc-400 hover:text-white transition-colors outline-none p-1"
           >
             <RiCloseLine className="h-6! w-6!" />
           </button>
@@ -99,11 +99,11 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
         <div className="flex-1 overflow-y-auto px-8 scrollbar-hide">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center pb-12">
-              <RiShoppingBag3Line className="h-12 w-12 text-neutral-800 mb-4 font-light" />
-              <h3 className="text-white text-sm uppercase tracking-widest font-light mb-2">
-                Cart is empty
+              <RiShoppingBag3Line className="h-12 w-12 text-neutral-600 mb-4 font-light" />
+              <h3 className="text-white text-sm tracking-widest font-light mb-2">
+                CART IS EMPTY
               </h3>
-              <p className="text-neutral-600 text-[11px] leading-relaxed">
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
                 Discover our exclusive fragrance collection
               </p>
             </div>
@@ -112,7 +112,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
               {items.map((item) => (
                 <div key={item.variantId} className="py-8 flex gap-6 group">
                   {/* Item Image */}
-                  <div className="relative h-28 w-20 bg-[#111] shrink-0 border border-white/5">
+                  <div className="relative h-32 w-20 bg-[#111] shrink-0 border border-white/5">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -125,20 +125,20 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div className="flex justify-between items-start gap-4">
                       <div className="space-y-1.5">
-                        <h4 className="text-white text-[11px] uppercase tracking-[0.15em] font-medium leading-tight">
+                        <h4 className="text-[#C5A25D] text-[11px] uppercase tracking-[0.15em] font-medium leading-tight">
                           {item.name}
                         </h4>
 
                         <div className="flex items-center gap-2">
-                          <span className="text-[#C5A25D] text-[8px] border border-[#C5A25D]/20 px-1.5 py-0.5 rounded-sm uppercase tracking-widest font-bold">
+                          <span className="text-[#C5A25D] text-[10px] border border-[#C5A25D]/20 px-1.5 py-0.5 rounded-sm uppercase tracking-widest font-bold">
                             {item.size}
                           </span>
-                          <span className="text-neutral-500 text-[9px] uppercase tracking-widest font-light">
+                          <span className="text-zinc-400 text-[10px] uppercase tracking-widest font-light">
                             {item.type}
                           </span>
                         </div>
 
-                        <p className="text-neutral-600 text-[8px] uppercase tracking-widest">
+                        <p className="text-zinc-400 text-[10px] uppercase tracking-widest">
                           {item.brand}
                         </p>
                       </div>
@@ -153,7 +153,7 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                         <button
                           disabled={isPending}
                           onClick={() => handleUpdateQty(item, "remove")}
-                          className="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-white transition-colors disabled:opacity-20"
+                          className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors disabled:opacity-20"
                         >
                           <RiSubtractLine className="h-3 w-3" />
                         </button>
@@ -163,13 +163,13 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
                         <button
                           disabled={isPending}
                           onClick={() => handleUpdateQty(item, "add")}
-                          className="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-white transition-colors disabled:opacity-20"
+                          className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors disabled:opacity-20"
                         >
                           <RiAddLine className="h-3 w-3" />
                         </button>
                       </div>
 
-                      <span className="text-[10px] text-neutral-500 font-light italic">
+                      <span className="text-[12px] text-zinc-400 font-light italic">
                         {formatCurrency(Number(item.price) * item.qty)}
                       </span>
                     </div>
@@ -185,11 +185,11 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
           <div className="p-8 border-t border-white/5 bg-[#0D0D0D]">
             <div className="flex justify-between items-center mb-6">
               <div className="flex flex-col">
-                <span className="text-neutral-500 text-[9px] uppercase tracking-[0.2em] font-bold">
-                  Total Amount
+                <span className="text-zinc-400 text-[10px] tracking-[0.2em] font-bold">
+                  TOTAL AMOUNT
                 </span>
-                <span className="text-neutral-600 text-[8px] uppercase tracking-widest mt-0.5">
-                  VAT Included
+                <span className="text-zinc-400 text-[9px] tracking-widest mt-0.5">
+                  VAT INCLUDED*
                 </span>
               </div>
               <span className="text-[#C5A25D] text-xl font-serif tracking-tighter">
@@ -200,17 +200,12 @@ const CartDrawer = ({ cart }: { cart?: Cart }) => {
             <Button
               asChild
               onClick={() => setOpen(false)}
-              className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-none h-14 uppercase text-[10px] font-black tracking-[0.3em] transition-all"
+              className="w-full bg-[#C5A25D] text-black hover:bg-[#b08e4d] rounded-sm h-14 text-[11px] font-black tracking-[0.3em] transition-all"
             >
-              {/* Ternary logic για το redirection */}
               <Link href={cart?.userId ? "/check-out/shipping" : "/check-out"}>
-                Secure Checkout
+                SECURE CHECKOUT
               </Link>
             </Button>
-
-            <p className="text-center text-[8px] text-neutral-600 uppercase tracking-widest mt-4">
-              Free shipping on all luxury orders
-            </p>
           </div>
         )}
       </SheetContent>
