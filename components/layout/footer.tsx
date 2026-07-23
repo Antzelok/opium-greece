@@ -37,7 +37,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black text-white pt-20 pb-10 border-t border-white/5">
+    <footer className="bg-black text-white pt-20 pb-5 border-t border-white/5">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
           {/* Brand & Socials Section */}
@@ -114,8 +114,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-center items-center border-t border-white/5 pt-10 gap-6">
-          <p className="text-neutral-500 text-[11px] tracking-[0.3em]">
+        <div className="flex flex-col md:flex-row justify-center items-center p-1 border-white/5">
+          <p className="text-neutral-500 text-[10px] tracking-[0.3em] text-center">
             © {currentYear} OPIUM GREECE. ALL RIGHTS RESERVED.
           </p>
         </div>
@@ -132,6 +132,11 @@ const Footer = () => {
           >
             TERMS
           </Link>
+        </div>
+        <div className="flex justify-center items-center gap-1 p-1">
+          <span className="text-neutral-500 text-[11px] tracking-[0.2em]">POWERED BY</span>
+          <span className="text-[11px] font-black tracking-tight text-white">DRAW</span>
+          <span className="text-[11px] font-black tracking-tight text-blue-500">BRIDGE</span>
         </div>
       </div>
     </footer>

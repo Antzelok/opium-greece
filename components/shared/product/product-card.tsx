@@ -17,9 +17,9 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
   if (!firstVariant) return null;
 
   return (
-    <Card className="w-full max-w-65 mx-auto border-none shadow-lg bg-[#0A0A0A] group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-[#C5A25D]/10 rounded-2xl">
+    <Card className="w-full max-w-68 mx-auto border-none shadow-lg bg-[#0A0A0A] group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-[#C5A25D]/10 rounded-2xl">
       <CardHeader className="p-0 relative overflow-hidden">
-        <Badge className="absolute top-2 left-2 z-10 bg-[#C5A25D] text-black uppercase text-[7px] tracking-[0.15em] font-black border-none rounded-none px-2 py-0.5">
+        <Badge className="absolute top-2 left-2 z-10 bg-[#C5A25D] text-black uppercase text-[9px] tracking-[0.15em] font-black border-none rounded-none px-2 py-0.5">
           {product.category}
         </Badge>
 
@@ -30,16 +30,16 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
           <Image
             src={product.images[0]}
             alt={product.name}
-            height={400}
-            width={400}
+            height={300}
+            width={300}
             priority
-            className="object-cover w-full aspect-4/5 opacity-90 transition-all duration-700 group-hover:scale-110 group-hover:opacity-100"
+            className="object-cover w-full h-70 aspect-square opacity-90 transition-all duration-700 group-hover:scale-110 group-hover:opacity-100"
           />
         </Link>
       </CardHeader>
 
-      <CardContent className="p-4 grid gap-1 text-center">
-        <div className="text-[#C5A25D] text-[8px] uppercase tracking-[0.25em] font-bold">
+      <CardContent className="p-2 grid gap-0.5 text-center">
+        <div className="text-[#C5A25D] text-[9px] uppercase tracking-[0.25em] font-bold">
           {product.brand}
         </div>
 
@@ -49,16 +49,16 @@ const ProductCard = ({ product, cart }: ProductCardProps) => {
           </h2>
         </Link>
 
-        <div className="mt-1 flex flex-col items-center gap-0.5">
-          <div className="text-[#C5A25D] text-base font-semibold tracking-tighter">
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="text-[#C5A25D] text-sm font-semibold tracking-tighter">
             {formatCurrency(firstVariant.price)}
           </div>
 
-          <div className="flex items-center gap-1.5 text-[8px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-3">
+          <div className="flex items-center gap-1.5 text-[9px] text-gray-500 tracking-[0.15em] uppercase mt-0.5 mb-1">
             <span>{firstVariant.type}</span>
           </div>
 
-          <div className="w-full mt-2">
+          <div className="w-full mt-1">
             <AddToCart
               cart={cart}
               item={{

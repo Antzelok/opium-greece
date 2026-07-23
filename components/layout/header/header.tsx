@@ -142,7 +142,7 @@ const Header = ({ cart, user }: { cart?: Cart; user?: { role?: string } }) => {
               width={120}
               height={45}
               priority
-              className="brightness-110 hover:opacity-80 transition-opacity"
+              className="brightness-110 hover:opacity-80 transition-opacity h-auto"
             />
           </Link>
 

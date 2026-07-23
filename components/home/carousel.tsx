@@ -92,8 +92,8 @@ const CarouselSection = () => {
                         src={slide.image}
                         alt={slide.alt}
                         fill
-                        sizes="(width: 768px) 100vw, 50vw"
-                        className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-1000 group-hover:scale-105 h-auto"
                         priority={index === 0}
                         quality={85}
                       />
